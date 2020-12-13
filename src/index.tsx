@@ -1,10 +1,7 @@
-import * as React from 'react'
-import styles from './styles.module.css'
-
-interface Props {
-  text: string
-}
-
-export const ExampleComponent = ({ text }: Props) => {
-  return <div className={styles.test}>Example Component: {text}</div>
-}
+export { default as LoginSocialAmazon } from './LoginSocialAmazon'
+export { default as LoginSocialFacebook } from './LoginSocialFacebook'
+export { default as LoginSocialGoogle } from './LoginSocialGoogle'
+export { default as LoginSocialGithub } from './LoginSocialGithub'
+export { default as LoginSocialInstagram } from './LoginSocialInstagram'
+export { default as LoginSocialMicrosoft } from './LoginSocialMicrosoft'
+export { default as LoginSocialLinkedin } from './LoginSocialLinkedin'

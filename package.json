@@ -4,9 +4,10 @@
   "description": "Group social login for ReactJS",
   "author": "Nguyen Manh Cuong ",
   "license": "MIT",
-  "repository": "Nguyen Manh Cuong /reactjs-social-login",
+  "repository": "https://github.com/cuongdevjs/reactjs-social-login",
   "main": "dist/index.js",
   "module": "dist/index.modern.js",
+  "typings": "dist/src/index.d.ts",
   "source": "src/index.tsx",
   "engines": {
     "node": ">=10"
