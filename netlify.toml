@@ -1,8 +1,8 @@
 # example netlify.toml
 [build]
   base = "/example"
-  publish = "build"
-  command = "npm run buildProduction"
+  publish = "/build"
+  command = "npm run build"
   # functions = "functions"
   publish = "build"
 
