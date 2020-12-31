@@ -14,10 +14,7 @@ interface Props {
   className?: string
   login_hint?: string
   access_type?: string
-  isDisabled?: boolean
-  openid_realm?: string
   redirect_uri?: string
-  response_type?: string
   cookie_policy?: string
   hosted_domain?: string
   discoveryDocs?: string
@@ -32,7 +29,7 @@ const JS_SRC = 'https://apis.google.com/js/api.js'
 const SCRIPT_ID = 'google-login'
 const _window = window as any
 
-export const LoginSocialGoogle = memo(
+const LoginSocialGoogle = memo(
   ({
     client_id,
     scope = 'email profile',
@@ -41,12 +38,9 @@ export const LoginSocialGoogle = memo(
     className = '',
     login_hint = '',
     access_type = 'online',
-    isDisabled = false,
     onReject,
     onResolve,
-    openid_realm,
     redirect_uri = '/',
-    response_type = 'permission',
     cookie_policy = 'single_host_origin',
     hosted_domain = '',
     discoveryDocs = '',
@@ -88,7 +82,7 @@ export const LoginSocialGoogle = memo(
     )
 
     const handleResponse = useCallback(
-      (res: objectType | string) => {
+      (res: objectType) => {
         setIsProcessing(false)
         // const auth2 = _window.gapi.auth2.getAuthInstance();
         // var user = auth2.currentUser.get();
@@ -187,3 +181,5 @@ export const LoginSocialGoogle = memo(
     )
   }
 )
+
+export default LoginSocialGoogle

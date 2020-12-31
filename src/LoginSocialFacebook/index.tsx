@@ -30,7 +30,7 @@ const SDK_URL: string = 'https://connect.facebook.net/en_EN/sdk.js'
 const SCRIPT_ID: string = 'facebook-jssdk'
 const _window = window as any
 
-export const LoginSocialFacebook = memo(
+const LoginSocialFacebook = memo(
   ({
     appId,
     scope = 'email,public_profile',
@@ -41,7 +41,6 @@ export const LoginSocialFacebook = memo(
     language = 'en_EN',
     auth_type = '',
     className,
-    isDisabled = false,
     onReject,
     onResolve,
     redirect_uri,
@@ -98,7 +97,7 @@ export const LoginSocialFacebook = memo(
         _window.FB.api(
           '/me',
           { locale: language, fields: fieldsProfile },
-          (me) => {
+          (me: any) => {
             onResolve({
               provider: 'facebook',
               data: { ...authResponse, ...me }
@@ -185,3 +184,5 @@ export const LoginSocialFacebook = memo(
     )
   }
 )
+
+export default LoginSocialFacebook
