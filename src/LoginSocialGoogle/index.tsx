@@ -4,7 +4,7 @@
  *
  */
 import React, { memo, useCallback, useEffect, useState } from 'react'
-import { IResolveParams, objectType } from 'types'
+import { objectType, IResolveParams } from 'types'
 
 interface Props {
   scope?: string
@@ -14,13 +14,16 @@ interface Props {
   className?: string
   login_hint?: string
   access_type?: string
+  isDisabled?: boolean
+  openid_realm?: string
   redirect_uri?: string
+  response_type?: string
   cookie_policy?: string
   hosted_domain?: string
   discoveryDocs?: string
   children?: React.ReactNode
-  fetch_basic_profile?: boolean
   onReject: (reject: string | objectType) => void
+  fetch_basic_profile?: boolean
   onResolve: ({ provider, data }: IResolveParams) => void
 }
 
@@ -38,9 +41,12 @@ export const LoginSocialGoogle = memo(
     className = '',
     login_hint = '',
     access_type = 'online',
+    isDisabled = false,
     onReject,
     onResolve,
+    openid_realm,
     redirect_uri = '/',
+    response_type = 'permission',
     cookie_policy = 'single_host_origin',
     hosted_domain = '',
     discoveryDocs = '',
@@ -82,7 +88,7 @@ export const LoginSocialGoogle = memo(
     )
 
     const handleResponse = useCallback(
-      (res: objectType) => {
+      (res: objectType | string) => {
         setIsProcessing(false)
         // const auth2 = _window.gapi.auth2.getAuthInstance();
         // var user = auth2.currentUser.get();
@@ -181,5 +187,3 @@ export const LoginSocialGoogle = memo(
     )
   }
 )
-
-export default LoginSocialGoogle

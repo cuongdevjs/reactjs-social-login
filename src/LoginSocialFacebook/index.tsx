@@ -4,7 +4,7 @@
  *
  */
 import React, { memo, useCallback, useEffect, useState } from 'react'
-import { IResolveParams, objectType } from 'types'
+import { objectType, IResolveParams } from 'types'
 
 interface Props {
   appId: string
@@ -16,6 +16,7 @@ interface Props {
   language?: string
   auth_type?: string
   className?: string
+  isDisabled?: boolean
   onReject: (reject: string | objectType) => void
   onResolve: ({ provider, data }: IResolveParams) => void
   redirect_uri?: string
@@ -32,7 +33,7 @@ const _window = window as any
 export const LoginSocialFacebook = memo(
   ({
     appId,
-    scope = 'email, public_profile',
+    scope = 'email,public_profile',
     state = true,
     xfbml = true,
     cookie = true,
@@ -40,6 +41,7 @@ export const LoginSocialFacebook = memo(
     language = 'en_EN',
     auth_type = '',
     className,
+    isDisabled = false,
     onReject,
     onResolve,
     redirect_uri,
@@ -96,7 +98,7 @@ export const LoginSocialFacebook = memo(
         _window.FB.api(
           '/me',
           { locale: language, fields: fieldsProfile },
-          (me: objectType) => {
+          (me) => {
             onResolve({
               provider: 'facebook',
               data: { ...authResponse, ...me }
@@ -112,9 +114,9 @@ export const LoginSocialFacebook = memo(
         if (response.authResponse) {
           getMe(response.authResponse)
         } else {
-          setIsProcessing(false)
           onReject(response)
         }
+        setIsProcessing(false)
       },
       [getMe, onReject]
     )
@@ -183,5 +185,3 @@ export const LoginSocialFacebook = memo(
     )
   }
 )
-
-export default LoginSocialFacebook
