@@ -5,7 +5,7 @@
  *
  */
 import React, { memo, useCallback, useEffect, useState } from 'react'
-import { IResolveParams, objectType } from '../'
+import { IResolveParams, objectType } from 'types'
 
 interface Props {
   state?: string
@@ -43,12 +43,11 @@ export const LoginSocialGithub = memo(
       if (window.opener && window.opener !== window) {
         const popupWindowURL = new URL(window.location.href)
         const code = popupWindowURL.searchParams.get('code')
-        window.opener.postMessage({ type: 'code', code: code }, '*')
+        window.opener.postMessage(
+          { provider: 'github', type: 'code', code: code },
+          '*'
+        )
         window.close()
-      }
-      window.addEventListener('message', handlePostMessage)
-      return () => {
-        window.removeEventListener('message', handlePostMessage)
       }
     }, [])
 
@@ -114,8 +113,8 @@ export const LoginSocialGithub = memo(
 
     const handlePostMessage = useCallback(
       async (event: any) => {
-        console.log(event)
-        if (event.data.type === 'code') {
+        if (event.data.type === 'code' && event.data.provider === 'github') {
+          window.removeEventListener('message', handlePostMessage)
           const { code } = event.data
           code && getAccessToken(code)
         }
@@ -125,6 +124,7 @@ export const LoginSocialGithub = memo(
 
     const onLogin = useCallback(() => {
       if (!isProcessing) {
+        window.addEventListener('message', handlePostMessage)
         setIsProcessing(true)
         const oauthUrl = `${GITHUB_URL}/login/oauth/authorize?client_id=${client_id}&scope=${scope}&state=${state}&redirect_uri=${redirect_uri}&allow_signup=${allow_signup}`
         const width = 450

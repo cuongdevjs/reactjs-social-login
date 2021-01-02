@@ -42,10 +42,12 @@ export const LoginSocialInstagram = memo(
       if (window.opener && window.opener !== window) {
         const popupWindowURL = new URL(window.location.href)
         const code = popupWindowURL.searchParams.get('code')
-        window.opener.postMessage({ type: 'code', code: code }, '*')
+        window.opener.postMessage(
+          { provider: 'instagram', type: 'code', code: code },
+          '*'
+        )
         window.close()
       }
-      window.addEventListener('message', handlePostMessage)
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
@@ -105,7 +107,7 @@ export const LoginSocialInstagram = memo(
 
     const handlePostMessage = useCallback(
       async (event: any) => {
-        if (event.data.type === 'code') {
+        if (event.data.type === 'code' && event.data.provider === 'instagram') {
           window.removeEventListener('message', handlePostMessage)
           const { code } = event.data
           code && getAccessToken(code)
@@ -116,6 +118,7 @@ export const LoginSocialInstagram = memo(
 
     const onLogin = useCallback(() => {
       if (!isProcessing) {
+        window.addEventListener('message', handlePostMessage)
         setIsProcessing(true)
         const oauthUrl = `${INSTAGRAM_URL}/oauth/authorize?response_type=${response_type}&client_id=${client_id}&scope=${scope}&state=${state}&redirect_uri=${redirect_uri}`
         const width = 450

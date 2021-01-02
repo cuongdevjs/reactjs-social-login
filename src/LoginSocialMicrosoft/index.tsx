@@ -50,10 +50,12 @@ export const LoginSocialMicrosoft = memo(
       if (window.opener && window.opener !== window) {
         const popupWindowURL = new URL(window.location.href)
         const code = popupWindowURL.searchParams.get('code')
-        window.opener.postMessage({ type: 'code', code: code }, '*')
+        window.opener.postMessage(
+          { provider: 'microsoft', type: 'code', code: code },
+          '*'
+        )
         window.close()
       }
-      window.addEventListener('message', handlePostMessage)
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
@@ -122,7 +124,7 @@ export const LoginSocialMicrosoft = memo(
 
     const handlePostMessage = useCallback(
       async (event: any) => {
-        if (event.data.type === 'code') {
+        if (event.data.type === 'code' && event.data.provider === 'microsoft') {
           window.removeEventListener('message', handlePostMessage)
           const { code } = event.data
           code && getAccessToken(code)
@@ -133,6 +135,7 @@ export const LoginSocialMicrosoft = memo(
 
     const onLogin = useCallback(() => {
       if (!isProcessing) {
+        window.addEventListener('message', handlePostMessage)
         setIsProcessing(true)
         const oauthUrl = `${MICROSOFT_URL}/${tenant}/oauth2/v2.0/authorize?client_id=${client_id}
         &response_type=${response_type}
