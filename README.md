@@ -22,7 +22,7 @@ npm install --save reactjs-social-login
 
 ### Demo
 
-[Online Demo]('https://codesandbox.io/s/crazy-cartwright-yw79x)
+[Online Demo](https://codesandbox.io/s/crazy-cartwright-yw79x)
 
 ### How get client_id, client_secret_id and other parameters
 

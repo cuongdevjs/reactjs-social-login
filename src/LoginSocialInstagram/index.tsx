@@ -4,7 +4,7 @@
  *
  */
 import React, { memo, useCallback, useEffect, useState } from 'react'
-import { objectType, IResolveParams } from 'types'
+import { objectType, IResolveParams } from '../'
 
 interface Props {
   scope?: string
@@ -108,7 +108,7 @@ export const LoginSocialInstagram = memo(
         if (event.data.type === 'code') {
           window.removeEventListener('message', handlePostMessage)
           const { code } = event.data
-          getAccessToken(code)
+          code && getAccessToken(code)
         }
       },
       [getAccessToken]

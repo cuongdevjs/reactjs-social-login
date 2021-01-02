@@ -4,7 +4,7 @@
  *
  */
 import React, { memo, useCallback, useEffect, useState } from 'react'
-import { objectType, IResolveParams } from 'types'
+import { objectType, IResolveParams } from '../'
 
 interface Props {
   appId: string

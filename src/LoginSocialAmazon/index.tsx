@@ -4,7 +4,7 @@
  *
  */
 import React, { memo, useEffect, useState, useCallback } from 'react'
-import { IResolveParams, objectType } from 'types'
+import { IResolveParams, objectType } from '../'
 
 interface Props {
   scope?: string

@@ -1,1 +1,1 @@
-export * from './customType';
+export * from './customType'

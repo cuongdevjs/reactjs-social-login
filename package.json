@@ -1,6 +1,6 @@
 {
   "name": "reactjs-social-login",
-  "version": "1.0.1",
+  "version": "1.0.3",
   "description": "Group social login for ReactJS",
   "author": "Nguyen Manh Cuong ",
   "license": "MIT",
@@ -60,5 +60,11 @@
   },
   "files": [
     "dist"
+  ],
+  "keywords": [
+    "react",
+    "typescript",
+    "social-login",
+    "social-network"
   ]
 }

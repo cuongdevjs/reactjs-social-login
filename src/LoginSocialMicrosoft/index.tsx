@@ -4,7 +4,7 @@
  *
  */
 import React, { memo, useCallback, useEffect, useState } from 'react'
-import { IResolveParams, objectType } from 'types'
+import { IResolveParams, objectType } from '../'
 
 interface Props {
   scope?: string
@@ -125,7 +125,7 @@ export const LoginSocialMicrosoft = memo(
         if (event.data.type === 'code') {
           window.removeEventListener('message', handlePostMessage)
           const { code } = event.data
-          getAccessToken(code)
+          code && getAccessToken(code)
         }
       },
       [getAccessToken]

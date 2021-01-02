@@ -5,7 +5,7 @@
  *
  */
 import React, { memo, useCallback, useEffect, useState } from 'react'
-import { IResolveParams, objectType } from 'types'
+import { IResolveParams, objectType } from '../'
 
 interface Props {
   state?: string
@@ -47,6 +47,9 @@ export const LoginSocialGithub = memo(
         window.close()
       }
       window.addEventListener('message', handlePostMessage)
+      return () => {
+        window.removeEventListener('message', handlePostMessage)
+      }
     }, [])
 
     const getProfile = useCallback(
@@ -111,10 +114,10 @@ export const LoginSocialGithub = memo(
 
     const handlePostMessage = useCallback(
       async (event: any) => {
+        console.log(event)
         if (event.data.type === 'code') {
-          window.removeEventListener('message', handlePostMessage)
           const { code } = event.data
-          getAccessToken(code)
+          code && getAccessToken(code)
         }
       },
       [getAccessToken]
