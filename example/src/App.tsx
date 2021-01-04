@@ -13,7 +13,6 @@ import {
 const REDIRECT_URI = 'https://reactjs-social-login.netlify.app/account/login'
 
 const App = () => {
-  console.log(process.env.FB_APP_ID)
   return (
     <div>
       <LoginSocialFacebook
@@ -55,7 +54,6 @@ const App = () => {
 
       <LoginSocialInstagram
         client_id={process.env.INSTAGRAM_APP_ID || ''}
-        client_secret={process.env.INSTAGRAM_APP_SECRET || ''}
         className={'storybook-button storybook-button--primary'}
         redirect_uri={REDIRECT_URI}
         onResolve={({ provider, data }) => {
@@ -70,7 +68,6 @@ const App = () => {
       </LoginSocialInstagram>
 
       <LoginSocialMicrosoft
-        // client_secret: 50.41O-kG_igQar-C8wH2uvhkxn026LoVx
         client_id={process.env.MICROSOFT_APP_ID || ''}
         className={'storybook-button storybook-button--primary'}
         redirect_uri={REDIRECT_URI}
@@ -87,7 +84,6 @@ const App = () => {
 
       <LoginSocialLinkedin
         client_id={process.env.LINKEDIN_APP_ID || ''}
-        client_secret={process.env.LINKEDIN_APP_SECRET || ''}
         className={'storybook-button storybook-button--primary'}
         redirect_uri={REDIRECT_URI}
         onResolve={({ provider, data }) => {
@@ -103,7 +99,6 @@ const App = () => {
 
       <LoginSocialGithub
         client_id={process.env.GITHUB_APP_ID || ''}
-        client_secret={process.env.GITHUB_APP_SECRET || ''}
         className={'storybook-button storybook-button--primary'}
         redirect_uri={REDIRECT_URI}
         onResolve={({ provider, data }) => {
