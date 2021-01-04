@@ -23,7 +23,7 @@ You can customize any style UI as you like
 [![NPM](https://img.shields.io/npm/v/reactjs-social-login.svg)](https://www.npmjs.com/package/reactjs-social-login)
 [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
 
-![img-description](./Img.png?raw=true "Image")
+![img-description](./gif.gif)
 
 ## Install
 
