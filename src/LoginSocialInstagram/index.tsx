@@ -11,7 +11,7 @@ interface Props {
   state?: string
   client_id: string
   className?: string
-  client_secret: string
+  // client_secret: string
   redirect_uri: string
   response_type?: string
   children?: React.ReactNode
@@ -20,107 +20,113 @@ interface Props {
 }
 
 const INSTAGRAM_URL = 'https://api.instagram.com'
-const INSTAGRAM_API_URL = 'https://graph.instagram.com/'
-const PREVENT_CORS_URL: string = 'https://cors-anywhere.herokuapp.com'
+// const INSTAGRAM_API_URL = 'https://graph.instagram.com/'
+// const PREVENT_CORS_URL: string = 'https://cors-anywhere.herokuapp.com'
 
 export const LoginSocialInstagram = memo(
   ({
     state = 'DCEeFWf45A53sdfKef424',
     client_id,
-    client_secret,
+    // client_secret,
     className,
     redirect_uri,
     scope = 'user_profile,user_media',
     response_type = 'code',
     children,
-    onReject,
+    // onReject,
     onResolve
   }: Props) => {
     const [isProcessing, setIsProcessing] = useState(false)
 
     useEffect(() => {
-      if (window.opener && window.opener !== window) {
-        const popupWindowURL = new URL(window.location.href)
-        const code = popupWindowURL.searchParams.get('code')
-        window.opener.postMessage(
-          { provider: 'instagram', type: 'code', code: code },
-          '*'
-        )
+      const popupWindowURL = new URL(window.location.href)
+      const code = popupWindowURL.searchParams.get('code')
+      const state = popupWindowURL.searchParams.get('state')
+      if (state?.includes('_instagram') && code) {
+        localStorage.setItem('instagram', code)
         window.close()
       }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
-    const getProfile = useCallback(
-      (data) => {
-        fetch(
-          `${PREVENT_CORS_URL}/${INSTAGRAM_API_URL}/me?fields=id,username&access_token=${data.access_token}`,
-          {
-            method: 'GET'
-          }
-        )
-          .then((res) => res.json())
-          .then((res) => {
-            setIsProcessing(false)
-            onResolve({ provider: 'linkedin', data: { ...res, ...data } })
-          })
-          .catch((err) => {
-            setIsProcessing(false)
-            onReject(err)
-          })
-      },
-      [onReject, onResolve]
-    )
+    const onChangeLocalStorage = useCallback(() => {
+      window.removeEventListener('storage', onChangeLocalStorage, false)
+      const code = localStorage.getItem('instagram')
+      if (code) {
+        setIsProcessing(true)
+        handlePostMessage({ provider: 'instagram', type: 'code', code })
+        localStorage.removeItem('instagram')
+      }
+    }, [])
+
+    // const getProfile = useCallback(
+    //   (data) => {
+    //     fetch(
+    //       `${PREVENT_CORS_URL}/${INSTAGRAM_API_URL}/me?fields=id,username&access_token=${data.access_token}`,
+    //       {
+    //         method: 'GET'
+    //       }
+    //     )
+    //       .then((res) => res.json())
+    //       .then((res) => {
+    //         setIsProcessing(false)
+    //         onResolve({ provider: 'instagram', data: { ...res, ...data } })
+    //       })
+    //       .catch((err) => {
+    //         setIsProcessing(false)
+    //         onReject(err)
+    //       })
+    //   },
+    //   [onReject, onResolve]
+    // )
 
     const getAccessToken = useCallback(
       (code: string) => {
-        const params = {
-          grant_type: 'authorization_code',
-          code,
-          redirect_uri,
-          client_id,
-          client_secret
-        }
-        const headers = new Headers({
-          'Content-Type': 'application/x-www-form-urlencoded'
-        })
-        fetch(`${PREVENT_CORS_URL}/${INSTAGRAM_URL}/oauth/access_token`, {
-          method: 'POST',
-          headers,
-          body: new URLSearchParams(params)
-        })
-          .then((response) => response.json())
-          .then((data) => {
-            if (data.access_token) getProfile(data)
-            else {
-              setIsProcessing(false)
-              onReject('no data')
-            }
-          })
-          .catch((err) => {
-            setIsProcessing(false)
-            onReject(err)
-          })
+        setIsProcessing(false)
+        onResolve({ provider: 'instagram', data: { code } })
+        // const params = {
+        //   grant_type: 'authorization_code',
+        //   code,
+        //   redirect_uri,
+        //   client_id,
+        //   client_secret
+        // }
+        // const headers = new Headers({
+        //   'Content-Type': 'application/x-www-form-urlencoded'
+        // })
+        // fetch(`${PREVENT_CORS_URL}/${INSTAGRAM_URL}/oauth/access_token`, {
+        //   method: 'POST',
+        //   headers,
+        //   body: new URLSearchParams(params)
+        // })
+        //   .then((response) => response.json())
+        //   .then((data) => {
+        //     setIsProcessing(false)
+        //     if (data.access_token) onResolve({ provider: 'instagram', data })
+        //     else onReject('no data')
+        //   })
+        //   .catch((err) => {
+        //     setIsProcessing(false)
+        //     onReject(err)
+        //   })
       },
-      [client_id, client_secret, getProfile, onReject, redirect_uri]
+      [onResolve]
     )
 
     const handlePostMessage = useCallback(
-      async (event: any) => {
-        if (event.data.type === 'code' && event.data.provider === 'instagram') {
-          window.removeEventListener('message', handlePostMessage)
-          const { code } = event.data
-          code && getAccessToken(code)
-        }
-      },
+      async ({ type, code, provider }) =>
+        type === 'code' &&
+        provider === 'instagram' &&
+        code &&
+        getAccessToken(code),
       [getAccessToken]
     )
 
     const onLogin = useCallback(() => {
       if (!isProcessing) {
-        window.addEventListener('message', handlePostMessage)
-        setIsProcessing(true)
-        const oauthUrl = `${INSTAGRAM_URL}/oauth/authorize?response_type=${response_type}&client_id=${client_id}&scope=${scope}&state=${state}&redirect_uri=${redirect_uri}`
+        window.addEventListener('storage', onChangeLocalStorage, false)
+        const oauthUrl = `${INSTAGRAM_URL}/oauth/authorize?response_type=${response_type}&client_id=${client_id}&scope=${scope}&state=${
+          state + '_instagram'
+        }&redirect_uri=${redirect_uri}`
         const width = 450
         const height = 730
         const left = window.screen.width / 2 - width / 2

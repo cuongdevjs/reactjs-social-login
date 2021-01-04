@@ -47,16 +47,23 @@ export const LoginSocialMicrosoft = memo(
     const [isProcessing, setIsProcessing] = useState(false)
 
     useEffect(() => {
-      if (window.opener && window.opener !== window) {
-        const popupWindowURL = new URL(window.location.href)
-        const code = popupWindowURL.searchParams.get('code')
-        window.opener.postMessage(
-          { provider: 'microsoft', type: 'code', code: code },
-          '*'
-        )
+      const popupWindowURL = new URL(window.location.href)
+      const code = popupWindowURL.searchParams.get('code')
+      const state = popupWindowURL.searchParams.get('state')
+      if (state?.includes('_microsoft') && code) {
+        localStorage.setItem('microsoft', code)
         window.close()
       }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
+
+    const onChangeLocalStorage = useCallback(() => {
+      window.removeEventListener('storage', onChangeLocalStorage, false)
+      const code = localStorage.getItem('microsoft')
+      if (code) {
+        setIsProcessing(true)
+        handlePostMessage({ provider: 'microsoft', type: 'code', code })
+        localStorage.removeItem('microsoft')
+      }
     }, [])
 
     const getProfile = useCallback(
@@ -123,26 +130,23 @@ export const LoginSocialMicrosoft = memo(
     )
 
     const handlePostMessage = useCallback(
-      async (event: any) => {
-        if (event.data.type === 'code' && event.data.provider === 'microsoft') {
-          window.removeEventListener('message', handlePostMessage)
-          const { code } = event.data
-          code && getAccessToken(code)
-        }
-      },
+      async ({ type, code, provider }) =>
+        type === 'code' &&
+        provider === 'microsoft' &&
+        code &&
+        getAccessToken(code),
       [getAccessToken]
     )
 
     const onLogin = useCallback(() => {
       if (!isProcessing) {
-        window.addEventListener('message', handlePostMessage)
-        setIsProcessing(true)
+        window.addEventListener('storage', onChangeLocalStorage, false)
         const oauthUrl = `${MICROSOFT_URL}/${tenant}/oauth2/v2.0/authorize?client_id=${client_id}
         &response_type=${response_type}
         &redirect_uri=${redirect_uri}
         &response_mode=${response_mode}
         &scope=${scope}
-        &state=${state}
+        &state=${state + '_microsoft'}
         &prompt=${prompt}
         &code_challenge=${code_challenge}
         &code_challenge_method=${code_challenge_method}`
