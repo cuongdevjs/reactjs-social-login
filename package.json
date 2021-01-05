@@ -1,14 +1,20 @@
 {
-  "name": "reactjs-social-login",
+  "name": "@cuongdevjs/reactjs-social-login",
   "version": "1.0.5",
   "description": "Group social login for ReactJS",
   "author": "Nguyen Manh Cuong ",
   "license": "MIT",
-  "repository": "https://github.com/cuongdevjs/reactjs-social-login",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cuongdevjs/reactjs-social-login"
+  },
   "main": "dist/index.js",
   "module": "dist/index.modern.js",
   "typings": "dist/src/index.d.ts",
   "source": "src/index.tsx",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/"
+  },
   "engines": {
     "node": ">=10"
   },
