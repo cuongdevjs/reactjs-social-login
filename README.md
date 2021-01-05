@@ -10,12 +10,8 @@
 > 6. Amazon
 > 7. Instagram
 
-<br />
-
 This repository is written by TypeScript and React Hooks, tree-shakeable, zero dependencies, extremely lightweight.
 You can customize any style UI as you like
-
-<br />
 
 [![npm download](https://img.shields.io/npm/dm/reactjs-social-login.svg?style=flat)](https://www.npmjs.com/package/reactjs-social-login)
 [![npm bundle zip](https://img.shields.io/bundlephobia/minzip/reactjs-social-login?style=flat)](https://www.npmjs.com/package/reactjs-social-login)
@@ -35,13 +31,13 @@ npm install --save reactjs-social-login
 
 ### Demo
 
-> [Online Demo](https://reactjs-social-login.netlify.app)
+[Online Demo](https://reactjs-social-login.netlify.app)
 
 <br/>
 
 ### Example code
 
-> [Code Demo](https://github.com/cuongdevjs/reactjs-social-login/blob/master/example/src/App.tsx)
+[Code Demo](https://github.com/cuongdevjs/reactjs-social-login/blob/master/example/src/App.tsx)
 
 <br/>
 
