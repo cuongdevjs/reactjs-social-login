@@ -31,7 +31,7 @@ npm install --save reactjs-social-login
 
 ### Demo
 
-[Online Demo](https://reactjs-social-login.netlify.app)
+[Online Demo](https://react-social-login.netlify.app)
 
 <br/>
 
