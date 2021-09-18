@@ -1,6 +1,6 @@
 {
   "name": "reactjs-social-login",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "Group social login for ReactJS",
   "author": "Nguyen Manh Cuong ",
   "license": "MIT",
@@ -72,7 +72,19 @@
   "keywords": [
     "react",
     "typescript",
+    "social-network",
     "social-login",
-    "social-network"
+    "login-social",
+    "sso",
+    "single-sign-on",
+    "twitter-sso",
+    "google-sso",
+    "facebook-sso",
+    "github-sso",
+    "pinterest-sso",
+    "microsoft-sso",
+    "linkedin-sso",
+    "instagram-sso",
+    "amazon-sso"
   ]
 }
