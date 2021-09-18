@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 /**
  *
  * LoginSocialMicrosoft
@@ -53,16 +54,6 @@ export const LoginSocialMicrosoft = memo(
       if (state?.includes('_microsoft') && code) {
         localStorage.setItem('microsoft', code)
         window.close()
-      }
-    }, [])
-
-    const onChangeLocalStorage = useCallback(() => {
-      window.removeEventListener('storage', onChangeLocalStorage, false)
-      const code = localStorage.getItem('microsoft')
-      if (code) {
-        setIsProcessing(true)
-        handlePostMessage({ provider: 'microsoft', type: 'code', code })
-        localStorage.removeItem('microsoft')
       }
     }, [])
 
@@ -138,6 +129,16 @@ export const LoginSocialMicrosoft = memo(
       [getAccessToken]
     )
 
+    const onChangeLocalStorage = useCallback(() => {
+      window.removeEventListener('storage', onChangeLocalStorage, false)
+      const code = localStorage.getItem('microsoft')
+      if (code) {
+        setIsProcessing(true)
+        handlePostMessage({ provider: 'microsoft', type: 'code', code })
+        localStorage.removeItem('microsoft')
+      }
+    }, [handlePostMessage])
+
     const onLogin = useCallback(() => {
       if (!isProcessing) {
         window.addEventListener('storage', onChangeLocalStorage, false)
@@ -168,15 +169,16 @@ export const LoginSocialMicrosoft = memo(
         )
       }
     }, [
-      scope,
-      state,
-      tenant,
-      prompt,
-      client_id,
       isProcessing,
+      onChangeLocalStorage,
+      tenant,
+      client_id,
+      response_type,
       redirect_uri,
       response_mode,
-      response_type,
+      scope,
+      state,
+      prompt,
       code_challenge,
       code_challenge_method
     ])

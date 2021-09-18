@@ -1,38 +1,37 @@
 /* eslint-disable camelcase */
 /**
  *
- * LoginSocialLinkedin
+ * LoginSocialGithub
  *
  */
 import React, { memo, useCallback, useEffect, useState } from 'react'
-import { IResolveParams, objectType } from '../'
+import { IResolveParams, objectType } from '..'
 
 interface Props {
   state?: string
   scope?: string
   client_id: string
+  client_secret: string
   className?: string
   redirect_uri: string
-  client_secret: string
-  response_type?: string
+  // client_secret: string
   children?: React.ReactNode
   onReject: (reject: string | objectType) => void
   onResolve: ({ provider, data }: IResolveParams) => void
 }
 
-const LINKEDIN_URL: string = 'https://www.linkedin.com/oauth/v2'
-// const LINKEDIN_API_URL: string = 'https://api.linkedin.com'
+const PINTEREST_URL: string = 'https://www.pinterest.com/oauth'
+const PINTEREST_URL_API: string = 'https://api.pinterest.com/v5/oauth'
 const PREVENT_CORS_URL: string = 'https://cors.bridged.cc'
 
-export const LoginSocialLinkedin = memo(
+export const LoginSocialPinterest = memo(
   ({
     state = '',
-    scope = 'r_liteprofile',
+    scope = '',
     client_id,
     client_secret,
     className = '',
     redirect_uri,
-    response_type = 'code',
     children,
     onReject,
     onResolve
@@ -43,60 +42,43 @@ export const LoginSocialLinkedin = memo(
       const popupWindowURL = new URL(window.location.href)
       const code = popupWindowURL.searchParams.get('code')
       const state = popupWindowURL.searchParams.get('state')
-      if (state?.includes('_linkedin') && code) {
-        localStorage.setItem('linkedin', code)
+      if (state?.includes('_pinterest') && code) {
+        localStorage.setItem('pinterest', code)
         window.close()
       }
     }, [])
 
-    // const getProfile = useCallback(
-    //   (data) => {
-    //     fetch(`${PREVENT_CORS_URL}/${LINKEDIN_API_URL}/v2/me`, {
-    //       method: 'GET',
-    //       headers: {
-    //         Authorization: `Bearer ${data.access_token}`
-    //       }
-    //     })
-    //       .then((res) => res.json())
-    //       .then((res) => {
-    //         setIsProcessing(false)
-    //         onResolve({ provider: 'linkedin', data: { ...res, ...data } })
-    //       })
-    //       .catch((err) => {
-    //         setIsProcessing(false)
-    //         onReject(err)
-    //       })
-    //   },
-    //   [onReject, onResolve]
-    // )
-
     const getAccessToken = useCallback(
-      (code: string) => {
-        const params = {
+      async (code: string) => {
+        var details = {
           code,
-          grant_type: 'authorization_code',
           redirect_uri,
-          client_id,
-          client_secret
+          grant_type: `authorization_code`
         }
-        const headers = new Headers({
-          'Content-Type': 'application/x-www-form-urlencoded'
-        })
+        var formBody: string | string[] = []
+        for (var property in details) {
+          var encodedKey = encodeURIComponent(property)
+          var encodedValue = encodeURIComponent(details[property])
+          formBody.push(encodedKey + '=' + encodedValue)
+        }
+        formBody = formBody.join('&')
 
-        fetch(`${PREVENT_CORS_URL}/${LINKEDIN_URL}/accessToken`, {
-          method: 'POST',
-          headers,
-          body: new URLSearchParams(params)
-        })
-          .then((response) => response.json())
-          .then((response) => {
-            setIsProcessing(false)
-            onResolve({ provider: 'linkedin', data: response })
-          })
-          .catch((err) => {
-            setIsProcessing(false)
-            onReject(err)
-          })
+        const data = await fetch(
+          `${PREVENT_CORS_URL}/${PINTEREST_URL_API}/token`,
+          {
+            method: 'POST',
+            headers: {
+              Authorization: `Basic ${btoa(client_id + ':' + client_secret)}`,
+              'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: formBody
+          }
+        )
+          .then((data) => data.json())
+          .catch((err) => onReject(err))
+
+        setIsProcessing(false)
+        onResolve({ provider: 'pinterest', data })
       },
       [client_id, client_secret, onReject, onResolve, redirect_uri]
     )
@@ -104,7 +86,7 @@ export const LoginSocialLinkedin = memo(
     const handlePostMessage = useCallback(
       async ({ type, code, provider }) =>
         type === 'code' &&
-        provider === 'linkedin' &&
+        provider === 'pinterest' &&
         code &&
         getAccessToken(code),
       [getAccessToken]
@@ -112,27 +94,27 @@ export const LoginSocialLinkedin = memo(
 
     const onChangeLocalStorage = useCallback(() => {
       window.removeEventListener('storage', onChangeLocalStorage, false)
-      const code = localStorage.getItem('linkedin')
+      const code = localStorage.getItem('pinterest')
       if (code) {
         setIsProcessing(true)
-        handlePostMessage({ provider: 'linkedin', type: 'code', code })
-        localStorage.removeItem('linkedin')
+        handlePostMessage({ provider: 'pinterest', type: 'code', code })
+        localStorage.removeItem('pinterest')
       }
     }, [handlePostMessage])
 
     const onLogin = useCallback(() => {
       if (!isProcessing) {
         window.addEventListener('storage', onChangeLocalStorage, false)
-        const oauthUrl = `${LINKEDIN_URL}/authorization?response_type=${response_type}&client_id=${client_id}&scope=${scope}&state=${
-          state + '_linkedin'
-        }&redirect_uri=${redirect_uri}`
+        const oauthUrl = `${PINTEREST_URL}/?client_id=${client_id}&scope=${scope}&state=${
+          state + '_pinterest'
+        }&redirect_uri=${redirect_uri}&response_type=code&scope=boards:read,pins:read,user_accounts:read`
         const width = 450
         const height = 730
         const left = window.screen.width / 2 - width / 2
         const top = window.screen.height / 2 - height / 2
         window.open(
           oauthUrl,
-          'Linkedin',
+          'Pinterest',
           'menubar=no,location=no,resizable=no,scrollbars=no,status=no, width=' +
             width +
             ', height=' +
@@ -146,7 +128,6 @@ export const LoginSocialLinkedin = memo(
     }, [
       isProcessing,
       onChangeLocalStorage,
-      response_type,
       client_id,
       scope,
       state,
@@ -161,4 +142,4 @@ export const LoginSocialLinkedin = memo(
   }
 )
 
-export default LoginSocialLinkedin
+export default LoginSocialPinterest

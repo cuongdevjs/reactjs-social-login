@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 /**
  *
  * LoginSocialInstagram
@@ -11,7 +12,7 @@ interface Props {
   state?: string
   client_id: string
   className?: string
-  // client_secret: string
+  client_secret: string
   redirect_uri: string
   response_type?: string
   children?: React.ReactNode
@@ -22,18 +23,19 @@ interface Props {
 const INSTAGRAM_URL = 'https://api.instagram.com'
 // const INSTAGRAM_API_URL = 'https://graph.instagram.com/'
 // const PREVENT_CORS_URL: string = 'https://cors-anywhere.herokuapp.com'
+const PREVENT_CORS_URL: string = 'https://cors.bridged.cc'
 
 export const LoginSocialInstagram = memo(
   ({
     state = 'DCEeFWf45A53sdfKef424',
     client_id,
-    // client_secret,
+    client_secret,
     className,
     redirect_uri,
     scope = 'user_profile,user_media',
     response_type = 'code',
     children,
-    // onReject,
+    onReject,
     onResolve
   }: Props) => {
     const [isProcessing, setIsProcessing] = useState(false)
@@ -45,16 +47,6 @@ export const LoginSocialInstagram = memo(
       if (state?.includes('_instagram') && code) {
         localStorage.setItem('instagram', code)
         window.close()
-      }
-    }, [])
-
-    const onChangeLocalStorage = useCallback(() => {
-      window.removeEventListener('storage', onChangeLocalStorage, false)
-      const code = localStorage.getItem('instagram')
-      if (code) {
-        setIsProcessing(true)
-        handlePostMessage({ provider: 'instagram', type: 'code', code })
-        localStorage.removeItem('instagram')
       }
     }, [])
 
@@ -81,35 +73,33 @@ export const LoginSocialInstagram = memo(
 
     const getAccessToken = useCallback(
       (code: string) => {
-        setIsProcessing(false)
-        onResolve({ provider: 'instagram', data: { code } })
-        // const params = {
-        //   grant_type: 'authorization_code',
-        //   code,
-        //   redirect_uri,
-        //   client_id,
-        //   client_secret
-        // }
-        // const headers = new Headers({
-        //   'Content-Type': 'application/x-www-form-urlencoded'
-        // })
-        // fetch(`${PREVENT_CORS_URL}/${INSTAGRAM_URL}/oauth/access_token`, {
-        //   method: 'POST',
-        //   headers,
-        //   body: new URLSearchParams(params)
-        // })
-        //   .then((response) => response.json())
-        //   .then((data) => {
-        //     setIsProcessing(false)
-        //     if (data.access_token) onResolve({ provider: 'instagram', data })
-        //     else onReject('no data')
-        //   })
-        //   .catch((err) => {
-        //     setIsProcessing(false)
-        //     onReject(err)
-        //   })
+        const params = {
+          grant_type: 'authorization_code',
+          code,
+          redirect_uri,
+          client_id,
+          client_secret
+        }
+        const headers = new Headers({
+          'Content-Type': 'application/x-www-form-urlencoded'
+        })
+        fetch(`${PREVENT_CORS_URL}/${INSTAGRAM_URL}/oauth/access_token`, {
+          method: 'POST',
+          headers,
+          body: new URLSearchParams(params)
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            setIsProcessing(false)
+            if (data.access_token) onResolve({ provider: 'instagram', data })
+            else onReject('no data')
+          })
+          .catch((err) => {
+            setIsProcessing(false)
+            onReject(err)
+          })
       },
-      [onResolve]
+      [client_id, client_secret, onReject, onResolve, redirect_uri]
     )
 
     const handlePostMessage = useCallback(
@@ -120,6 +110,16 @@ export const LoginSocialInstagram = memo(
         getAccessToken(code),
       [getAccessToken]
     )
+
+    const onChangeLocalStorage = useCallback(() => {
+      window.removeEventListener('storage', onChangeLocalStorage, false)
+      const code = localStorage.getItem('instagram')
+      if (code) {
+        setIsProcessing(true)
+        handlePostMessage({ provider: 'instagram', type: 'code', code })
+        localStorage.removeItem('instagram')
+      }
+    }, [handlePostMessage])
 
     const onLogin = useCallback(() => {
       if (!isProcessing) {
@@ -144,7 +144,15 @@ export const LoginSocialInstagram = memo(
             left
         )
       }
-    }, [isProcessing, client_id, redirect_uri, response_type, scope, state])
+    }, [
+      isProcessing,
+      onChangeLocalStorage,
+      response_type,
+      client_id,
+      scope,
+      state,
+      redirect_uri
+    ])
 
     return (
       <div className={className} onClick={onLogin}>

@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 /**
  *
  * LoginSocialGoogle
@@ -84,10 +85,21 @@ const LoginSocialGoogle = memo(
     const handleResponse = useCallback(
       (res: objectType) => {
         setIsProcessing(false)
-        // const auth2 = _window.gapi.auth2.getAuthInstance();
-        // var user = auth2.currentUser.get();
-        // var auth = user.getAuthResponse();
-        onResolve({ provider: 'google', data: res })
+        const data: { provider_id?: string; data: objectType } = {
+          provider_id: undefined,
+          data: {}
+        }
+        Object.values(res)
+          .filter((item) => typeof item === 'string' || item?.access_token)
+          .forEach((item) => {
+            typeof item === 'string'
+              ? (data.provider_id = item)
+              : (data.data = item)
+          })
+        onResolve({
+          provider: 'google',
+          data
+        })
       },
       [onResolve]
     )

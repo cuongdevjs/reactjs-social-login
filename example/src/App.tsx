@@ -7,17 +7,20 @@ import {
   LoginSocialGithub,
   LoginSocialInstagram,
   LoginSocialLinkedin,
-  LoginSocialMicrosoft
+  LoginSocialMicrosoft,
+  LoginSocialPinterest,
+  LoginSocialTwitter
 } from 'reactjs-social-login'
 
-const REDIRECT_URI = 'https://reactjs-social-login.netlify.app/account/login'
+const REDIRECT_URI = 'https://a178-123-16-241-177.ap.ngrok.io/account/login'
+// const REDIRECT_URI = 'http://localhost:3000/account/login'
 
 const App = () => {
   return (
     <div>
       <LoginSocialFacebook
-        appId={process.env.FB_APP_ID || ''}
-        onResolve={({ data }) => {
+        appId={process.env.REACT_APP_FB_APP_ID || ''}
+        onResolve={({ data }: any) => {
           console.log(data)
         }}
         onReject={() => {}}
@@ -27,8 +30,8 @@ const App = () => {
       </LoginSocialFacebook>
 
       <LoginSocialGoogle
-        client_id={process.env.GG_APP_ID || ''}
-        onResolve={({ data }) => {
+        client_id={process.env.REACT_APP_GG_APP_ID || ''}
+        onResolve={({ data }: any) => {
           console.log(data)
         }}
         onReject={() => {}}
@@ -38,14 +41,14 @@ const App = () => {
       </LoginSocialGoogle>
 
       <LoginSocialAmazon
-        client_id={process.env.AMAZON_APP_ID || ''}
+        client_id={process.env.REACT_APP_AMAZON_APP_ID || ''}
         className={'storybook-button storybook-button--primary'}
         redirect_uri={REDIRECT_URI}
-        onResolve={({ provider, data }) => {
+        onResolve={({ provider, data }: any) => {
           console.log(provider)
           console.log(data)
         }}
-        onReject={(err) => {
+        onReject={(err: any) => {
           console.log(err)
         }}
       >
@@ -53,14 +56,15 @@ const App = () => {
       </LoginSocialAmazon>
 
       <LoginSocialInstagram
-        client_id={process.env.INSTAGRAM_APP_ID || ''}
+        client_id={process.env.REACT_APP_INSTAGRAM_APP_ID || ''}
+        client_secret={process.env.REACT_APP_INSTAGRAM_APP_SECRET || ''}
         className={'storybook-button storybook-button--primary'}
         redirect_uri={REDIRECT_URI}
-        onResolve={({ provider, data }) => {
+        onResolve={({ provider, data }: any) => {
           console.log(provider)
           console.log(data)
         }}
-        onReject={(err) => {
+        onReject={(err: any) => {
           console.log(err)
         }}
       >
@@ -68,14 +72,14 @@ const App = () => {
       </LoginSocialInstagram>
 
       <LoginSocialMicrosoft
-        client_id={process.env.MICROSOFT_APP_ID || ''}
+        client_id={process.env.REACT_APP_MICROSOFT_APP_ID || ''}
         className={'storybook-button storybook-button--primary'}
         redirect_uri={REDIRECT_URI}
-        onResolve={({ provider, data }) => {
+        onResolve={({ provider, data }: any) => {
           console.log(provider)
           console.log(data)
         }}
-        onReject={(err) => {
+        onReject={(err: any) => {
           console.log(err)
         }}
       >
@@ -83,14 +87,15 @@ const App = () => {
       </LoginSocialMicrosoft>
 
       <LoginSocialLinkedin
-        client_id={process.env.LINKEDIN_APP_ID || ''}
+        client_id={process.env.REACT_APP_LINKEDIN_APP_ID || ''}
+        client_secret={process.env.REACT_APP_LINKEDIN_APP_SECRET || ''}
         className={'storybook-button storybook-button--primary'}
         redirect_uri={REDIRECT_URI}
-        onResolve={({ provider, data }) => {
+        onResolve={({ provider, data }: any) => {
           console.log(provider)
           console.log(data)
         }}
-        onReject={(err) => {
+        onReject={(err: any) => {
           console.log(err)
         }}
       >
@@ -98,19 +103,51 @@ const App = () => {
       </LoginSocialLinkedin>
 
       <LoginSocialGithub
-        client_id={process.env.GITHUB_APP_ID || ''}
+        client_id={process.env.REACT_APP_GITHUB_APP_ID || ''}
+        client_secret={process.env.REACT_APP_GITHUB_APP_SECRET || ''}
         className={'storybook-button storybook-button--primary'}
         redirect_uri={REDIRECT_URI}
-        onResolve={({ provider, data }) => {
+        onResolve={({ provider, data }: any) => {
           console.log(provider)
           console.log(data)
         }}
-        onReject={(err) => {
+        onReject={(err: any) => {
           console.log(err)
         }}
       >
         Login Github
       </LoginSocialGithub>
+      <LoginSocialPinterest
+        client_id={process.env.REACT_APP_PINTEREST_APP_ID || ''}
+        client_secret={process.env.REACT_APP_PINTEREST_APP_SECRET || ''}
+        className={'storybook-button storybook-button--primary'}
+        redirect_uri={REDIRECT_URI}
+        onResolve={({ provider, data }: any) => {
+          console.log(provider)
+          console.log(data)
+        }}
+        onReject={(err: any) => {
+          console.log(err)
+        }}
+      >
+        Login Pinterest
+      </LoginSocialPinterest>
+
+      <LoginSocialTwitter
+        client_id={process.env.REACT_APP_TWITTER_API_KEY || ''}
+        client_secret={process.env.REACT_APP_TWITTER_APP_SECRET || ''}
+        className={'storybook-button storybook-button--primary'}
+        redirect_uri={REDIRECT_URI}
+        onResolve={({ provider, data }: any) => {
+          console.log(provider)
+          console.log(data)
+        }}
+        onReject={(err: any) => {
+          console.log(err)
+        }}
+      >
+        Login Twitter
+      </LoginSocialTwitter>
     </div>
   )
 }

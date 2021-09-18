@@ -5,7 +5,7 @@
  *
  */
 import React, { memo, useCallback, useEffect, useState } from 'react'
-import { IResolveParams, objectType } from 'types'
+import { IResolveParams, objectType } from '../'
 
 interface Props {
   state?: string
@@ -13,7 +13,7 @@ interface Props {
   client_id: string
   className?: string
   redirect_uri: string
-  // client_secret: string
+  client_secret: string
   allow_signup?: boolean
   children?: React.ReactNode
   onReject: (reject: string | objectType) => void
@@ -22,19 +22,19 @@ interface Props {
 
 const GITHUB_URL: string = 'https://github.com'
 // const GITHUB_API_URL: string = 'https://api.github.com/'
-// const PREVENT_CORS_URL: string = 'https://cors-anywhere.herokuapp.com'
+const PREVENT_CORS_URL: string = 'https://cors.bridged.cc'
 
 export const LoginSocialGithub = memo(
   ({
-    state = 'DCEeFWf45A53sdfKef424',
+    state = '',
     scope = 'repo,gist',
     client_id,
-    // client_secret,
+    client_secret,
     className = '',
     redirect_uri,
     allow_signup = false,
     children,
-    // onReject,
+    onReject,
     onResolve
   }: Props) => {
     const [isProcessing, setIsProcessing] = useState(false)
@@ -49,6 +49,52 @@ export const LoginSocialGithub = memo(
       }
     }, [])
 
+    const getAccessToken = useCallback(
+      (code: string) => {
+        const params = {
+          code,
+          state,
+          redirect_uri,
+          client_id,
+          client_secret
+        }
+        const headers = new Headers({
+          'Content-Type': 'application/x-www-form-urlencoded'
+        })
+
+        fetch(`${PREVENT_CORS_URL}/${GITHUB_URL}/login/oauth/access_token`, {
+          method: 'POST',
+          headers,
+          body: new URLSearchParams(params)
+        })
+          .then((response) => response.text())
+          .then((response) => {
+            setIsProcessing(false)
+            const data: objectType = {}
+            const searchParams: any = new URLSearchParams(response)
+            for (const p of searchParams) {
+              data[p[0]] = p[1]
+            }
+            if (data.access_token) onResolve({ provider: 'github', data })
+            else onReject('no data')
+          })
+          .catch((err) => {
+            setIsProcessing(false)
+            onReject(err)
+          })
+      },
+      [client_id, client_secret, onReject, onResolve, redirect_uri, state]
+    )
+
+    const handlePostMessage = useCallback(
+      async ({ type, code, provider }) =>
+        type === 'code' &&
+        provider === 'github' &&
+        code &&
+        getAccessToken(code),
+      [getAccessToken]
+    )
+
     const onChangeLocalStorage = useCallback(() => {
       window.removeEventListener('storage', onChangeLocalStorage, false)
       const code = localStorage.getItem('github')
@@ -57,7 +103,7 @@ export const LoginSocialGithub = memo(
         handlePostMessage({ provider: 'github', type: 'code', code })
         localStorage.removeItem('instagram')
       }
-    }, [])
+    }, [handlePostMessage])
 
     // const getProfile = useCallback(
     //   (data) => {
@@ -79,54 +125,6 @@ export const LoginSocialGithub = memo(
     //   },
     //   [onReject, onResolve]
     // )
-
-    const getAccessToken = useCallback(
-      (code: string) => {
-        setIsProcessing(false)
-        onResolve({ provider: 'github', data: { code } })
-        // const params = {
-        //   code,
-        //   state,
-        //   redirect_uri,
-        //   client_id,
-        //   client_secret
-        // }
-        // const headers = new Headers({
-        //   'Content-Type': 'application/x-www-form-urlencoded'
-        // })
-
-        // fetch(`${PREVENT_CORS_URL}/${GITHUB_URL}/login/oauth/access_token`, {
-        //   method: 'POST',
-        //   headers,
-        //   body: new URLSearchParams(params)
-        // })
-        //   .then((response) => response.text())
-        //   .then((response) => {
-        //     setIsProcessing(false)
-        //     const data: objectType = {}
-        //     const searchParams: any = new URLSearchParams(response)
-        //     for (const p of searchParams) {
-        //       data[p[0]] = p[1]
-        //     }
-        //     if (data.access_token) onResolve({ provider: 'github', data })
-        //     else onReject('no data')
-        //   })
-        //   .catch((err) => {
-        //     setIsProcessing(false)
-        //     onReject(err)
-        //   })
-      },
-      [onResolve]
-    )
-
-    const handlePostMessage = useCallback(
-      async ({ type, code, provider }) =>
-        type === 'code' &&
-        provider === 'github' &&
-        code &&
-        getAccessToken(code),
-      [getAccessToken]
-    )
 
     const onLogin = useCallback(() => {
       if (!isProcessing) {
@@ -151,7 +149,15 @@ export const LoginSocialGithub = memo(
             left
         )
       }
-    }, [isProcessing, client_id, scope, state, redirect_uri, allow_signup])
+    }, [
+      isProcessing,
+      onChangeLocalStorage,
+      client_id,
+      scope,
+      state,
+      redirect_uri,
+      allow_signup
+    ])
 
     return (
       <div className={className} onClick={onLogin}>
