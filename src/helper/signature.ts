@@ -63,14 +63,45 @@ export const accessTokenSignature = ({
       .substr(2)
   }
 
-  return makeSignature(params, method, apiUrl, consumerSecret)
+  return makeSignature(params, method, apiUrl, consumerSecret, oauthVerifier)
+}
+
+export const profileSignature = ({
+  consumerKey,
+  consumerSecret,
+  oauthToken,
+  oauthTokenSecret,
+  method,
+  apiUrl
+}: {
+  method: string
+  apiUrl: string
+  consumerKey: string
+  consumerSecret: string
+  oauthToken: string
+  oauthTokenSecret: string
+}) => {
+  const params = {
+    oauth_consumer_key: consumerKey,
+    oauth_nonce: Math.random()
+      .toString(36)
+      .replace(/[^a-z]/, '')
+      .substr(2),
+    oauth_signature_method: 'HMAC-SHA1',
+    oauth_timestamp: (Date.now() / 1000).toFixed(),
+    oauth_token: oauthToken,
+    oauth_version: '1.0'
+  }
+
+  return makeSignature(params, method, apiUrl, consumerSecret, oauthTokenSecret)
 }
 
 const makeSignature = (
   params: any,
   method: string,
   apiUrl: string,
-  consumerSecret: string
+  consumerSecret: string,
+  oauthSecret = ''
 ) => {
   const paramsBaseString = Object.keys(params)
     .sort()
@@ -83,7 +114,9 @@ const makeSignature = (
     apiUrl
   )}&${encodeURIComponent(paramsBaseString)}`
 
-  const signingKey = `${encodeURIComponent(consumerSecret)}&`
+  const signingKey = `${encodeURIComponent(
+    consumerSecret
+  )}&${encodeURIComponent(oauthSecret)}`
 
   const oauthSignature = enc.Base64.stringify(
     HmacSHA1(signatureBaseString, signingKey)

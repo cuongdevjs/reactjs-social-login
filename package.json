@@ -1,6 +1,6 @@
 {
   "name": "reactjs-social-login",
-  "version": "1.4.1",
+  "version": "1.5.0",
   "description": "Group social login for ReactJS",
   "author": "Nguyen Manh Cuong ",
   "license": "MIT",
@@ -61,7 +61,8 @@
     "npm-run-all": "^4.1.5",
     "prettier": "^2.0.4",
     "react-scripts": "^3.4.1",
-    "typescript": "^3.7.5"
+    "typescript": "^3.7.5",
+    "react-social-login-buttons": "^3.5.1"
   },
   "dependencies": {
     "crypto-js": "^3.1.9-1"
@@ -73,18 +74,19 @@
     "react",
     "typescript",
     "social-network",
-    "social-login",
+    "react social login",
+    "social login react",
     "login-social",
     "sso",
     "single-sign-on",
-    "twitter-sso",
-    "google-sso",
-    "facebook-sso",
-    "github-sso",
-    "pinterest-sso",
-    "microsoft-sso",
-    "linkedin-sso",
-    "instagram-sso",
-    "amazon-sso"
+    "react twitter login social",
+    "react google login social",
+    "react facebook login social",
+    "react github login social",
+    "react pinterest login social",
+    "react microsoft login social",
+    "react linkedin login social",
+    "react instagram login social",
+    "react amazon login social"
   ]
 }

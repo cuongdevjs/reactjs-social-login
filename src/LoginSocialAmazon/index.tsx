@@ -4,8 +4,15 @@
  * LoginSocialAmazon
  *
  */
-import React, { memo, useEffect, useState, useCallback } from 'react'
-import { IResolveParams, objectType } from '../'
+import React, {
+  memo,
+  useEffect,
+  useState,
+  useCallback,
+  useImperativeHandle,
+  forwardRef
+} from 'react'
+import { IResolveParams, objectType, TypeCrossFunction } from '../'
 
 interface Props {
   scope?: string
@@ -16,6 +23,8 @@ interface Props {
   response_type?: string
   scope_data?: objectType
   children?: React.ReactNode
+  onLoginStart?: () => void
+  onLogoutSuccess?: () => void
   onReject: (reject: string | objectType) => void
   onResolve: ({ provider, data }: IResolveParams) => void
 }
@@ -24,21 +33,27 @@ const JS_SRC = 'https://assets.loginwithamazon.com/sdk/na/login1.js'
 const SCRIPT_ID = 'amazon-login'
 const _window = window as any
 
-export const LoginSocialAmazon = memo(
-  ({
-    state = 'DCEeFWf45A53sdfKef424',
-    client_id,
-    className,
-    redirect_uri,
-    scope = 'profile',
-    scope_data = {
-      profile: { essential: false }
-    },
-    response_type = 'token',
-    children,
-    onReject,
-    onResolve
-  }: Props) => {
+export const LoginSocialAmazon = forwardRef(
+  (
+    {
+      state = '',
+      client_id,
+      className,
+      redirect_uri,
+      scope = 'profile',
+      scope_data = {
+        profile: { essential: true }
+      },
+      response_type = 'token',
+      children,
+      onReject,
+      onResolve,
+      onLogoutSuccess,
+      onLoginStart
+    }: Props,
+    ref: React.Ref<TypeCrossFunction>
+  ) => {
+    const [isLogged, setIsLogged] = useState(false)
     const [isSdkLoaded, setIsSdkLoaded] = useState(false)
     const [isProcessing, setIsProcessing] = useState(false)
 
@@ -73,13 +88,31 @@ export const LoginSocialAmazon = memo(
       []
     )
 
-    const handleResponse = useCallback(
-      (res: objectType) => {
-        setIsProcessing(false)
-        onResolve({ provider: 'amazon', data: res })
+    const getUserInfo = useCallback(
+      async (res) => {
+        fetch(`https://api.amazon.com/user/profile`, {
+          headers: {
+            Authorization: `Bearer ${res.access_token}`
+          }
+        })
+          .then((data) => data.json())
+          .then((data) => {
+            onResolve({ provider: 'amazon', data: { ...data, ...res } })
+          })
+          .catch((err) => {
+            onReject(err)
+          })
+          .finally(() => {
+            setIsProcessing(false)
+            setIsLogged(true)
+          })
       },
-      [onResolve]
+      [onReject, onResolve]
     )
+
+    const handleResponse = useCallback((res: objectType) => getUserInfo(res), [
+      getUserInfo
+    ])
 
     const handleError = useCallback(
       (err: objectType | string) => {
@@ -108,6 +141,7 @@ export const LoginSocialAmazon = memo(
         load()
         onReject("Google SDK isn't loaded!")
       } else {
+        onLoginStart && onLoginStart()
         _window.amazon.Login.authorize(
           { scope, scope_data, response_type, redirect_uri, state },
           (res: objectType) => {
@@ -117,18 +151,31 @@ export const LoginSocialAmazon = memo(
         )
       }
     }, [
-      load,
-      state,
-      scope,
-      onReject,
-      scope_data,
-      isSdkLoaded,
-      handleError,
-      redirect_uri,
       isProcessing,
+      isSdkLoaded,
+      load,
+      onReject,
+      onLoginStart,
+      scope,
+      scope_data,
       response_type,
+      redirect_uri,
+      state,
+      handleError,
       handleResponse
     ])
+
+    useImperativeHandle(ref, () => ({
+      onLogout: () => {
+        if (isLogged) {
+          setIsLogged(false)
+          _window.amazon.Login.logout()
+          onLogoutSuccess && onLogoutSuccess()
+        } else {
+          console.log('You must login before logout.')
+        }
+      }
+    }))
 
     return (
       <div className={className} onClick={onLogin}>
@@ -138,4 +185,4 @@ export const LoginSocialAmazon = memo(
   }
 )
 
-export default LoginSocialAmazon
+export default memo(LoginSocialAmazon)

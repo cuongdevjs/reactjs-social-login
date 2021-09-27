@@ -4,8 +4,15 @@
  * LoginSocialInstagram
  *
  */
-import React, { memo, useCallback, useEffect, useState } from 'react'
-import { objectType, IResolveParams } from '../'
+import React, {
+  forwardRef,
+  memo,
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useState
+} from 'react'
+import { objectType, IResolveParams, TypeCrossFunction } from '../'
 
 interface Props {
   scope?: string
@@ -16,28 +23,35 @@ interface Props {
   redirect_uri: string
   response_type?: string
   children?: React.ReactNode
+  onLogoutSuccess?: () => void
+  onLoginStart?: () => void
   onReject: (reject: string | objectType) => void
   onResolve: ({ provider, data }: IResolveParams) => void
 }
 
 const INSTAGRAM_URL = 'https://api.instagram.com'
-// const INSTAGRAM_API_URL = 'https://graph.instagram.com/'
-// const PREVENT_CORS_URL: string = 'https://cors-anywhere.herokuapp.com'
+const INSTAGRAM_API_URL = 'https://graph.instagram.com/'
 const PREVENT_CORS_URL: string = 'https://cors.bridged.cc'
 
-export const LoginSocialInstagram = memo(
-  ({
-    state = 'DCEeFWf45A53sdfKef424',
-    client_id,
-    client_secret,
-    className,
-    redirect_uri,
-    scope = 'user_profile,user_media',
-    response_type = 'code',
-    children,
-    onReject,
-    onResolve
-  }: Props) => {
+export const LoginSocialInstagram = forwardRef(
+  (
+    {
+      state = '',
+      client_id,
+      client_secret,
+      className,
+      redirect_uri,
+      scope = 'user_profile,user_media',
+      response_type = 'code',
+      children,
+      onLogoutSuccess,
+      onReject,
+      onResolve,
+      onLoginStart
+    }: Props,
+    ref: React.Ref<TypeCrossFunction>
+  ) => {
+    const [isLogged, setIsLogged] = useState(false)
     const [isProcessing, setIsProcessing] = useState(false)
 
     useEffect(() => {
@@ -50,26 +64,27 @@ export const LoginSocialInstagram = memo(
       }
     }, [])
 
-    // const getProfile = useCallback(
-    //   (data) => {
-    //     fetch(
-    //       `${PREVENT_CORS_URL}/${INSTAGRAM_API_URL}/me?fields=id,username&access_token=${data.access_token}`,
-    //       {
-    //         method: 'GET'
-    //       }
-    //     )
-    //       .then((res) => res.json())
-    //       .then((res) => {
-    //         setIsProcessing(false)
-    //         onResolve({ provider: 'instagram', data: { ...res, ...data } })
-    //       })
-    //       .catch((err) => {
-    //         setIsProcessing(false)
-    //         onReject(err)
-    //       })
-    //   },
-    //   [onReject, onResolve]
-    // )
+    const getProfile = useCallback(
+      (data) => {
+        fetch(
+          `${PREVENT_CORS_URL}/${INSTAGRAM_API_URL}/me?fields=id,username,account_type,media_count&access_token=${data.access_token}`,
+          {
+            method: 'GET'
+          }
+        )
+          .then((res) => res.json())
+          .then((res) => {
+            setIsLogged(true)
+            setIsProcessing(false)
+            onResolve({ provider: 'instagram', data: { ...res, ...data } })
+          })
+          .catch((err) => {
+            setIsProcessing(false)
+            onReject(err)
+          })
+      },
+      [onReject, onResolve]
+    )
 
     const getAccessToken = useCallback(
       (code: string) => {
@@ -90,16 +105,17 @@ export const LoginSocialInstagram = memo(
         })
           .then((response) => response.json())
           .then((data) => {
-            setIsProcessing(false)
-            if (data.access_token) onResolve({ provider: 'instagram', data })
+            if (data.access_token) getProfile(data)
             else onReject('no data')
           })
           .catch((err) => {
-            setIsProcessing(false)
             onReject(err)
           })
+          .finally(() => {
+            setIsProcessing(false)
+          })
       },
-      [client_id, client_secret, onReject, onResolve, redirect_uri]
+      [client_id, client_secret, getProfile, onReject, redirect_uri]
     )
 
     const handlePostMessage = useCallback(
@@ -123,6 +139,7 @@ export const LoginSocialInstagram = memo(
 
     const onLogin = useCallback(() => {
       if (!isProcessing) {
+        onLoginStart && onLoginStart()
         window.addEventListener('storage', onChangeLocalStorage, false)
         const oauthUrl = `${INSTAGRAM_URL}/oauth/authorize?response_type=${response_type}&client_id=${client_id}&scope=${scope}&state=${
           state + '_instagram'
@@ -146,6 +163,7 @@ export const LoginSocialInstagram = memo(
       }
     }, [
       isProcessing,
+      onLoginStart,
       onChangeLocalStorage,
       response_type,
       client_id,
@@ -153,6 +171,17 @@ export const LoginSocialInstagram = memo(
       state,
       redirect_uri
     ])
+
+    useImperativeHandle(ref, () => ({
+      onLogout: () => {
+        if (isLogged) {
+          setIsLogged(false)
+          onLogoutSuccess && onLogoutSuccess()
+        } else {
+          console.log('You must login before logout.')
+        }
+      }
+    }))
 
     return (
       <div className={className} onClick={onLogin}>
@@ -162,4 +191,4 @@ export const LoginSocialInstagram = memo(
   }
 )
 
-export default LoginSocialInstagram
+export default memo(LoginSocialInstagram)

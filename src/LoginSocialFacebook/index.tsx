@@ -4,8 +4,15 @@
  * LoginSocialFacebook
  *
  */
-import React, { memo, useCallback, useEffect, useState } from 'react'
-import { objectType, IResolveParams } from '../'
+import React, {
+  forwardRef,
+  memo,
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useState
+} from 'react'
+import { objectType, IResolveParams, TypeCrossFunction } from '../'
 
 interface Props {
   appId: string
@@ -18,6 +25,8 @@ interface Props {
   auth_type?: string
   className?: string
   isDisabled?: boolean
+  onLoginStart?: () => void
+  onLogoutSuccess?: () => void
   onReject: (reject: string | objectType) => void
   onResolve: ({ provider, data }: IResolveParams) => void
   redirect_uri?: string
@@ -31,25 +40,31 @@ const SDK_URL: string = 'https://connect.facebook.net/en_EN/sdk.js'
 const SCRIPT_ID: string = 'facebook-jssdk'
 const _window = window as any
 
-const LoginSocialFacebook = memo(
-  ({
-    appId,
-    scope = 'email,public_profile',
-    state = true,
-    xfbml = true,
-    cookie = true,
-    version = 'v2.7',
-    language = 'en_EN',
-    auth_type = '',
-    className,
-    onReject,
-    onResolve,
-    redirect_uri,
-    fieldsProfile = 'name, email, birthday',
-    response_type = 'code',
-    return_scopes = true,
-    children
-  }: Props) => {
+const LoginSocialFacebook = forwardRef(
+  (
+    {
+      appId,
+      scope = 'email,public_profile',
+      state = true,
+      xfbml = true,
+      cookie = true,
+      version = 'v2.7',
+      language = 'en_EN',
+      auth_type = '',
+      className,
+      onLoginStart,
+      onLogoutSuccess,
+      onReject,
+      onResolve,
+      redirect_uri,
+      fieldsProfile = 'id,first_name,last_name,middle_name,name,name_format,picture,short_name',
+      response_type = 'code',
+      return_scopes = true,
+      children
+    }: Props,
+    ref: React.Ref<TypeCrossFunction>
+  ) => {
+    const [isLogged, setIsLogged] = useState(false)
     const [isSdkLoaded, setIsSdkLoaded] = useState(false)
     const [isProcessing, setIsProcessing] = useState(false)
 
@@ -99,6 +114,8 @@ const LoginSocialFacebook = memo(
           '/me',
           { locale: language, fields: fieldsProfile },
           (me: any) => {
+            setIsLogged(true)
+            setIsProcessing(false)
             onResolve({
               provider: 'facebook',
               data: { ...authResponse, ...me }
@@ -116,7 +133,6 @@ const LoginSocialFacebook = memo(
         } else {
           onReject(response)
         }
-        setIsProcessing(false)
       },
       [getMe, onReject]
     )
@@ -161,6 +177,7 @@ const LoginSocialFacebook = memo(
         load()
         onReject("Fb isn't loaded!")
       } else {
+        onLoginStart && onLoginStart()
         _window.FB.login(handleResponse, {
           scope,
           return_scopes,
@@ -168,15 +185,32 @@ const LoginSocialFacebook = memo(
         })
       }
     }, [
-      load,
-      scope,
-      onReject,
-      auth_type,
-      isSdkLoaded,
       isProcessing,
+      isSdkLoaded,
+      load,
+      onReject,
+      onLoginStart,
+      handleResponse,
+      scope,
       return_scopes,
-      handleResponse
+      auth_type
     ])
+
+    useImperativeHandle(ref, () => ({
+      onLogout: () => {
+        if (isLogged) {
+          console.log(
+            '🚀 ~ file: index.tsx ~ line 202 ~ useImperativeHandle ~ isLogged',
+            isLogged
+          )
+          setIsLogged(false)
+          onLogoutSuccess && onLogoutSuccess()
+          _window.FB.logout()
+        } else {
+          console.log('You must login before logout.')
+        }
+      }
+    }))
 
     return (
       <div className={className} onClick={loginFB}>
@@ -186,4 +220,4 @@ const LoginSocialFacebook = memo(
   }
 )
 
-export default LoginSocialFacebook
+export default memo(LoginSocialFacebook)

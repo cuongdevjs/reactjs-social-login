@@ -4,8 +4,15 @@
  * LoginSocialGoogle
  *
  */
-import React, { memo, useCallback, useEffect, useState } from 'react'
-import { objectType, IResolveParams } from '../'
+import React, {
+  forwardRef,
+  memo,
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useState
+} from 'react'
+import { objectType, IResolveParams, TypeCrossFunction } from '../'
 
 interface Props {
   scope?: string
@@ -20,6 +27,9 @@ interface Props {
   hosted_domain?: string
   discoveryDocs?: string
   children?: React.ReactNode
+  onLoginStart?: () => void
+  onLogoutSuccess?: () => void
+  onLogoutFailure?: () => void
   onReject: (reject: string | objectType) => void
   fetch_basic_profile?: boolean
   onResolve: ({ provider, data }: IResolveParams) => void
@@ -30,24 +40,31 @@ const JS_SRC = 'https://apis.google.com/js/api.js'
 const SCRIPT_ID = 'google-login'
 const _window = window as any
 
-const LoginSocialGoogle = memo(
-  ({
-    client_id,
-    scope = 'email profile',
-    prompt = 'select_account',
-    ux_mode,
-    className = '',
-    login_hint = '',
-    access_type = 'online',
-    onReject,
-    onResolve,
-    redirect_uri = '/',
-    cookie_policy = 'single_host_origin',
-    hosted_domain = '',
-    discoveryDocs = '',
-    children,
-    fetch_basic_profile = true
-  }: Props) => {
+const LoginSocialGoogle = forwardRef(
+  (
+    {
+      client_id,
+      scope = 'email profile',
+      prompt = 'select_account',
+      ux_mode,
+      className = '',
+      login_hint = '',
+      access_type = 'online',
+      onLogoutFailure,
+      onLogoutSuccess,
+      onLoginStart,
+      onReject,
+      onResolve,
+      redirect_uri = '/',
+      cookie_policy = 'single_host_origin',
+      hosted_domain = '',
+      discoveryDocs = '',
+      children,
+      fetch_basic_profile = true
+    }: Props,
+    ref: React.Ref<TypeCrossFunction>
+  ) => {
+    const [isLogged, setIsLogged] = useState(false)
     const [isSdkLoaded, setIsSdkLoaded] = useState(false)
     const [isProcessing, setIsProcessing] = useState(false)
 
@@ -84,18 +101,26 @@ const LoginSocialGoogle = memo(
 
     const handleResponse = useCallback(
       (res: objectType) => {
+        setIsLogged(true)
         setIsProcessing(false)
-        const data: { provider_id?: string; data: objectType } = {
-          provider_id: undefined,
-          data: {}
-        }
+        const data: objectType = {}
         Object.values(res)
           .filter((item) => typeof item === 'string' || item?.access_token)
           .forEach((item) => {
             typeof item === 'string'
               ? (data.provider_id = item)
-              : (data.data = item)
+              : Object.entries(item).map(
+                  ([key, value]: any) => (data[key] = value)
+                )
           })
+        const auth2 = _window.gapi.auth2.getAuthInstance()
+        if (auth2.isSignedIn.get()) {
+          const profile = auth2.currentUser.get().getBasicProfile()
+          data.id = profile.getId()
+          data.name = profile.getName()
+          data.avatar = profile.getImageUrl()
+          data.email = profile.getEmail()
+        }
         onResolve({
           provider: 'google',
           data
@@ -106,6 +131,7 @@ const LoginSocialGoogle = memo(
 
     const handleError = useCallback(
       (err: objectType | string) => {
+        console.log('🚀 ~ file: index.tsx ~ line 129 ~ err', err)
         setIsProcessing(false)
         onReject(err)
       },
@@ -163,28 +189,47 @@ const LoginSocialGoogle = memo(
         load()
         onReject("Google SDK isn't loaded!")
       } else {
+        onLoginStart && onLoginStart()
         const auth2 = _window.gapi.auth2.getAuthInstance()
         const options = {
           prompt,
           scope,
           ux_mode
         }
-        // auth2.grantOfflineAccess(options).then((res: any) => {
-        //   console.log(res);
-        // });
         auth2.signIn(options).then(handleResponse).catch(handleError)
       }
     }, [
-      load,
-      scope,
-      prompt,
-      ux_mode,
-      onReject,
-      handleError,
-      isSdkLoaded,
       isProcessing,
-      handleResponse
+      isSdkLoaded,
+      load,
+      onReject,
+      onLoginStart,
+      prompt,
+      scope,
+      ux_mode,
+      handleResponse,
+      handleError
     ])
+
+    useImperativeHandle(ref, () => ({
+      onLogout: () => {
+        if (isLogged) {
+          setIsLogged(false)
+          var auth2 = _window.gapi.auth2.getAuthInstance()
+          auth2
+            .signOut()
+            .then(function () {
+              onLogoutSuccess && onLogoutSuccess()
+            })
+            .catch((err: any) => {
+              console.log(err)
+              onLogoutFailure && onLogoutFailure()
+            })
+        } else {
+          console.log('You must login before logout.')
+        }
+      }
+    }))
 
     return (
       <div className={className} onClick={loginGoogle}>
@@ -194,4 +239,4 @@ const LoginSocialGoogle = memo(
   }
 )
 
-export default LoginSocialGoogle
+export default memo(LoginSocialGoogle)

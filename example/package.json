@@ -21,6 +21,7 @@
     "react-dom": "link:../node_modules/react-dom",
     "react-scripts": "link:../node_modules/react-scripts",
     "typescript": "link:../node_modules/typescript",
+    "react-social-login-buttons": "link:../node_modules/react-social-login-buttons",
     "reactjs-social-login": "link:.."
   },
   "devDependencies": {

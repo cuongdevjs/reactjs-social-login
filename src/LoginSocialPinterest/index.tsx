@@ -4,8 +4,15 @@
  * LoginSocialGithub
  *
  */
-import React, { memo, useCallback, useEffect, useState } from 'react'
-import { IResolveParams, objectType } from '..'
+import React, {
+  forwardRef,
+  memo,
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useState
+} from 'react'
+import { IResolveParams, objectType, TypeCrossFunction } from '..'
 
 interface Props {
   state?: string
@@ -14,28 +21,35 @@ interface Props {
   client_secret: string
   className?: string
   redirect_uri: string
-  // client_secret: string
   children?: React.ReactNode
+  onLoginStart?: () => void
+  onLogoutSuccess?: () => void
   onReject: (reject: string | objectType) => void
   onResolve: ({ provider, data }: IResolveParams) => void
 }
 
 const PINTEREST_URL: string = 'https://www.pinterest.com/oauth'
-const PINTEREST_URL_API: string = 'https://api.pinterest.com/v5/oauth'
+const PINTEREST_URL_API: string = 'https://api.pinterest.com/v5'
 const PREVENT_CORS_URL: string = 'https://cors.bridged.cc'
 
-export const LoginSocialPinterest = memo(
-  ({
-    state = '',
-    scope = '',
-    client_id,
-    client_secret,
-    className = '',
-    redirect_uri,
-    children,
-    onReject,
-    onResolve
-  }: Props) => {
+export const LoginSocialPinterest = forwardRef(
+  (
+    {
+      state = '',
+      scope = '',
+      client_id,
+      client_secret,
+      className = '',
+      redirect_uri,
+      children,
+      onLoginStart,
+      onLogoutSuccess,
+      onReject,
+      onResolve
+    }: Props,
+    ref: React.Ref<TypeCrossFunction>
+  ) => {
+    const [isLogged, setIsLogged] = useState(false)
     const [isProcessing, setIsProcessing] = useState(false)
 
     useEffect(() => {
@@ -47,6 +61,25 @@ export const LoginSocialPinterest = memo(
         window.close()
       }
     }, [])
+
+    const getProfile = useCallback(
+      (data) => {
+        fetch(`${PREVENT_CORS_URL}/${PINTEREST_URL_API}/user_account`, {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${data.access_token}`
+          }
+        })
+          .then((res) => res.json())
+          .then((res) => {
+            setIsLogged(true)
+            setIsProcessing(false)
+            onResolve({ provider: 'pinterest', data: { ...data, ...res } })
+          })
+          .catch((err) => onReject(err))
+      },
+      [onReject, onResolve]
+    )
 
     const getAccessToken = useCallback(
       async (code: string) => {
@@ -64,7 +97,7 @@ export const LoginSocialPinterest = memo(
         formBody = formBody.join('&')
 
         const data = await fetch(
-          `${PREVENT_CORS_URL}/${PINTEREST_URL_API}/token`,
+          `${PREVENT_CORS_URL}/${PINTEREST_URL_API}/oauth/token`,
           {
             method: 'POST',
             headers: {
@@ -77,10 +110,9 @@ export const LoginSocialPinterest = memo(
           .then((data) => data.json())
           .catch((err) => onReject(err))
 
-        setIsProcessing(false)
-        onResolve({ provider: 'pinterest', data })
+        getProfile(data)
       },
-      [client_id, client_secret, onReject, onResolve, redirect_uri]
+      [client_id, client_secret, getProfile, onReject, redirect_uri]
     )
 
     const handlePostMessage = useCallback(
@@ -104,6 +136,7 @@ export const LoginSocialPinterest = memo(
 
     const onLogin = useCallback(() => {
       if (!isProcessing) {
+        onLoginStart && onLoginStart()
         window.addEventListener('storage', onChangeLocalStorage, false)
         const oauthUrl = `${PINTEREST_URL}/?client_id=${client_id}&scope=${scope}&state=${
           state + '_pinterest'
@@ -127,12 +160,24 @@ export const LoginSocialPinterest = memo(
       }
     }, [
       isProcessing,
+      onLoginStart,
       onChangeLocalStorage,
       client_id,
       scope,
       state,
       redirect_uri
     ])
+
+    useImperativeHandle(ref, () => ({
+      onLogout: () => {
+        if (isLogged) {
+          setIsLogged(false)
+          onLogoutSuccess && onLogoutSuccess()
+        } else {
+          console.log('You must login before logout.')
+        }
+      }
+    }))
 
     return (
       <div className={className} onClick={onLogin}>
@@ -142,4 +187,4 @@ export const LoginSocialPinterest = memo(
   }
 )
 
-export default LoginSocialPinterest
+export default memo(LoginSocialPinterest)

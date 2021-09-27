@@ -4,8 +4,15 @@
  * LoginSocialMicrosoft
  *
  */
-import React, { memo, useCallback, useEffect, useState } from 'react'
-import { IResolveParams, objectType } from '../'
+import React, {
+  forwardRef,
+  memo,
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useState
+} from 'react'
+import { IResolveParams, objectType, TypeCrossFunction } from '../'
 
 interface Props {
   scope?: string
@@ -17,6 +24,8 @@ interface Props {
   response_mode?: string
   code_challenge?: string
   children?: React.ReactNode
+  onLoginStart?: () => void
+  onLogoutSuccess?: () => void
   onReject: (reject: string | objectType) => void
   code_challenge_method?: 'plain' | 's256'[]
   onResolve: ({ provider, data }: IResolveParams) => void
@@ -26,25 +35,31 @@ interface Props {
 
 const MICROSOFT_URL = 'https://login.microsoftonline.com'
 const MICROSOFT_API_URL = 'https://graph.microsoft.com'
-// const PREVENT_CORS_URL: string = 'https://cors-anywhere.herokuapp.com';
+// const PREVENT_CORS_URL: string = 'https://cors.bridged.cc'
 
-export const LoginSocialMicrosoft = memo(
-  ({
-    tenant = 'common',
-    state = 'DCEeFWf45A53sdfKef424',
-    client_id,
-    className,
-    redirect_uri,
-    scope = 'profile openid email',
-    response_type = 'code',
-    response_mode = 'query',
-    children,
-    code_challenge = '19cfc47c216dacba8ca23eeee817603e2ba34fe0976378662ba31688ed302fa9',
-    code_challenge_method = 'plain',
-    prompt = 'select_account',
-    onReject,
-    onResolve
-  }: Props) => {
+export const LoginSocialMicrosoft = forwardRef(
+  (
+    {
+      tenant = 'common',
+      state = '',
+      client_id,
+      className,
+      redirect_uri,
+      scope = 'profile openid email',
+      response_type = 'code',
+      response_mode = 'query',
+      children,
+      code_challenge = '19cfc47c216dacba8ca23eeee817603e2ba34fe0976378662ba31688ed302fa9',
+      code_challenge_method = 'plain',
+      prompt = 'select_account',
+      onLogoutSuccess,
+      onLoginStart,
+      onReject,
+      onResolve
+    }: Props,
+    ref: React.Ref<TypeCrossFunction>
+  ) => {
+    const [isLogged, setIsLogged] = useState(false)
     const [isProcessing, setIsProcessing] = useState(false)
 
     useEffect(() => {
@@ -68,6 +83,7 @@ export const LoginSocialMicrosoft = memo(
           .then((res) => res.json())
           .then((res) => {
             setIsProcessing(false)
+            setIsLogged(true)
             onResolve({ provider: 'microsoft', data: { ...res, ...data } })
           })
           .catch((err) => {
@@ -141,6 +157,7 @@ export const LoginSocialMicrosoft = memo(
 
     const onLogin = useCallback(() => {
       if (!isProcessing) {
+        onLoginStart && onLoginStart()
         window.addEventListener('storage', onChangeLocalStorage, false)
         const oauthUrl = `${MICROSOFT_URL}/${tenant}/oauth2/v2.0/authorize?client_id=${client_id}
         &response_type=${response_type}
@@ -170,6 +187,7 @@ export const LoginSocialMicrosoft = memo(
       }
     }, [
       isProcessing,
+      onLoginStart,
       onChangeLocalStorage,
       tenant,
       client_id,
@@ -183,6 +201,17 @@ export const LoginSocialMicrosoft = memo(
       code_challenge_method
     ])
 
+    useImperativeHandle(ref, () => ({
+      onLogout: () => {
+        if (isLogged) {
+          setIsLogged(false)
+          onLogoutSuccess && onLogoutSuccess()
+        } else {
+          console.log('You must login before logout.')
+        }
+      }
+    }))
+
     return (
       <div className={className} onClick={onLogin}>
         {children}
@@ -191,4 +220,4 @@ export const LoginSocialMicrosoft = memo(
   }
 )
 
-export default LoginSocialMicrosoft
+export default memo(LoginSocialMicrosoft)

@@ -4,8 +4,15 @@
  * LoginSocialLinkedin
  *
  */
-import React, { memo, useCallback, useEffect, useState } from 'react'
-import { IResolveParams, objectType } from '../'
+import React, {
+  forwardRef,
+  memo,
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useState
+} from 'react'
+import { IResolveParams, objectType, TypeCrossFunction } from '../'
 
 interface Props {
   state?: string
@@ -16,27 +23,35 @@ interface Props {
   client_secret: string
   response_type?: string
   children?: React.ReactNode
+  onLoginStart?: () => void
+  onLogoutSuccess?: () => void
   onReject: (reject: string | objectType) => void
   onResolve: ({ provider, data }: IResolveParams) => void
 }
 
 const LINKEDIN_URL: string = 'https://www.linkedin.com/oauth/v2'
-// const LINKEDIN_API_URL: string = 'https://api.linkedin.com'
+const LINKEDIN_API_URL: string = 'https://api.linkedin.com'
 const PREVENT_CORS_URL: string = 'https://cors.bridged.cc'
 
-export const LoginSocialLinkedin = memo(
-  ({
-    state = '',
-    scope = 'r_liteprofile',
-    client_id,
-    client_secret,
-    className = '',
-    redirect_uri,
-    response_type = 'code',
-    children,
-    onReject,
-    onResolve
-  }: Props) => {
+export const LoginSocialLinkedin = forwardRef(
+  (
+    {
+      state = '',
+      scope = 'r_liteprofile',
+      client_id,
+      client_secret,
+      className = '',
+      redirect_uri,
+      response_type = 'code',
+      children,
+      onLoginStart,
+      onLogoutSuccess,
+      onReject,
+      onResolve
+    }: Props,
+    ref: React.Ref<TypeCrossFunction>
+  ) => {
+    const [isLogged, setIsLogged] = useState(false)
     const [isProcessing, setIsProcessing] = useState(false)
 
     useEffect(() => {
@@ -49,26 +64,40 @@ export const LoginSocialLinkedin = memo(
       }
     }, [])
 
-    // const getProfile = useCallback(
-    //   (data) => {
-    //     fetch(`${PREVENT_CORS_URL}/${LINKEDIN_API_URL}/v2/me`, {
-    //       method: 'GET',
-    //       headers: {
-    //         Authorization: `Bearer ${data.access_token}`
-    //       }
-    //     })
-    //       .then((res) => res.json())
-    //       .then((res) => {
-    //         setIsProcessing(false)
-    //         onResolve({ provider: 'linkedin', data: { ...res, ...data } })
-    //       })
-    //       .catch((err) => {
-    //         setIsProcessing(false)
-    //         onReject(err)
-    //       })
-    //   },
-    //   [onReject, onResolve]
-    // )
+    const getProfile = useCallback(
+      (data) => {
+        fetch(
+          `https://api.allorigins.win/get?url=${encodeURIComponent(
+            LINKEDIN_API_URL +
+              '/v2/me?oauth2_access_token=' +
+              data.access_token +
+              '&projection=(id,profilePicture(displayImage~digitalmediaAsset:playableStreams),localizedLastName, firstName,lastName,localizedFirstName)'
+          )}`,
+          {
+            method: 'GET'
+          }
+        )
+          .then((res) => res.json())
+          .then((res) => {
+            const response = { ...data }
+            if (res.contents) {
+              const contents = JSON.parse(res.contents)
+              if (typeof data === 'object')
+                Object.entries(contents).map(([key, value]) => {
+                  response[key] = value
+                })
+            }
+            setIsLogged(true)
+            setIsProcessing(false)
+            onResolve({ provider: 'linkedin', data: response })
+          })
+          .catch((err) => {
+            setIsProcessing(false)
+            onReject(err)
+          })
+      },
+      [onReject, onResolve]
+    )
 
     const getAccessToken = useCallback(
       (code: string) => {
@@ -90,15 +119,14 @@ export const LoginSocialLinkedin = memo(
         })
           .then((response) => response.json())
           .then((response) => {
-            setIsProcessing(false)
-            onResolve({ provider: 'linkedin', data: response })
+            getProfile(response)
           })
           .catch((err) => {
             setIsProcessing(false)
             onReject(err)
           })
       },
-      [client_id, client_secret, onReject, onResolve, redirect_uri]
+      [client_id, client_secret, getProfile, onReject, redirect_uri]
     )
 
     const handlePostMessage = useCallback(
@@ -122,6 +150,7 @@ export const LoginSocialLinkedin = memo(
 
     const onLogin = useCallback(() => {
       if (!isProcessing) {
+        onLoginStart && onLoginStart()
         window.addEventListener('storage', onChangeLocalStorage, false)
         const oauthUrl = `${LINKEDIN_URL}/authorization?response_type=${response_type}&client_id=${client_id}&scope=${scope}&state=${
           state + '_linkedin'
@@ -145,6 +174,7 @@ export const LoginSocialLinkedin = memo(
       }
     }, [
       isProcessing,
+      onLoginStart,
       onChangeLocalStorage,
       response_type,
       client_id,
@@ -152,6 +182,17 @@ export const LoginSocialLinkedin = memo(
       state,
       redirect_uri
     ])
+
+    useImperativeHandle(ref, () => ({
+      onLogout: () => {
+        if (isLogged) {
+          setIsLogged(false)
+          onLogoutSuccess && onLogoutSuccess()
+        } else {
+          console.log('You must login before logout.')
+        }
+      }
+    }))
 
     return (
       <div className={className} onClick={onLogin}>
@@ -161,4 +202,4 @@ export const LoginSocialLinkedin = memo(
   }
 )
 
-export default LoginSocialLinkedin
+export default memo(LoginSocialLinkedin)

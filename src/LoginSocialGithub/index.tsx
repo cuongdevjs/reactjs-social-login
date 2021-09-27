@@ -4,8 +4,15 @@
  * LoginSocialGithub
  *
  */
-import React, { memo, useCallback, useEffect, useState } from 'react'
-import { IResolveParams, objectType } from '../'
+import React, {
+  forwardRef,
+  memo,
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useState
+} from 'react'
+import { IResolveParams, objectType, TypeCrossFunction } from '../'
 
 interface Props {
   state?: string
@@ -16,27 +23,35 @@ interface Props {
   client_secret: string
   allow_signup?: boolean
   children?: React.ReactNode
+  onLoginStart?: () => void
+  onLogoutSuccess?: () => void
   onReject: (reject: string | objectType) => void
   onResolve: ({ provider, data }: IResolveParams) => void
 }
 
 const GITHUB_URL: string = 'https://github.com'
-// const GITHUB_API_URL: string = 'https://api.github.com/'
+const GITHUB_API_URL: string = 'https://api.github.com/'
 const PREVENT_CORS_URL: string = 'https://cors.bridged.cc'
 
-export const LoginSocialGithub = memo(
-  ({
-    state = '',
-    scope = 'repo,gist',
-    client_id,
-    client_secret,
-    className = '',
-    redirect_uri,
-    allow_signup = false,
-    children,
-    onReject,
-    onResolve
-  }: Props) => {
+export const LoginSocialGithub = forwardRef(
+  (
+    {
+      state = '',
+      scope = 'repo,gist',
+      client_id,
+      client_secret,
+      className = '',
+      redirect_uri,
+      allow_signup = false,
+      children,
+      onReject,
+      onResolve,
+      onLoginStart,
+      onLogoutSuccess
+    }: Props,
+    ref: React.Ref<TypeCrossFunction>
+  ) => {
+    const [isLogged, setIsLogged] = useState(false)
     const [isProcessing, setIsProcessing] = useState(false)
 
     useEffect(() => {
@@ -48,6 +63,28 @@ export const LoginSocialGithub = memo(
         window.close()
       }
     }, [])
+
+    const getProfile = useCallback(
+      (data) => {
+        fetch(`${PREVENT_CORS_URL}/${GITHUB_API_URL}/user`, {
+          method: 'GET',
+          headers: {
+            Authorization: `token ${data.access_token}`
+          }
+        })
+          .then((res) => res.json())
+          .then((response: any) => {
+            setIsLogged(true)
+            setIsProcessing(false)
+            onResolve({ provider: 'github', data: { ...response, ...data } })
+          })
+          .catch((err) => {
+            setIsProcessing(false)
+            onReject(err)
+          })
+      },
+      [onReject, onResolve]
+    )
 
     const getAccessToken = useCallback(
       (code: string) => {
@@ -75,7 +112,7 @@ export const LoginSocialGithub = memo(
             for (const p of searchParams) {
               data[p[0]] = p[1]
             }
-            if (data.access_token) onResolve({ provider: 'github', data })
+            if (data.access_token) getProfile(data)
             else onReject('no data')
           })
           .catch((err) => {
@@ -83,7 +120,7 @@ export const LoginSocialGithub = memo(
             onReject(err)
           })
       },
-      [client_id, client_secret, onReject, onResolve, redirect_uri, state]
+      [client_id, client_secret, getProfile, onReject, redirect_uri, state]
     )
 
     const handlePostMessage = useCallback(
@@ -105,29 +142,9 @@ export const LoginSocialGithub = memo(
       }
     }, [handlePostMessage])
 
-    // const getProfile = useCallback(
-    //   (data) => {
-    //     fetch(`${PREVENT_CORS_URL}/${GITHUB_API_URL}/user`, {
-    //       method: 'GET',
-    //       headers: {
-    //         Authorization: `token ${data.access_token}`
-    //       }
-    //     })
-    //       .then((res) => res.json())
-    //       .then((response: any) => {
-    //         setIsProcessing(false)
-    //         onResolve({ provider: 'github', data: { ...response, ...data } })
-    //       })
-    //       .catch((err) => {
-    //         setIsProcessing(false)
-    //         onReject(err)
-    //       })
-    //   },
-    //   [onReject, onResolve]
-    // )
-
     const onLogin = useCallback(() => {
       if (!isProcessing) {
+        onLoginStart && onLoginStart()
         window.addEventListener('storage', onChangeLocalStorage, false)
         const oauthUrl = `${GITHUB_URL}/login/oauth/authorize?client_id=${client_id}&scope=${scope}&state=${
           state + '_github'
@@ -151,6 +168,7 @@ export const LoginSocialGithub = memo(
       }
     }, [
       isProcessing,
+      onLoginStart,
       onChangeLocalStorage,
       client_id,
       scope,
@@ -158,6 +176,17 @@ export const LoginSocialGithub = memo(
       redirect_uri,
       allow_signup
     ])
+
+    useImperativeHandle(ref, () => ({
+      onLogout: () => {
+        if (isLogged) {
+          setIsLogged(false)
+          onLogoutSuccess && onLogoutSuccess()
+        } else {
+          console.log('You must login before logout.')
+        }
+      }
+    }))
 
     return (
       <div className={className} onClick={onLogin}>
@@ -167,4 +196,4 @@ export const LoginSocialGithub = memo(
   }
 )
 
-export default LoginSocialGithub
+export default memo(LoginSocialGithub)
