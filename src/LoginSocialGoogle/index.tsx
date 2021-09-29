@@ -118,6 +118,8 @@ const LoginSocialGoogle = forwardRef(
           const profile = auth2.currentUser.get().getBasicProfile()
           data.id = profile.getId()
           data.name = profile.getName()
+          data.firstName = profile.getGivenName()
+          data.lastName = profile.getFamilyName()
           data.avatar = profile.getImageUrl()
           data.email = profile.getEmail()
         }
