@@ -1,6 +1,6 @@
 {
   "name": "reactjs-social-login",
-  "version": "1.5.2",
+  "version": "1.5.3",
   "description": "Group social login for ReactJS",
   "author": "Nguyen Manh Cuong ",
   "license": "MIT",
@@ -9,7 +9,7 @@
     "url": "https://github.com/cuongdevjs/reactjs-social-login"
   },
   "main": "dist/index.js",
-  "module": "dist/index.modern.js",
+  "module": "dist/index.js",
   "typings": "dist/index.d.ts",
   "source": "src/index.tsx",
   "type": "module",
