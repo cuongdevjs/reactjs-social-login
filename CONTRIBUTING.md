@@ -1,0 +1,6 @@
+- clone project
+- create .env and add variables following README.md
+- npm install
+- npm run start
+- use ngrok to host https instead http to test
+- create PR
