@@ -102,6 +102,9 @@ const App = () => {
         <LoginSocialFacebook
           ref={facebookRef}
           appId={process.env.REACT_APP_FB_APP_ID || ''}
+          fieldsProfile={
+            'id,first_name,last_name,middle_name,name,name_format,picture,short_name,email,gender'
+          }
           onLoginStart={onLoginStart}
           onLogoutSuccess={onLogoutSuccess}
           onResolve={({ provider, data }: IResolveParams) => {
