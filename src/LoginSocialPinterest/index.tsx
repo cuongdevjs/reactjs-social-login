@@ -67,7 +67,8 @@ export const LoginSocialPinterest = forwardRef(
         fetch(`${PREVENT_CORS_URL}/${PINTEREST_URL_API}/user_account`, {
           method: 'GET',
           headers: {
-            Authorization: `Bearer ${data.access_token}`
+            Authorization: `Bearer ${data.access_token}`,
+            'x-cors-grida-api-key': '875c0462-6309-4ddf-9889-5227b1acc82c'
           }
         })
           .then((res) => res.json())
@@ -102,7 +103,8 @@ export const LoginSocialPinterest = forwardRef(
             method: 'POST',
             headers: {
               Authorization: `Basic ${btoa(client_id + ':' + client_secret)}`,
-              'Content-Type': 'application/x-www-form-urlencoded'
+              'Content-Type': 'application/x-www-form-urlencoded',
+              'x-cors-grida-api-key': '875c0462-6309-4ddf-9889-5227b1acc82c'
             },
             body: formBody
           }

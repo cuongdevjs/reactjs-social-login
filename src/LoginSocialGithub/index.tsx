@@ -69,7 +69,8 @@ export const LoginSocialGithub = forwardRef(
         fetch(`${PREVENT_CORS_URL}/${GITHUB_API_URL}/user`, {
           method: 'GET',
           headers: {
-            Authorization: `token ${data.access_token}`
+            Authorization: `token ${data.access_token}`,
+            'x-cors-grida-api-key': '875c0462-6309-4ddf-9889-5227b1acc82c'
           }
         })
           .then((res) => res.json())
@@ -96,7 +97,8 @@ export const LoginSocialGithub = forwardRef(
           client_secret
         }
         const headers = new Headers({
-          'Content-Type': 'application/x-www-form-urlencoded'
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'x-cors-grida-api-key': '875c0462-6309-4ddf-9889-5227b1acc82c'
         })
 
         fetch(`${PREVENT_CORS_URL}/${GITHUB_URL}/login/oauth/access_token`, {

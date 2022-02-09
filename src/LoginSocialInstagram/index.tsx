@@ -69,7 +69,10 @@ export const LoginSocialInstagram = forwardRef(
         fetch(
           `${PREVENT_CORS_URL}/${INSTAGRAM_API_URL}/me?fields=id,username,account_type,media_count&access_token=${data.access_token}`,
           {
-            method: 'GET'
+            method: 'GET',
+            headers: {
+              'x-cors-grida-api-key': '875c0462-6309-4ddf-9889-5227b1acc82c'
+            }
           }
         )
           .then((res) => res.json())
@@ -96,7 +99,8 @@ export const LoginSocialInstagram = forwardRef(
           client_secret
         }
         const headers = new Headers({
-          'Content-Type': 'application/x-www-form-urlencoded'
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'x-cors-grida-api-key': '875c0462-6309-4ddf-9889-5227b1acc82c'
         })
         fetch(`${PREVENT_CORS_URL}/${INSTAGRAM_URL}/oauth/access_token`, {
           method: 'POST',

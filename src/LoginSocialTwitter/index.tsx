@@ -77,7 +77,8 @@ export const LoginSocialTwitter = forwardRef(
         fetch(url, {
           method: 'GET',
           headers: {
-            Authorization: `OAuth ${oauthSignature}`
+            Authorization: `OAuth ${oauthSignature}`,
+            'x-cors-grida-api-key': '875c0462-6309-4ddf-9889-5227b1acc82c'
           }
         })
           .then((res) => res.json())
@@ -106,7 +107,8 @@ export const LoginSocialTwitter = forwardRef(
         const data = await fetch(requestOAuthURL, {
           method: 'POST',
           headers: {
-            Authorization: `OAuth ${oauthSignature}`
+            Authorization: `OAuth ${oauthSignature}`,
+            'x-cors-grida-api-key': '875c0462-6309-4ddf-9889-5227b1acc82c'
           }
         })
           .then((data) => data.text())
@@ -151,7 +153,8 @@ export const LoginSocialTwitter = forwardRef(
         const data = await fetch(requestOAuthURL, {
           method: 'POST',
           headers: {
-            Authorization: `OAuth ${oauthSignature}`
+            Authorization: `OAuth ${oauthSignature}`,
+            'x-cors-grida-api-key': '875c0462-6309-4ddf-9889-5227b1acc82c'
           }
         })
           .then((data) => data.text())
