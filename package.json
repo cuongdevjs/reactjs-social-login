@@ -8,8 +8,9 @@
     "type": "git",
     "url": "https://github.com/cuongdevjs/reactjs-social-login"
   },
+  "type": "module",
   "main": "dist/index.js",
-  "module": "dist/index.js",
+  "module": "dist/index.modern.js",
   "typings": "dist/index.d.ts",
   "source": "src/index.tsx",
   "types": "dist/index.d.ts",
@@ -17,7 +18,7 @@
     "node": ">=10"
   },
   "scripts": {
-    "build": "microbundle-crl --format cjs",
+    "build": "microbundle-crl --format modern,esm,cjs",
     "start": "microbundle-crl watch --format cjs",
     "prepare": "run-s build",
     "test": "run-s test:unit test:lint test:build",
