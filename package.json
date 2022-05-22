@@ -1,6 +1,6 @@
 {
   "name": "reactjs-social-login",
-  "version": "2.0.1",
+  "version": "2.1.0",
   "description": "Group social login for ReactJS",
   "author": "Nguyen Manh Cuong ",
   "license": "MIT",
@@ -8,29 +8,36 @@
     "type": "git",
     "url": "https://github.com/cuongdevjs/reactjs-social-login"
   },
-  "main": "dist/index.js",
-  "module": "dist/index.js",
-  "typings": "dist/index.d.ts",
-  "source": "src/index.tsx",
-  "types": "dist/index.d.ts",
+  "type": "module",
+  "main": "./dist/reactjs-social-login.js",
+  "browser": "./dist/reactjs-social-login.umd.js",
+  "umd:main": "./dist/reactjs-social-login.umd.js",
+  "jsnext:main": "./dist/reactjs-social-login.modern.js",
+  "module": "./dist/reactjs-social-login.modern.js",
+  "source": "./src/index.tsx",
+  "syntax": {
+    "esmodules": "./dist/reactjs-social-login.modern.js"
+  },
+  "types": "./dist/index.d.ts",
+  "typings": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "browser": "./dist/reactjs-social-login.modern.js",
+      "umd": "./dist/reactjs-social-login.umd.js",
+      "import": "./dist/reactjs-social-login.modern.js",
+      "require": "./dist/reactjs-social-login.js"
+    }
+  },
   "engines": {
     "node": ">=10"
   },
   "scripts": {
-    "build": "microbundle-crl --format cjs",
-    "start": "microbundle-crl watch --format cjs",
-    "prepare": "run-s build",
-    "test": "run-s test:unit test:lint test:build",
-    "test:build": "run-s build",
-    "test:lint": "eslint .",
-    "test:unit": "cross-env CI=1 react-scripts test --env=jsdom",
-    "test:watch": "react-scripts test --env=jsdom",
-    "predeploy": "cd example && yarn install && yarn run build",
-    "deploy": "gh-pages -d example/build"
+    "build": "microbundle-crl -o dist/ --sourcemap false --no-compress --jsx React.createElement --globals crypto-js=crypto-js --compress --tsconfig ./tsconfig.json",
+    "start": "microbundle-crl watch --jsx React.createElement --globals crypto-js=crypto-js --compress --tsconfig ./tsconfig.json"
   },
   "peerDependencies": {
-    "react": "^17.0.1",
-    "react-dom": "^17.0.1"
+    "react": "^16 || ^17 || ^18",
+    "react-dom": "^16 || ^17 || ^18"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^4.2.4",

@@ -2,7 +2,8 @@
   "compilerOptions": {
     "outDir": "dist",
     "module": "esnext",
-    "lib": ["dom", "esnext"],
+    "target": "es5",
+    "lib": ["dom", "dom.iterable", "esnext"],
     "moduleResolution": "node",
     "jsx": "react",
     "sourceMap": true,
@@ -16,7 +17,7 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "allowSyntheticDefaultImports": true,
-    "baseUrl": "./",
+    "baseUrl": "./src",
     "typeRoots": ["dist/index.d.ts"]
   },
 
