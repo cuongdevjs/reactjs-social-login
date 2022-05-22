@@ -35,8 +35,9 @@ interface Props {
   onResolve: ({ provider, data }: IResolveParams) => void
 }
 
-const SCOPE = ''
-const JS_SRC = 'https://apis.google.com/js/api.js'
+// const SCOPE = ''
+// const JS_SRC = 'https://apis.google.com/js/api.js'
+const JS_SRC = 'https://accounts.google.com/gsi/client'
 const SCRIPT_ID = 'google-login'
 const _window = window as any
 
@@ -67,6 +68,8 @@ const LoginSocialGoogle = forwardRef(
     const [isLogged, setIsLogged] = useState(false)
     const [isSdkLoaded, setIsSdkLoaded] = useState(false)
     const [isProcessing, setIsProcessing] = useState(false)
+    const [instance, setInstance] = useState<any>(null!)
+    const [token, setToken] = useState<string>('')
 
     useEffect(() => {
       !isSdkLoaded && load()
@@ -103,41 +106,21 @@ const LoginSocialGoogle = forwardRef(
       (res: objectType) => {
         setIsLogged(true)
         setIsProcessing(false)
-        const data: objectType = {}
-        Object.values(res)
-          .filter((item) => typeof item === 'string' || item?.access_token)
-          .forEach((item) => {
-            typeof item === 'string'
-              ? (data.provider_id = item)
-              : Object.entries(item).map(
-                  ([key, value]: any) => (data[key] = value)
-                )
-          })
-        const auth2 = _window.gapi.auth2.getAuthInstance()
-        if (auth2.isSignedIn.get()) {
-          const profile = auth2.currentUser.get().getBasicProfile()
-          data.id = profile.getId()
-          data.name = profile.getName()
-          data.firstName = profile.getGivenName()
-          data.lastName = profile.getFamilyName()
-          data.avatar = profile.getImageUrl()
-          data.email = profile.getEmail()
-        }
+        setToken(res?.access_token)
+        // _window.google.accounts.id.initialize({
+        //   client_id,
+        //   auto_select: true,
+        //   callback: (value: any) =>
+        //     console.log('🚀 ~ file: index.tsx ~ line 113 ~ value', value)
+        // })
+        // _window.google.accounts.id.prompt()
+        const data: objectType = res
         onResolve({
           provider: 'google',
           data
         })
       },
       [onResolve]
-    )
-
-    const handleError = useCallback(
-      (err: objectType | string) => {
-        console.log('🚀 ~ file: index.tsx ~ line 129 ~ err', err)
-        setIsProcessing(false)
-        onReject(err)
-      },
-      [onReject]
     )
 
     const load = useCallback(() => {
@@ -155,78 +138,59 @@ const LoginSocialGoogle = forwardRef(
             ux_mode,
             redirect_uri,
             access_type,
-            scope: SCOPE,
-            immediate: true
+            scope,
+            immediate: true,
+            prompt
           }
-          _window.gapi.load('auth2', () => {
-            const gapiAuth = _window.gapi.auth2
-            !gapiAuth.getAuthInstance()
-              ? gapiAuth.init(params).then(() => {
-                  setIsSdkLoaded(true)
-                })
-              : onReject('not exist an instance')
+          var client = _window.google.accounts.oauth2.initTokenClient({
+            ...params,
+            callback: handleResponse
           })
+          setInstance(client)
+          setIsSdkLoaded(true)
         })
       }
     }, [
-      ux_mode,
-      onReject,
-      client_id,
-      login_hint,
-      access_type,
-      redirect_uri,
-      discoveryDocs,
-      cookie_policy,
-      hosted_domain,
+      checkIsExistsSDKScript,
       insertScriptGoogle,
+      client_id,
+      prompt,
+      cookie_policy,
+      login_hint,
+      hosted_domain,
       fetch_basic_profile,
-      checkIsExistsSDKScript
+      discoveryDocs,
+      ux_mode,
+      redirect_uri,
+      access_type,
+      scope,
+      handleResponse
     ])
 
     const loginGoogle = useCallback(() => {
       if (isProcessing || !isSdkLoaded) return
       setIsProcessing(true)
-      if (!_window.gapi) {
+      if (!_window.google) {
         setIsProcessing(false)
         load()
         onReject("Google SDK isn't loaded!")
       } else {
         onLoginStart && onLoginStart()
-        const auth2 = _window.gapi.auth2.getAuthInstance()
-        const options = {
-          prompt,
-          scope,
-          ux_mode
-        }
-        auth2.signIn(options).then(handleResponse).catch(handleError)
+        if (instance) instance.requestAccessToken()
       }
-    }, [
-      isProcessing,
-      isSdkLoaded,
-      load,
-      onReject,
-      onLoginStart,
-      prompt,
-      scope,
-      ux_mode,
-      handleResponse,
-      handleError
-    ])
+    }, [instance, isProcessing, isSdkLoaded, load, onLoginStart, onReject])
 
     useImperativeHandle(ref, () => ({
       onLogout: () => {
-        if (isLogged) {
+        if (isLogged && token) {
           setIsLogged(false)
-          var auth2 = _window.gapi.auth2.getAuthInstance()
-          auth2
-            .signOut()
-            .then(function () {
-              onLogoutSuccess && onLogoutSuccess()
-            })
-            .catch((err: any) => {
-              console.log(err)
+          var auth2 = _window.google.accounts.oauth2
+          auth2.revoke(token, (done: any) => {
+            if (done.error) {
+              console.log(done.error)
               onLogoutFailure && onLogoutFailure()
-            })
+            } else onLogoutSuccess && onLogoutSuccess()
+          })
         } else {
           console.log('You must login before logout.')
         }
