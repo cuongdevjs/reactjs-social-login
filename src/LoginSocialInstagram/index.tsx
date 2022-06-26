@@ -52,7 +52,6 @@ export const LoginSocialInstagram = forwardRef(
     ref: React.Ref<TypeCrossFunction>
   ) => {
     const [isLogged, setIsLogged] = useState(false)
-    const [isProcessing, setIsProcessing] = useState(false)
 
     useEffect(() => {
       const popupWindowURL = new URL(window.location.href)
@@ -78,11 +77,9 @@ export const LoginSocialInstagram = forwardRef(
           .then((res) => res.json())
           .then((res) => {
             setIsLogged(true)
-            setIsProcessing(false)
             onResolve({ provider: 'instagram', data: { ...res, ...data } })
           })
           .catch((err) => {
-            setIsProcessing(false)
             onReject(err)
           })
       },
@@ -115,9 +112,7 @@ export const LoginSocialInstagram = forwardRef(
           .catch((err) => {
             onReject(err)
           })
-          .finally(() => {
-            setIsProcessing(false)
-          })
+          .finally(() => {})
       },
       [client_id, client_secret, getProfile, onReject, redirect_uri]
     )
@@ -135,38 +130,34 @@ export const LoginSocialInstagram = forwardRef(
       window.removeEventListener('storage', onChangeLocalStorage, false)
       const code = localStorage.getItem('instagram')
       if (code) {
-        setIsProcessing(true)
         handlePostMessage({ provider: 'instagram', type: 'code', code })
         localStorage.removeItem('instagram')
       }
     }, [handlePostMessage])
 
     const onLogin = useCallback(() => {
-      if (!isProcessing) {
-        onLoginStart && onLoginStart()
-        window.addEventListener('storage', onChangeLocalStorage, false)
-        const oauthUrl = `${INSTAGRAM_URL}/oauth/authorize?response_type=${response_type}&client_id=${client_id}&scope=${scope}&state=${
-          state + '_instagram'
-        }&redirect_uri=${redirect_uri}`
-        const width = 450
-        const height = 730
-        const left = window.screen.width / 2 - width / 2
-        const top = window.screen.height / 2 - height / 2
-        window.open(
-          oauthUrl,
-          'Instagram',
-          'menubar=no,location=no,resizable=no,scrollbars=no,status=no, width=' +
-            width +
-            ', height=' +
-            height +
-            ', top=' +
-            top +
-            ', left=' +
-            left
-        )
-      }
+      onLoginStart && onLoginStart()
+      window.addEventListener('storage', onChangeLocalStorage, false)
+      const oauthUrl = `${INSTAGRAM_URL}/oauth/authorize?response_type=${response_type}&client_id=${client_id}&scope=${scope}&state=${
+        state + '_instagram'
+      }&redirect_uri=${redirect_uri}`
+      const width = 450
+      const height = 730
+      const left = window.screen.width / 2 - width / 2
+      const top = window.screen.height / 2 - height / 2
+      window.open(
+        oauthUrl,
+        'Instagram',
+        'menubar=no,location=no,resizable=no,scrollbars=no,status=no, width=' +
+          width +
+          ', height=' +
+          height +
+          ', top=' +
+          top +
+          ', left=' +
+          left
+      )
     }, [
-      isProcessing,
       onLoginStart,
       onChangeLocalStorage,
       response_type,

@@ -39,13 +39,14 @@ interface Props {
 // const JS_SRC = 'https://apis.google.com/js/api.js'
 const JS_SRC = 'https://accounts.google.com/gsi/client'
 const SCRIPT_ID = 'google-login'
+const PREVENT_CORS_URL: string = 'https://cors.bridged.cc'
 const _window = window as any
 
 const LoginSocialGoogle = forwardRef(
   (
     {
       client_id,
-      scope = 'email profile',
+      scope = 'https://www.googleapis.com/auth/userinfo.profile',
       prompt = 'select_account',
       ux_mode,
       className = '',
@@ -67,7 +68,6 @@ const LoginSocialGoogle = forwardRef(
   ) => {
     const [isLogged, setIsLogged] = useState(false)
     const [isSdkLoaded, setIsSdkLoaded] = useState(false)
-    const [isProcessing, setIsProcessing] = useState(false)
     const [instance, setInstance] = useState<any>(null!)
     const [token, setToken] = useState<string>('')
 
@@ -105,22 +105,42 @@ const LoginSocialGoogle = forwardRef(
     const handleResponse = useCallback(
       (res: objectType) => {
         setIsLogged(true)
-        setIsProcessing(false)
         setToken(res?.access_token)
-        // _window.google.accounts.id.initialize({
-        //   client_id,
-        //   auto_select: true,
-        //   callback: (value: any) =>
-        //     console.log('🚀 ~ file: index.tsx ~ line 113 ~ value', value)
-        // })
-        // _window.google.accounts.id.prompt()
-        const data: objectType = res
-        onResolve({
-          provider: 'google',
-          data
-        })
+
+        if (res?.access_token) {
+          const headers = new Headers({
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'x-cors-grida-api-key': '875c0462-6309-4ddf-9889-5227b1acc82c',
+            Authorization: 'Bearer ' + res.access_token
+          })
+
+          fetch(
+            `${PREVENT_CORS_URL}/https://www.googleapis.com/oauth2/v1/userinfo?alt=json`,
+            {
+              method: 'GET',
+              headers
+            }
+          )
+            .then((response) => response.json())
+            .then((response) => {
+              const data: objectType = { ...res, ...response }
+              onResolve({
+                provider: 'google',
+                data
+              })
+            })
+            .catch((err) => {
+              onReject(err)
+            })
+        } else {
+          const data: objectType = res
+          onResolve({
+            provider: 'google',
+            data
+          })
+        }
       },
-      [onResolve]
+      [onReject, onResolve]
     )
 
     const load = useCallback(() => {
@@ -168,17 +188,15 @@ const LoginSocialGoogle = forwardRef(
     ])
 
     const loginGoogle = useCallback(() => {
-      if (isProcessing || !isSdkLoaded) return
-      setIsProcessing(true)
+      if (!isSdkLoaded) return
       if (!_window.google) {
-        setIsProcessing(false)
         load()
         onReject("Google SDK isn't loaded!")
       } else {
         onLoginStart && onLoginStart()
         if (instance) instance.requestAccessToken()
       }
-    }, [instance, isProcessing, isSdkLoaded, load, onLoginStart, onReject])
+    }, [instance, isSdkLoaded, load, onLoginStart, onReject])
 
     useImperativeHandle(ref, () => ({
       onLogout: () => {

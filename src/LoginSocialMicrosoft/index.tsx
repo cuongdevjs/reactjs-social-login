@@ -60,7 +60,6 @@ export const LoginSocialMicrosoft = forwardRef(
     ref: React.Ref<TypeCrossFunction>
   ) => {
     const [isLogged, setIsLogged] = useState(false)
-    const [isProcessing, setIsProcessing] = useState(false)
 
     useEffect(() => {
       const popupWindowURL = new URL(window.location.href)
@@ -82,12 +81,10 @@ export const LoginSocialMicrosoft = forwardRef(
         })
           .then((res) => res.json())
           .then((res) => {
-            setIsProcessing(false)
             setIsLogged(true)
             onResolve({ provider: 'microsoft', data: { ...res, ...data } })
           })
           .catch((err) => {
-            setIsProcessing(false)
             onReject(err)
           })
       },
@@ -116,12 +113,10 @@ export const LoginSocialMicrosoft = forwardRef(
           .then((data) => {
             if (data.access_token) getProfile(data)
             else {
-              setIsProcessing(false)
               onReject('no data')
             }
           })
           .catch((err) => {
-            setIsProcessing(false)
             onReject(err)
           })
       },
@@ -149,17 +144,15 @@ export const LoginSocialMicrosoft = forwardRef(
       window.removeEventListener('storage', onChangeLocalStorage, false)
       const code = localStorage.getItem('microsoft')
       if (code) {
-        setIsProcessing(true)
         handlePostMessage({ provider: 'microsoft', type: 'code', code })
         localStorage.removeItem('microsoft')
       }
     }, [handlePostMessage])
 
     const onLogin = useCallback(() => {
-      if (!isProcessing) {
-        onLoginStart && onLoginStart()
-        window.addEventListener('storage', onChangeLocalStorage, false)
-        const oauthUrl = `${MICROSOFT_URL}/${tenant}/oauth2/v2.0/authorize?client_id=${client_id}
+      onLoginStart && onLoginStart()
+      window.addEventListener('storage', onChangeLocalStorage, false)
+      const oauthUrl = `${MICROSOFT_URL}/${tenant}/oauth2/v2.0/authorize?client_id=${client_id}
         &response_type=${response_type}
         &redirect_uri=${redirect_uri}
         &response_mode=${response_mode}
@@ -168,25 +161,23 @@ export const LoginSocialMicrosoft = forwardRef(
         &prompt=${prompt}
         &code_challenge=${code_challenge}
         &code_challenge_method=${code_challenge_method}`
-        const width = 450
-        const height = 730
-        const left = window.screen.width / 2 - width / 2
-        const top = window.screen.height / 2 - height / 2
-        window.open(
-          oauthUrl,
-          'Microsoft',
-          'menubar=no,location=no,resizable=no,scrollbars=no,status=no, width=' +
-            width +
-            ', height=' +
-            height +
-            ', top=' +
-            top +
-            ', left=' +
-            left
-        )
-      }
+      const width = 450
+      const height = 730
+      const left = window.screen.width / 2 - width / 2
+      const top = window.screen.height / 2 - height / 2
+      window.open(
+        oauthUrl,
+        'Microsoft',
+        'menubar=no,location=no,resizable=no,scrollbars=no,status=no, width=' +
+          width +
+          ', height=' +
+          height +
+          ', top=' +
+          top +
+          ', left=' +
+          left
+      )
     }, [
-      isProcessing,
       onLoginStart,
       onChangeLocalStorage,
       tenant,

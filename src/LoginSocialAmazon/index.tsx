@@ -55,7 +55,6 @@ export const LoginSocialAmazon = forwardRef(
   ) => {
     const [isLogged, setIsLogged] = useState(false)
     const [isSdkLoaded, setIsSdkLoaded] = useState(false)
-    const [isProcessing, setIsProcessing] = useState(false)
 
     useEffect(() => {
       !isSdkLoaded && load()
@@ -103,20 +102,19 @@ export const LoginSocialAmazon = forwardRef(
             onReject(err)
           })
           .finally(() => {
-            setIsProcessing(false)
             setIsLogged(true)
           })
       },
       [onReject, onResolve]
     )
 
-    const handleResponse = useCallback((res: objectType) => getUserInfo(res), [
-      getUserInfo
-    ])
+    const handleResponse = useCallback(
+      (res: objectType) => getUserInfo(res),
+      [getUserInfo]
+    )
 
     const handleError = useCallback(
       (err: objectType | string) => {
-        setIsProcessing(false)
         onReject(err)
       },
       [onReject]
@@ -134,10 +132,8 @@ export const LoginSocialAmazon = forwardRef(
     }, [checkIsExistsSDKScript, client_id, insertScriptGoogle])
 
     const onLogin = useCallback(() => {
-      if (isProcessing || !isSdkLoaded) return
-      setIsProcessing(true)
+      if (!isSdkLoaded) return
       if (!_window.amazon) {
-        setIsProcessing(false)
         load()
         onReject("Google SDK isn't loaded!")
       } else {
@@ -151,7 +147,6 @@ export const LoginSocialAmazon = forwardRef(
         )
       }
     }, [
-      isProcessing,
       isSdkLoaded,
       load,
       onReject,

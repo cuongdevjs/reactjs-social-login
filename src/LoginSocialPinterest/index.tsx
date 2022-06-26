@@ -50,7 +50,6 @@ export const LoginSocialPinterest = forwardRef(
     ref: React.Ref<TypeCrossFunction>
   ) => {
     const [isLogged, setIsLogged] = useState(false)
-    const [isProcessing, setIsProcessing] = useState(false)
 
     useEffect(() => {
       const popupWindowURL = new URL(window.location.href)
@@ -74,7 +73,7 @@ export const LoginSocialPinterest = forwardRef(
           .then((res) => res.json())
           .then((res) => {
             setIsLogged(true)
-            setIsProcessing(false)
+
             onResolve({ provider: 'pinterest', data: { ...data, ...res } })
           })
           .catch((err) => onReject(err))
@@ -130,38 +129,34 @@ export const LoginSocialPinterest = forwardRef(
       window.removeEventListener('storage', onChangeLocalStorage, false)
       const code = localStorage.getItem('pinterest')
       if (code) {
-        setIsProcessing(true)
         handlePostMessage({ provider: 'pinterest', type: 'code', code })
         localStorage.removeItem('pinterest')
       }
     }, [handlePostMessage])
 
     const onLogin = useCallback(() => {
-      if (!isProcessing) {
-        onLoginStart && onLoginStart()
-        window.addEventListener('storage', onChangeLocalStorage, false)
-        const oauthUrl = `${PINTEREST_URL}/?client_id=${client_id}&scope=${scope}&state=${
-          state + '_pinterest'
-        }&redirect_uri=${redirect_uri}&response_type=code&scope=boards:read,pins:read,user_accounts:read`
-        const width = 450
-        const height = 730
-        const left = window.screen.width / 2 - width / 2
-        const top = window.screen.height / 2 - height / 2
-        window.open(
-          oauthUrl,
-          'Pinterest',
-          'menubar=no,location=no,resizable=no,scrollbars=no,status=no, width=' +
-            width +
-            ', height=' +
-            height +
-            ', top=' +
-            top +
-            ', left=' +
-            left
-        )
-      }
+      onLoginStart && onLoginStart()
+      window.addEventListener('storage', onChangeLocalStorage, false)
+      const oauthUrl = `${PINTEREST_URL}/?client_id=${client_id}&scope=${scope}&state=${
+        state + '_pinterest'
+      }&redirect_uri=${redirect_uri}&response_type=code&scope=boards:read,pins:read,user_accounts:read`
+      const width = 450
+      const height = 730
+      const left = window.screen.width / 2 - width / 2
+      const top = window.screen.height / 2 - height / 2
+      window.open(
+        oauthUrl,
+        'Pinterest',
+        'menubar=no,location=no,resizable=no,scrollbars=no,status=no, width=' +
+          width +
+          ', height=' +
+          height +
+          ', top=' +
+          top +
+          ', left=' +
+          left
+      )
     }, [
-      isProcessing,
       onLoginStart,
       onChangeLocalStorage,
       client_id,

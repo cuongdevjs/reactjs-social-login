@@ -66,7 +66,6 @@ const LoginSocialFacebook = forwardRef(
   ) => {
     const [isLogged, setIsLogged] = useState(false)
     const [isSdkLoaded, setIsSdkLoaded] = useState(false)
-    const [isProcessing, setIsProcessing] = useState(false)
 
     useEffect(() => {
       !isSdkLoaded && load()
@@ -115,7 +114,7 @@ const LoginSocialFacebook = forwardRef(
           { locale: language, fields: fieldsProfile },
           (me: any) => {
             setIsLogged(true)
-            setIsProcessing(false)
+
             onResolve({
               provider: 'facebook',
               data: { ...authResponse, ...me }
@@ -170,10 +169,9 @@ const LoginSocialFacebook = forwardRef(
     ])
 
     const loginFB = useCallback(() => {
-      if (isProcessing || !isSdkLoaded) return
-      setIsProcessing(true)
+      if (!isSdkLoaded) return
+
       if (!_window.FB) {
-        setIsProcessing(false)
         load()
         onReject("Fb isn't loaded!")
       } else {
@@ -185,7 +183,6 @@ const LoginSocialFacebook = forwardRef(
         })
       }
     }, [
-      isProcessing,
       isSdkLoaded,
       load,
       onReject,

@@ -51,7 +51,6 @@ export const LoginSocialTwitter = forwardRef(
     ref: React.Ref<TypeCrossFunction>
   ) => {
     const [isLogged, setIsLogged] = useState(false)
-    const [isProcessing, setIsProcessing] = useState(false)
 
     useEffect(() => {
       const popupWindowURL = new URL(window.location.href)
@@ -85,7 +84,6 @@ export const LoginSocialTwitter = forwardRef(
           .then((res) => {
             setIsLogged(true)
             onResolve({ provider: 'twitter', data: { ...data, ...res } })
-            setIsProcessing(false)
           })
           .catch((err) => onReject(err))
       },
@@ -133,58 +131,54 @@ export const LoginSocialTwitter = forwardRef(
       window.removeEventListener('storage', onChangeLocalStorage, false)
       const code = localStorage.getItem('twitter')
       if (code) {
-        setIsProcessing(true)
         handlePostMessage({ provider: 'twitter', type: 'code', code })
         localStorage.removeItem('twitter')
       }
     }, [handlePostMessage])
 
     const onLogin = useCallback(async () => {
-      if (!isProcessing) {
-        onLoginStart && onLoginStart()
-        const oauthSignature = requestTokenSignature({
-          method: 'POST',
-          apiUrl: `${TWITTER_URL}/oauth/request_token`,
-          callbackUrl: redirect_uri,
-          consumerKey: client_id,
-          consumerSecret: client_secret
-        })
-        const requestOAuthURL = `${PREVENT_CORS_URL}/${TWITTER_URL}/oauth/request_token`
-        const data = await fetch(requestOAuthURL, {
-          method: 'POST',
-          headers: {
-            Authorization: `OAuth ${oauthSignature}`,
-            'x-cors-grida-api-key': '875c0462-6309-4ddf-9889-5227b1acc82c'
-          }
-        })
-          .then((data) => data.text())
-          .catch((err) => onReject(err))
-
-        if (data) {
-          const result = parseOAuthRequestToken(data)
-
-          window.addEventListener('storage', onChangeLocalStorage, false)
-          const oauthUrl = `${TWITTER_URL}/oauth/authenticate?oauth_token=${result.oauth_token}`
-          const width = 450
-          const height = 730
-          const left = window.screen.width / 2 - width / 2
-          const top = window.screen.height / 2 - height / 2
-          window.open(
-            oauthUrl,
-            'twitter',
-            'menubar=no,location=no,resizable=no,scrollbars=no,status=no, width=' +
-              width +
-              ', height=' +
-              height +
-              ', top=' +
-              top +
-              ', left=' +
-              left
-          )
+      onLoginStart && onLoginStart()
+      const oauthSignature = requestTokenSignature({
+        method: 'POST',
+        apiUrl: `${TWITTER_URL}/oauth/request_token`,
+        callbackUrl: redirect_uri,
+        consumerKey: client_id,
+        consumerSecret: client_secret
+      })
+      const requestOAuthURL = `${PREVENT_CORS_URL}/${TWITTER_URL}/oauth/request_token`
+      const data = await fetch(requestOAuthURL, {
+        method: 'POST',
+        headers: {
+          Authorization: `OAuth ${oauthSignature}`,
+          'x-cors-grida-api-key': '875c0462-6309-4ddf-9889-5227b1acc82c'
         }
+      })
+        .then((data) => data.text())
+        .catch((err) => onReject(err))
+
+      if (data) {
+        const result = parseOAuthRequestToken(data)
+
+        window.addEventListener('storage', onChangeLocalStorage, false)
+        const oauthUrl = `${TWITTER_URL}/oauth/authenticate?oauth_token=${result.oauth_token}`
+        const width = 450
+        const height = 730
+        const left = window.screen.width / 2 - width / 2
+        const top = window.screen.height / 2 - height / 2
+        window.open(
+          oauthUrl,
+          'twitter',
+          'menubar=no,location=no,resizable=no,scrollbars=no,status=no, width=' +
+            width +
+            ', height=' +
+            height +
+            ', top=' +
+            top +
+            ', left=' +
+            left
+        )
       }
     }, [
-      isProcessing,
       onLoginStart,
       redirect_uri,
       client_id,

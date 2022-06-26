@@ -52,7 +52,6 @@ export const LoginSocialLinkedin = forwardRef(
     ref: React.Ref<TypeCrossFunction>
   ) => {
     const [isLogged, setIsLogged] = useState(false)
-    const [isProcessing, setIsProcessing] = useState(false)
 
     useEffect(() => {
       const popupWindowURL = new URL(window.location.href)
@@ -88,11 +87,10 @@ export const LoginSocialLinkedin = forwardRef(
                 })
             }
             setIsLogged(true)
-            setIsProcessing(false)
+
             onResolve({ provider: 'linkedin', data: response })
           })
           .catch((err) => {
-            setIsProcessing(false)
             onReject(err)
           })
       },
@@ -123,7 +121,6 @@ export const LoginSocialLinkedin = forwardRef(
             getProfile(response)
           })
           .catch((err) => {
-            setIsProcessing(false)
             onReject(err)
           })
       },
@@ -143,38 +140,34 @@ export const LoginSocialLinkedin = forwardRef(
       window.removeEventListener('storage', onChangeLocalStorage, false)
       const code = localStorage.getItem('linkedin')
       if (code) {
-        setIsProcessing(true)
         handlePostMessage({ provider: 'linkedin', type: 'code', code })
         localStorage.removeItem('linkedin')
       }
     }, [handlePostMessage])
 
     const onLogin = useCallback(() => {
-      if (!isProcessing) {
-        onLoginStart && onLoginStart()
-        window.addEventListener('storage', onChangeLocalStorage, false)
-        const oauthUrl = `${LINKEDIN_URL}/authorization?response_type=${response_type}&client_id=${client_id}&scope=${scope}&state=${
-          state + '_linkedin'
-        }&redirect_uri=${redirect_uri}`
-        const width = 450
-        const height = 730
-        const left = window.screen.width / 2 - width / 2
-        const top = window.screen.height / 2 - height / 2
-        window.open(
-          oauthUrl,
-          'Linkedin',
-          'menubar=no,location=no,resizable=no,scrollbars=no,status=no, width=' +
-            width +
-            ', height=' +
-            height +
-            ', top=' +
-            top +
-            ', left=' +
-            left
-        )
-      }
+      onLoginStart && onLoginStart()
+      window.addEventListener('storage', onChangeLocalStorage, false)
+      const oauthUrl = `${LINKEDIN_URL}/authorization?response_type=${response_type}&client_id=${client_id}&scope=${scope}&state=${
+        state + '_linkedin'
+      }&redirect_uri=${redirect_uri}`
+      const width = 450
+      const height = 730
+      const left = window.screen.width / 2 - width / 2
+      const top = window.screen.height / 2 - height / 2
+      window.open(
+        oauthUrl,
+        'Linkedin',
+        'menubar=no,location=no,resizable=no,scrollbars=no,status=no, width=' +
+          width +
+          ', height=' +
+          height +
+          ', top=' +
+          top +
+          ', left=' +
+          left
+      )
     }, [
-      isProcessing,
       onLoginStart,
       onChangeLocalStorage,
       response_type,

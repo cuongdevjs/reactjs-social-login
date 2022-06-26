@@ -52,7 +52,6 @@ export const LoginSocialGithub = forwardRef(
     ref: React.Ref<TypeCrossFunction>
   ) => {
     const [isLogged, setIsLogged] = useState(false)
-    const [isProcessing, setIsProcessing] = useState(false)
 
     useEffect(() => {
       const popupWindowURL = new URL(window.location.href)
@@ -76,11 +75,9 @@ export const LoginSocialGithub = forwardRef(
           .then((res) => res.json())
           .then((response: any) => {
             setIsLogged(true)
-            setIsProcessing(false)
             onResolve({ provider: 'github', data: { ...response, ...data } })
           })
           .catch((err) => {
-            setIsProcessing(false)
             onReject(err)
           })
       },
@@ -108,7 +105,6 @@ export const LoginSocialGithub = forwardRef(
         })
           .then((response) => response.text())
           .then((response) => {
-            setIsProcessing(false)
             const data: objectType = {}
             const searchParams: any = new URLSearchParams(response)
             for (const p of searchParams) {
@@ -118,7 +114,6 @@ export const LoginSocialGithub = forwardRef(
             else onReject('no data')
           })
           .catch((err) => {
-            setIsProcessing(false)
             onReject(err)
           })
       },
@@ -138,38 +133,34 @@ export const LoginSocialGithub = forwardRef(
       window.removeEventListener('storage', onChangeLocalStorage, false)
       const code = localStorage.getItem('github')
       if (code) {
-        setIsProcessing(true)
         handlePostMessage({ provider: 'github', type: 'code', code })
         localStorage.removeItem('instagram')
       }
     }, [handlePostMessage])
 
     const onLogin = useCallback(() => {
-      if (!isProcessing) {
-        onLoginStart && onLoginStart()
-        window.addEventListener('storage', onChangeLocalStorage, false)
-        const oauthUrl = `${GITHUB_URL}/login/oauth/authorize?client_id=${client_id}&scope=${scope}&state=${
-          state + '_github'
-        }&redirect_uri=${redirect_uri}&allow_signup=${allow_signup}`
-        const width = 450
-        const height = 730
-        const left = window.screen.width / 2 - width / 2
-        const top = window.screen.height / 2 - height / 2
-        window.open(
-          oauthUrl,
-          'Github',
-          'menubar=no,location=no,resizable=no,scrollbars=no,status=no, width=' +
-            width +
-            ', height=' +
-            height +
-            ', top=' +
-            top +
-            ', left=' +
-            left
-        )
-      }
+      onLoginStart && onLoginStart()
+      window.addEventListener('storage', onChangeLocalStorage, false)
+      const oauthUrl = `${GITHUB_URL}/login/oauth/authorize?client_id=${client_id}&scope=${scope}&state=${
+        state + '_github'
+      }&redirect_uri=${redirect_uri}&allow_signup=${allow_signup}`
+      const width = 450
+      const height = 730
+      const left = window.screen.width / 2 - width / 2
+      const top = window.screen.height / 2 - height / 2
+      window.open(
+        oauthUrl,
+        'Github',
+        'menubar=no,location=no,resizable=no,scrollbars=no,status=no, width=' +
+          width +
+          ', height=' +
+          height +
+          ', top=' +
+          top +
+          ', left=' +
+          left
+      )
     }, [
-      isProcessing,
       onLoginStart,
       onChangeLocalStorage,
       client_id,
