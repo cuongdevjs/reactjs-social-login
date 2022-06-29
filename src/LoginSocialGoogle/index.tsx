@@ -76,6 +76,12 @@ const LoginSocialGoogle = forwardRef(
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isSdkLoaded])
 
+    useEffect(() => {
+      return () => {
+        document.getElementById(SCRIPT_ID)?.remove()
+      }
+    }, [])
+
     const checkIsExistsSDKScript = useCallback(() => {
       return !!document.getElementById(SCRIPT_ID)
     }, [])
