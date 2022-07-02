@@ -7,10 +7,6 @@ export type IResolveParams = {
   data?: objectType
 }
 
-export type TypeCrossFunction = {
-  onLogout: () => void
-}
-
 export { default as LoginSocialAmazon } from './LoginSocialAmazon'
 export { default as LoginSocialFacebook } from './LoginSocialFacebook'
 export { default as LoginSocialGoogle } from './LoginSocialGoogle'
