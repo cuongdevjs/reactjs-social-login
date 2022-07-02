@@ -1,6 +1,6 @@
 {
   "name": "reactjs-social-login",
-  "version": "2.3.0",
+  "version": "2.4.0",
   "description": "Group social login for ReactJS",
   "author": "Nguyen Manh Cuong ",
   "license": "MIT",
@@ -32,7 +32,7 @@
     "node": ">=10"
   },
   "scripts": {
-    "build": "microbundle-crl -o dist/ --sourcemap false --no-compress --jsx React.createElement --globals crypto-js=crypto-js --compress --tsconfig ./tsconfig.json",
+    "build": "rm -rf ./dist && microbundle-crl -o dist/ --sourcemap false --no-compress --jsx React.createElement --globals crypto-js=crypto-js --compress --tsconfig ./tsconfig.json",
     "start": "microbundle-crl watch --jsx React.createElement --globals crypto-js=crypto-js --compress --tsconfig ./tsconfig.json"
   },
   "peerDependencies": {
