@@ -48,8 +48,6 @@ export const LoginSocialAmazon = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isSdkLoaded])
 
-  useEffect(() => () => scriptNodeRef.current?.remove(), [])
-
   const checkIsExistsSDKScript = useCallback(() => {
     return !!document.getElementById(SCRIPT_ID)
   }, [])
@@ -68,7 +66,7 @@ export const LoginSocialAmazon = ({
       ggScriptTag.async = true
       ggScriptTag.defer = true
       const scriptNode = document.getElementsByTagName('script')![0]
-      scriptNodeRef.current = scriptNode
+      scriptNodeRef.current = ggScriptTag
       scriptNode &&
         scriptNode.parentNode &&
         scriptNode.parentNode.insertBefore(ggScriptTag, scriptNode)
@@ -86,6 +84,7 @@ export const LoginSocialAmazon = ({
       })
         .then((data) => data.json())
         .then((data) => {
+          if (scriptNodeRef.current) scriptNodeRef.current.remove()
           onResolve({ provider: 'amazon', data: { ...data, ...res } })
         })
         .catch((err) => {

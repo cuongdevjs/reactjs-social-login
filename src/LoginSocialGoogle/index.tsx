@@ -60,8 +60,6 @@ const LoginSocialGoogle = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isSdkLoaded])
 
-  useEffect(() => () => scriptNodeRef.current?.remove(), [])
-
   const checkIsExistsSDKScript = useCallback(() => {
     return !!document.getElementById(SCRIPT_ID)
   }, [])
@@ -80,7 +78,7 @@ const LoginSocialGoogle = ({
       ggScriptTag.async = true
       ggScriptTag.defer = true
       const scriptNode = document.getElementsByTagName('script')![0]
-      scriptNodeRef.current = scriptNode
+      scriptNodeRef.current = ggScriptTag
       scriptNode &&
         scriptNode.parentNode &&
         scriptNode.parentNode.insertBefore(ggScriptTag, scriptNode)
@@ -107,6 +105,7 @@ const LoginSocialGoogle = ({
         )
           .then((response) => response.json())
           .then((response) => {
+            if (scriptNodeRef.current) scriptNodeRef.current.remove()
             const data: objectType = { ...res, ...response }
             onResolve({
               provider: 'google',
