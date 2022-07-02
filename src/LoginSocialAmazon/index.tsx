@@ -10,7 +10,8 @@ import React, {
   useState,
   useCallback,
   useImperativeHandle,
-  forwardRef
+  forwardRef,
+  useRef
 } from 'react'
 import { IResolveParams, objectType, TypeCrossFunction } from '../'
 
@@ -53,6 +54,7 @@ export const LoginSocialAmazon = forwardRef(
     }: Props,
     ref: React.Ref<TypeCrossFunction>
   ) => {
+    const scriptNodeRef = useRef<HTMLScriptElement>(null!)
     const [isLogged, setIsLogged] = useState(false)
     const [isSdkLoaded, setIsSdkLoaded] = useState(false)
 
@@ -60,6 +62,8 @@ export const LoginSocialAmazon = forwardRef(
       !isSdkLoaded && load()
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isSdkLoaded])
+
+    useEffect(() => () => scriptNodeRef.current?.remove(), [])
 
     const checkIsExistsSDKScript = useCallback(() => {
       return !!document.getElementById(SCRIPT_ID)
@@ -79,6 +83,7 @@ export const LoginSocialAmazon = forwardRef(
         ggScriptTag.async = true
         ggScriptTag.defer = true
         const scriptNode = document.getElementsByTagName('script')![0]
+        scriptNodeRef.current = scriptNode
         scriptNode &&
           scriptNode.parentNode &&
           scriptNode.parentNode.insertBefore(ggScriptTag, scriptNode)

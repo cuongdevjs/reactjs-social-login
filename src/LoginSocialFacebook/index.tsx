@@ -10,6 +10,7 @@ import React, {
   useCallback,
   useEffect,
   useImperativeHandle,
+  useRef,
   useState
 } from 'react'
 import { objectType, IResolveParams, TypeCrossFunction } from '../'
@@ -64,6 +65,7 @@ const LoginSocialFacebook = forwardRef(
     }: Props,
     ref: React.Ref<TypeCrossFunction>
   ) => {
+    const scriptNodeRef = useRef<HTMLElement>(null!)
     const [isLogged, setIsLogged] = useState(false)
     const [isSdkLoaded, setIsSdkLoaded] = useState(false)
 
@@ -71,6 +73,8 @@ const LoginSocialFacebook = forwardRef(
       !isSdkLoaded && load()
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isSdkLoaded])
+
+    useEffect(() => () => scriptNodeRef.current?.remove(), [])
 
     const insertSDKScript = useCallback(
       (document: HTMLDocument, cb: () => void) => {
@@ -102,6 +106,7 @@ const LoginSocialFacebook = forwardRef(
             fbRoot.id = 'fb-root'
             document.body.appendChild(fbRoot)
           }
+          scriptNodeRef.current = fbRoot
         }
       },
       []
