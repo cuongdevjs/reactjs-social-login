@@ -60,6 +60,13 @@ const LoginSocialFacebook = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isSdkLoaded])
 
+  useEffect(
+    () => () => {
+      if (scriptNodeRef.current) scriptNodeRef.current.remove()
+    },
+    []
+  )
+
   const insertSDKScript = useCallback(
     (document: HTMLDocument, cb: () => void) => {
       const fbScriptTag = document.createElement('script')
@@ -102,7 +109,6 @@ const LoginSocialFacebook = ({
         '/me',
         { locale: language, fields: fieldsProfile },
         (me: any) => {
-          if (scriptNodeRef.current) scriptNodeRef.current.remove()
           onResolve({
             provider: 'facebook',
             data: { ...authResponse, ...me }

@@ -48,6 +48,13 @@ export const LoginSocialAmazon = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isSdkLoaded])
 
+  useEffect(
+    () => () => {
+      if (scriptNodeRef.current) scriptNodeRef.current.remove()
+    },
+    []
+  )
+
   const checkIsExistsSDKScript = useCallback(() => {
     return !!document.getElementById(SCRIPT_ID)
   }, [])
@@ -84,7 +91,6 @@ export const LoginSocialAmazon = ({
       })
         .then((data) => data.json())
         .then((data) => {
-          if (scriptNodeRef.current) scriptNodeRef.current.remove()
           onResolve({ provider: 'amazon', data: { ...data, ...res } })
         })
         .catch((err) => {
@@ -95,10 +101,9 @@ export const LoginSocialAmazon = ({
     [onReject, onResolve]
   )
 
-  const handleResponse = useCallback(
-    (res: objectType) => getUserInfo(res),
-    [getUserInfo]
-  )
+  const handleResponse = useCallback((res: objectType) => getUserInfo(res), [
+    getUserInfo
+  ])
 
   const handleError = useCallback(
     (err: objectType | string) => {
