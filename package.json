@@ -1,6 +1,6 @@
 {
   "name": "reactjs-social-login",
-  "version": "2.5.1",
+  "version": "2.5.4",
   "description": "Group social login for ReactJS",
   "author": "Nguyen Manh Cuong ",
   "license": "MIT",
@@ -32,8 +32,8 @@
     "node": ">=10"
   },
   "scripts": {
-    "build": "rm -rf ./dist && microbundle-crl -o dist/ --sourcemap false --no-compress --jsx React.createElement --globals crypto-js=crypto-js --compress --tsconfig ./tsconfig.json",
-    "start": "microbundle-crl watch --jsx React.createElement --globals crypto-js=crypto-js --compress --tsconfig ./tsconfig.json"
+    "build": "rm -rf ./dist && microbundle-crl -o dist/ --sourcemap false --no-compress --jsx React.createElement --compress --tsconfig ./tsconfig.json",
+    "start": "microbundle-crl watch --jsx React.createElement --compress --tsconfig ./tsconfig.json"
   },
   "peerDependencies": {
     "react": "^16 || ^17 || ^18",
@@ -43,7 +43,6 @@
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.5.0",
     "@testing-library/user-event": "^7.2.1",
-    "@types/crypto-js": "^3.1.43",
     "@types/jest": "^25.1.4",
     "@types/node": "^12.12.38",
     "@types/react": "^18.0.15",
@@ -73,9 +72,7 @@
     "react-social-login-buttons": "^3.5.1",
     "typescript": "^3.7.5"
   },
-  "dependencies": {
-    "crypto-js": "^3.1.9-1"
-  },
+  "dependencies": {},
   "files": [
     "dist/"
   ],

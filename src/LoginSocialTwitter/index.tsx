@@ -13,7 +13,9 @@ interface Props {
   client_id: string
   className?: string
   redirect_uri: string
+  state?: string
   fields?: string
+  scope?: string
   children?: React.ReactNode
   onLoginStart?: () => void
   onLogoutSuccess?: () => void
@@ -31,6 +33,8 @@ export const LoginSocialTwitter = ({
   redirect_uri,
   children,
   fields = 'created_at,description,entities,id,location,name,pinned_tweet_id,profile_image_url,protected,public_metrics,url,username,verified,withheld',
+  state = 'state',
+  scope = 'users.read%20tweet.read',
   onLoginStart,
   onReject,
   onResolve
@@ -109,7 +113,7 @@ export const LoginSocialTwitter = ({
   const onLogin = useCallback(async () => {
     onLoginStart && onLoginStart()
     window.addEventListener('storage', onChangeLocalStorage, false)
-    const oauthUrl = `${TWITTER_URL}/i/oauth2/authorize?response_type=code&client_id=${client_id}&redirect_uri=${redirect_uri}&scope=users.read%20tweet.read&state=state&code_challenge=challenge&code_challenge_method=plain`
+    const oauthUrl = `${TWITTER_URL}/i/oauth2/authorize?response_type=code&client_id=${client_id}&redirect_uri=${redirect_uri}&scope=${scope}&state=${state}&code_challenge=challenge&code_challenge_method=plain`
     const width = 450
     const height = 730
     const left = window.screen.width / 2 - width / 2

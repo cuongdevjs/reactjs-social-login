@@ -44,7 +44,9 @@ npm install --save reactjs-social-login
 
 ### Example code
 
+
 [Code Demo](https://github.com/cuongdevjs/reactjs-social-login/blob/master/example/src/App.tsx)
+
 
 Clone project, open terminal and type these commands
 
@@ -73,9 +75,8 @@ REACT_APP_GITHUB_APP_SECRET=
 REACT_APP_PINTEREST_APP_ID=
 REACT_APP_PINTEREST_APP_SECRET=
 REACT_APP_TWITTER_APP_ID=
-REACT_APP_TWITTER_API_KEY=
-REACT_APP_TWITTER_APP_SECRET=
-REACT_APP_TWITTER_TOKEN=
+REACT_APP_TWITTER_V2_APP_KEY=
+REACT_APP_TWITTER_V2_APP_SECRET=
 ````
 
 and on directory /example, then open other terminal, type these commands
@@ -84,7 +85,7 @@ and on directory /example, then open other terminal, type these commands
 npm run start
 ```
 
-You can then view the demo at [https://localhost:3000][demo].
+You can then view the demo at <https://localhost:3000>.
 
 <br/>
 
@@ -121,7 +122,9 @@ import {
 
 import { ReactComponent as PinterestLogo } from './assets/pinterest.svg'
 
-const REDIRECT_URI = 'http://localhost:3000/account/login'
+// REDIRECT URL must be same with URL where the (reactjs-social-login) components is locate
+// MAKE SURE the (reactjs-social-login) components aren't unmounted or destroyed before the ask permission dialog closes
+const REDIRECT_URI = window.location.href;
 
 const App = () => {
   const [provider, setProvider] = useState('')
@@ -272,8 +275,7 @@ const App = () => {
           </LoginSocialPinterest>
 
           <LoginSocialTwitter
-            client_id={process.env.REACT_APP_TWITTER_API_KEY || ''}
-            client_secret={process.env.REACT_APP_TWITTER_APP_SECRET || ''}
+            client_id={process.env.REACT_APP_TWITTER_V2_APP_KEY || ''}
             redirect_uri={REDIRECT_URI}
             onLoginStart={onLoginStart}
             onResolve={({ provider, data }: IResolveParams) => {
@@ -304,7 +306,7 @@ export default App
 | :---------------------------------------------------------------------------------------------------------------------------------------------------- | :--------------------------------------------- | :-----: | :---------------------------------------------------------------- |
 | onResolve                                                                                                                                             | `function({provider, data}) { // } (required)` |   `-`   | Return provider and data (include user's info & access_token,...) |
 | onReject                                                                                                                                              | `function(err) { // } (required)`              |   `-`   | Return error                                                      |
-| onLoginStart                                                                                                                                        | `function() { // } (optional)`                 |   `-`   | Called when click login                                           |
+| onLoginStart                                                                                                                                          | `function() { // } (optional)`                 |   `-`   | Called when click login                                           |
 | client_id                                                                                                                                             | `string (required)`                            |   `-`   | ID application                                                    |
 | className                                                                                                                                             | `string (optional)`                            |   `-`   | Class container                                                   |
 | [other_props...](https://github.com/cuongdevjs/reactjs-social-login/blob/498a8bf58b670d5845d239a7e48de8c7b7afddc8/src/LoginSocialGoogle/index.tsx#L9) |
@@ -318,7 +320,7 @@ export default App
 | onResolve                                                                                                                                               | `function({provider, data}) { // } (required)` |   `-`   | Return provider and data (include user's info & access_token,...) |
 | onReject                                                                                                                                                | `function(err) { // } (required)`              |   `-`   | Return error                                                      |
 | appId                                                                                                                                                   | `string (required)`                            |   `-`   | ID application                                                    |
-| onLoginStart                                                                                                                                          | `function() { // } (optional)`                 |   `-`   | Called when click login                                           | className | `string (optional)` | `-` | Class for button |
+| onLoginStart                                                                                                                                            | `function() { // } (optional)`                 |   `-`   | Called when click login                                           | className | `string (optional)` | `-` | Class for button |
 | [other_props...](https://github.com/cuongdevjs/reactjs-social-login/blob/757df855d0b16aad7bccd6e76b756a92e707fe46/src/LoginSocialFacebook/index.tsx#L9) |
 
 <br/>
@@ -330,7 +332,7 @@ export default App
 | onResolve                                                                                                                                                | `function({provider, data}) { // } (required)` |   `-`   | Return provider and data (include user's info & access_token,...) |
 | onReject                                                                                                                                                 | `function(err) { // } (required)`              |   `-`   | Return error                                                      |
 | client_id                                                                                                                                                | `string (required)`                            |   `-`   | ID application                                                    |
-| onLoginStart                                                                                                                                           | `function() { // } (optional)`                 |   `-`   | Called when click login                                           |
+| onLoginStart                                                                                                                                             | `function() { // } (optional)`                 |   `-`   | Called when click login                                           |
 | className                                                                                                                                                | `string (optional)`                            |   `-`   | Class for button                                                  |
 | [other_props...](https://github.com/cuongdevjs/reactjs-social-login/blob/757df855d0b16aad7bccd6e76b756a92e707fe46/src/LoginSocialMicrosoft/index.tsx#L9) |
 
@@ -343,7 +345,7 @@ export default App
 | onResolve                                                                                                                                             | `function({provider, data}) { // } (required)` |   `-`   | Return provider and data (include user's info & access_token,...) |
 | onReject                                                                                                                                              | `function(err) { // } (required)`              |   `-`   | Return error                                                      |
 | client_id                                                                                                                                             | `string (required)`                            |   `-`   | ID application                                                    |
-| onLoginStart                                                                                                                                        | `function() { // } (optional)`                 |   `-`   | Called when click login                                           |
+| onLoginStart                                                                                                                                          | `function() { // } (optional)`                 |   `-`   | Called when click login                                           |
 | className                                                                                                                                             | `string (optional)`                            |   `-`   | Class for button                                                  |
 | [other_props...](https://github.com/cuongdevjs/reactjs-social-login/blob/757df855d0b16aad7bccd6e76b756a92e707fe46/src/LoginSocialAmazon/index.tsx#L9) |
 
@@ -357,7 +359,7 @@ export default App
 | onReject                                                                                                                                                 | `function(err) { // } (required)`              |   `-`   | Return error                                                      |
 | client_id                                                                                                                                                | `string (required)`                            |   `-`   | App ID application                                                |
 | client_secret                                                                                                                                            | `string (required)`                            |   `-`   | App Secret application                                            |
-| onLoginStart                                                                                                                                           | `function() { // } (optional)`                 |   `-`   | Called when click login                                           |
+| onLoginStart                                                                                                                                             | `function() { // } (optional)`                 |   `-`   | Called when click login                                           |
 | className                                                                                                                                                | `string (optional)`                            |   `-`   | Class for button                                                  |
 | [other_props...](https://github.com/cuongdevjs/reactjs-social-login/blob/757df855d0b16aad7bccd6e76b756a92e707fe46/src/LoginSocialInstagram/index.tsx#L9) |
 
@@ -371,7 +373,7 @@ export default App
 | onReject                                                                                                                                                | `function(err) { // } (required)`              |   `-`   | Return error                                                      |
 | client_id                                                                                                                                               | `string (required)`                            |   `-`   | App ID application                                                |
 | client_secret                                                                                                                                           | `string (required)`                            |   `-`   | App Secret application                                            |
-| onLoginStart                                                                                                                                          | `function() { // } (optional)`                 |   `-`   | Called when click login                                           |
+| onLoginStart                                                                                                                                            | `function() { // } (optional)`                 |   `-`   | Called when click login                                           |
 | className                                                                                                                                               | `string (optional)`                            |   `-`   | Class for button                                                  |
 | scope                                                                                                                                                   | `string (optional)`                            |   `-`   | Scope application                                                 |
 | [other_props...](https://github.com/cuongdevjs/reactjs-social-login/blob/757df855d0b16aad7bccd6e76b756a92e707fe46/src/LoginSocialLinkedin/index.tsx#L9) |
@@ -386,7 +388,7 @@ export default App
 | onReject                                                                                                                                              | `function(err) { // } (required)`              |   `-`   | Return error                                                      |
 | client_id                                                                                                                                             | `string (required)`                            |   `-`   | App ID application                                                |
 | client_secret                                                                                                                                         | `string (required)`                            |   `-`   | Secret ID application                                             |
-| onLoginStart                                                                                                                                        | `function() { // } (optional)`                 |   `-`   | Called when click login                                           |
+| onLoginStart                                                                                                                                          | `function() { // } (optional)`                 |   `-`   | Called when click login                                           |
 | className                                                                                                                                             | `string (optional)`                            |   `-`   | Class for button                                                  |
 | [other_props...](https://github.com/cuongdevjs/reactjs-social-login/blob/757df855d0b16aad7bccd6e76b756a92e707fe46/src/LoginSocialGithub/index.tsx#L9) |
 
@@ -400,7 +402,7 @@ export default App
 | onReject                                                                                                                                                 | `function(err) { // } (required)`              |   `-`   | Return error                                                      |
 | client_id                                                                                                                                                | `string (required)`                            |   `-`   | App ID application                                                |
 | client_secret                                                                                                                                            | `string (required)`                            |   `-`   | Secret ID application                                             |
-| onLoginStart                                                                                                                                           | `function() { // } (optional)`                 |   `-`   | Called when click login                                           |
+| onLoginStart                                                                                                                                             | `function() { // } (optional)`                 |   `-`   | Called when click login                                           |
 | className                                                                                                                                                | `string (optional)`                            |   `-`   | Class for button                                                  |
 | [other_props...](https://github.com/cuongdevjs/reactjs-social-login/blob/757df855d0b16aad7bccd6e76b756a92e707fe46/src/LoginSocialPinterest/index.tsx#L9) |
 
@@ -408,14 +410,16 @@ export default App
 
 #### Twitter Props
 
-| Prop                                                                                                                                                   | Type                                           | Default | Description                                                       |
-| :----------------------------------------------------------------------------------------------------------------------------------------------------- | :--------------------------------------------- | :-----: | :---------------------------------------------------------------- |
-| onResolve                                                                                                                                              | `function({provider, data}) { // } (required)` |   `-`   | Return provider and data (include user's info & access_token,...) |
-| onReject                                                                                                                                               | `function(err) { // } (required)`              |   `-`   | Return error                                                      |
-| client_id                                                                                                                                              | `string (required)`                            |   `-`   | API Key                                                           |
-| client_secret                                                                                                                                          | `string (required)`                            |   `-`   | Secret Key                                                        |
-| onLoginStart                                                                                                                                         | `function() { // } (optional)`                 |   `-`   | Called when click login                                           |
-| className                                                                                                                                              | `string (optional)`                            |   `-`   | Class for button                                                  |
+| Prop                                                                                                                                                   | Type                                           |                                                                   Default                                                                    | Description                                                       |
+| :----------------------------------------------------------------------------------------------------------------------------------------------------- | :--------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------: | :---------------------------------------------------------------- |
+| onResolve                                                                                                                                              | `function({provider, data}) { // } (required)` |                                                                     `-`                                                                      | Return provider and data (include user's info & access_token,...) |
+| onReject                                                                                                                                               | `function(err) { // } (required)`              |                                                                     `-`                                                                      | Return error                                                      |
+| client_id                                                                                                                                              | `string (required)`                            |                                                                     `-`                                                                      | API Key                                                           |
+| fields                                                                                                                                                 | `string (optional)`                            | `created_at,description,entities,id,location,name,pinned_tweet_id,profile_image_url,protected,public_metrics,url,username,verified,withheld` | User's fields                                                     |
+| state                                                                                                                                                  | `string (optional)`                            |                                                                   `state`                                                                    | A random string you provide to verify against CSRF attacks.       |
+| scope                                                                                                                                                  | `string (optional)`                            |                                                          `users.read%20tweet.read`                                                           | Application's scope                                               |
+| onLoginStart                                                                                                                                           | `function() { // } (optional)`                 |                                                                     `-`                                                                      | Called when click login                                           |
+| className                                                                                                                                              | `string (optional)`                            |                                                                     `-`                                                                      | Class for button                                                  |
 | [other_props...](https://github.com/cuongdevjs/reactjs-social-login/blob/757df855d0b16aad7bccd6e76b756a92e707fe46/src/LoginSocialTwitter/index.tsx#L9) |
 
 <br/>
