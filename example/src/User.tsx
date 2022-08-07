@@ -9,6 +9,7 @@ interface Props {
 export const User = memo(({ provider, profile, onLogout }: Props) => {
   const avatar =
     profile?.avatar ||
+    profile?.profile_image_url ||
     profile?.avatar_url ||
     profile?.picture ||
     profile?.picture?.data?.url ||

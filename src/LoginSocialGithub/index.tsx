@@ -4,6 +4,7 @@
  * LoginSocialGithub
  *
  */
+import { PASS_CORS_KEY } from 'helper/constants'
 import React, { memo, useCallback, useEffect } from 'react'
 import { IResolveParams, objectType } from '../'
 
@@ -50,12 +51,12 @@ export const LoginSocialGithub = ({
   }, [])
 
   const getProfile = useCallback(
-    (data) => {
+    (data: objectType) => {
       fetch(`${PREVENT_CORS_URL}/${GITHUB_API_URL}/user`, {
         method: 'GET',
         headers: {
           Authorization: `token ${data.access_token}`,
-          'x-cors-grida-api-key': '875c0462-6309-4ddf-9889-5227b1acc82c'
+          'x-cors-grida-api-key': PASS_CORS_KEY
         }
       })
         .then((res) => res.json())
@@ -80,7 +81,7 @@ export const LoginSocialGithub = ({
       }
       const headers = new Headers({
         'Content-Type': 'application/x-www-form-urlencoded',
-        'x-cors-grida-api-key': '875c0462-6309-4ddf-9889-5227b1acc82c'
+        'x-cors-grida-api-key': PASS_CORS_KEY
       })
 
       fetch(`${PREVENT_CORS_URL}/${GITHUB_URL}/login/oauth/access_token`, {
@@ -106,7 +107,7 @@ export const LoginSocialGithub = ({
   )
 
   const handlePostMessage = useCallback(
-    async ({ type, code, provider }) =>
+    async ({ type, code, provider }: objectType) =>
       type === 'code' && provider === 'github' && code && getAccessToken(code),
     [getAccessToken]
   )

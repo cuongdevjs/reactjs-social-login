@@ -54,6 +54,7 @@ const LoginSocialFacebook = ({
 }: Props) => {
   const scriptNodeRef = useRef<HTMLElement>(null!)
   const [isSdkLoaded, setIsSdkLoaded] = useState(false)
+  const [isProcessing, setIsProcessing] = useState(false)
 
   useEffect(() => {
     !isSdkLoaded && load()
@@ -126,6 +127,7 @@ const LoginSocialFacebook = ({
       } else {
         onReject(response)
       }
+      setIsProcessing(false)
     },
     [getMe, onReject]
   )
@@ -163,12 +165,14 @@ const LoginSocialFacebook = ({
   ])
 
   const loginFB = useCallback(() => {
-    if (!isSdkLoaded) return
+    if (!isSdkLoaded || isProcessing) return
 
     if (!_window.FB) {
       load()
       onReject("Fb isn't loaded!")
+      setIsProcessing(false)
     } else {
+      setIsProcessing(true)
       onLoginStart && onLoginStart()
       _window.FB.login(handleResponse, {
         scope,
@@ -177,14 +181,15 @@ const LoginSocialFacebook = ({
       })
     }
   }, [
-    isSdkLoaded,
     load,
-    onReject,
-    onLoginStart,
-    handleResponse,
     scope,
+    onReject,
+    auth_type,
+    isSdkLoaded,
+    onLoginStart,
+    isProcessing,
     return_scopes,
-    auth_type
+    handleResponse
   ])
 
   return (

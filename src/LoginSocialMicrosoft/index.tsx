@@ -57,7 +57,7 @@ export const LoginSocialMicrosoft = ({
   }, [])
 
   const getProfile = useCallback(
-    (data) => {
+    (data: objectType) => {
       fetch(`${MICROSOFT_API_URL}/v1.0/me`, {
         method: 'GET',
         headers: {
@@ -116,7 +116,7 @@ export const LoginSocialMicrosoft = ({
   )
 
   const handlePostMessage = useCallback(
-    async ({ type, code, provider }) =>
+    async ({ type, code, provider }: objectType) =>
       type === 'code' &&
       provider === 'microsoft' &&
       code &&

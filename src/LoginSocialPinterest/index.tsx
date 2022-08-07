@@ -4,6 +4,7 @@
  * LoginSocialGithub
  *
  */
+import { PASS_CORS_KEY } from 'helper/constants'
 import React, { memo, useCallback, useEffect } from 'react'
 import { IResolveParams, objectType } from '..'
 
@@ -47,12 +48,12 @@ export const LoginSocialPinterest = ({
   }, [])
 
   const getProfile = useCallback(
-    (data) => {
+    (data: objectType) => {
       fetch(`${PREVENT_CORS_URL}/${PINTEREST_URL_API}/user_account`, {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${data.access_token}`,
-          'x-cors-grida-api-key': '875c0462-6309-4ddf-9889-5227b1acc82c'
+          'x-cors-grida-api-key': PASS_CORS_KEY
         }
       })
         .then((res) => res.json())
@@ -86,7 +87,7 @@ export const LoginSocialPinterest = ({
           headers: {
             Authorization: `Basic ${btoa(client_id + ':' + client_secret)}`,
             'Content-Type': 'application/x-www-form-urlencoded',
-            'x-cors-grida-api-key': '875c0462-6309-4ddf-9889-5227b1acc82c'
+            'x-cors-grida-api-key': PASS_CORS_KEY
           },
           body: formBody
         }
@@ -100,7 +101,7 @@ export const LoginSocialPinterest = ({
   )
 
   const handlePostMessage = useCallback(
-    async ({ type, code, provider }) =>
+    async ({ type, code, provider }: objectType) =>
       type === 'code' &&
       provider === 'pinterest' &&
       code &&

@@ -4,6 +4,7 @@
  * LoginSocialGoogle
  *
  */
+import { PASS_CORS_KEY } from 'helper/constants'
 import React, { memo, useCallback, useEffect, useRef, useState } from 'react'
 import { objectType, IResolveParams } from '../'
 
@@ -99,7 +100,7 @@ const LoginSocialGoogle = ({
       if (res?.access_token) {
         const headers = new Headers({
           'Content-Type': 'application/x-www-form-urlencoded',
-          'x-cors-grida-api-key': '875c0462-6309-4ddf-9889-5227b1acc82c',
+          'x-cors-grida-api-key': PASS_CORS_KEY,
           Authorization: 'Bearer ' + res.access_token
         })
 

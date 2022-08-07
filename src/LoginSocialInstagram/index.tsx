@@ -4,6 +4,7 @@
  * LoginSocialInstagram
  *
  */
+import { PASS_CORS_KEY } from 'helper/constants'
 import React, { memo, useCallback, useEffect } from 'react'
 import { objectType, IResolveParams } from '../'
 
@@ -50,13 +51,13 @@ export const LoginSocialInstagram = ({
   }, [])
 
   const getProfile = useCallback(
-    (data) => {
+    (data: objectType) => {
       fetch(
         `${PREVENT_CORS_URL}/${INSTAGRAM_API_URL}/me?fields=id,username,account_type,media_count&access_token=${data.access_token}`,
         {
           method: 'GET',
           headers: {
-            'x-cors-grida-api-key': '875c0462-6309-4ddf-9889-5227b1acc82c'
+            'x-cors-grida-api-key': PASS_CORS_KEY
           }
         }
       )
@@ -82,7 +83,7 @@ export const LoginSocialInstagram = ({
       }
       const headers = new Headers({
         'Content-Type': 'application/x-www-form-urlencoded',
-        'x-cors-grida-api-key': '875c0462-6309-4ddf-9889-5227b1acc82c'
+        'x-cors-grida-api-key': PASS_CORS_KEY
       })
       fetch(`${PREVENT_CORS_URL}/${INSTAGRAM_URL}/oauth/access_token`, {
         method: 'POST',
@@ -103,7 +104,7 @@ export const LoginSocialInstagram = ({
   )
 
   const handlePostMessage = useCallback(
-    async ({ type, code, provider }) =>
+    async ({ type, code, provider }: objectType) =>
       type === 'code' &&
       provider === 'instagram' &&
       code &&

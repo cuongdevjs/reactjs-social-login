@@ -4,6 +4,7 @@
  * LoginSocialLinkedin
  *
  */
+import { PASS_CORS_KEY } from 'helper/constants'
 import React, { memo, useCallback, useEffect } from 'react'
 import { IResolveParams, objectType } from '../'
 
@@ -49,7 +50,7 @@ export const LoginSocialLinkedin = ({
   }, [])
 
   const getProfile = useCallback(
-    (data) => {
+    (data: objectType) => {
       fetch(
         `https://api.allorigins.win/get?url=${encodeURIComponent(
           LINKEDIN_API_URL +
@@ -92,7 +93,7 @@ export const LoginSocialLinkedin = ({
       }
       const headers = new Headers({
         'Content-Type': 'application/x-www-form-urlencoded',
-        'x-cors-grida-api-key': '875c0462-6309-4ddf-9889-5227b1acc82c'
+        'x-cors-grida-api-key': PASS_CORS_KEY
       })
 
       fetch(`${PREVENT_CORS_URL}/${LINKEDIN_URL}/accessToken`, {
@@ -112,7 +113,7 @@ export const LoginSocialLinkedin = ({
   )
 
   const handlePostMessage = useCallback(
-    async ({ type, code, provider }) =>
+    async ({ type, code, provider }: objectType) =>
       type === 'code' &&
       provider === 'linkedin' &&
       code &&

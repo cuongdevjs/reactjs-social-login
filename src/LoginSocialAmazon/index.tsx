@@ -83,7 +83,7 @@ export const LoginSocialAmazon = ({
   )
 
   const getUserInfo = useCallback(
-    async (res) => {
+    async (res: objectType) => {
       fetch(`https://api.amazon.com/user/profile`, {
         headers: {
           Authorization: `Bearer ${res.access_token}`
