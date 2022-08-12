@@ -4,26 +4,27 @@
  * LoginSocialGithub
  *
  */
-import { PASS_CORS_KEY } from 'helper/constants'
-import React, { memo, useCallback, useEffect } from 'react'
-import { IResolveParams, objectType } from '..'
+import { PASS_CORS_KEY } from 'helper/constants';
+import React, { memo, useCallback, useEffect } from 'react';
+import { IResolveParams, objectType } from '..';
 
 interface Props {
-  state?: string
-  scope?: string
-  client_id: string
-  client_secret: string
-  className?: string
-  redirect_uri: string
-  children?: React.ReactNode
-  onLoginStart?: () => void
-  onReject: (reject: string | objectType) => void
-  onResolve: ({ provider, data }: IResolveParams) => void
+  state?: string;
+  scope?: string;
+  client_id: string;
+  client_secret: string;
+  className?: string;
+  redirect_uri: string;
+  children?: React.ReactNode;
+  isOnlyGetToken?: boolean;
+  onLoginStart?: () => void;
+  onReject: (reject: string | objectType) => void;
+  onResolve: ({ provider, data }: IResolveParams) => void;
 }
 
-const PINTEREST_URL: string = 'https://www.pinterest.com/oauth'
-const PINTEREST_URL_API: string = 'https://api.pinterest.com/v5'
-const PREVENT_CORS_URL: string = 'https://cors.bridged.cc'
+const PINTEREST_URL: string = 'https://www.pinterest.com/oauth';
+const PINTEREST_URL_API: string = 'https://api.pinterest.com/v5';
+const PREVENT_CORS_URL: string = 'https://cors.bridged.cc';
 
 export const LoginSocialPinterest = ({
   state = '',
@@ -32,20 +33,21 @@ export const LoginSocialPinterest = ({
   client_secret,
   className = '',
   redirect_uri,
+  isOnlyGetToken = false,
   children,
   onLoginStart,
   onReject,
-  onResolve
+  onResolve,
 }: Props) => {
   useEffect(() => {
-    const popupWindowURL = new URL(window.location.href)
-    const code = popupWindowURL.searchParams.get('code')
-    const state = popupWindowURL.searchParams.get('state')
+    const popupWindowURL = new URL(window.location.href);
+    const code = popupWindowURL.searchParams.get('code');
+    const state = popupWindowURL.searchParams.get('state');
     if (state?.includes('_pinterest') && code) {
-      localStorage.setItem('pinterest', code)
-      window.close()
+      localStorage.setItem('pinterest', code);
+      window.close();
     }
-  }, [])
+  }, []);
 
   const getProfile = useCallback(
     (data: objectType) => {
@@ -53,32 +55,32 @@ export const LoginSocialPinterest = ({
         method: 'GET',
         headers: {
           Authorization: `Bearer ${data.access_token}`,
-          'x-cors-grida-api-key': PASS_CORS_KEY
-        }
+          'x-cors-grida-api-key': PASS_CORS_KEY,
+        },
       })
-        .then((res) => res.json())
-        .then((res) => {
-          onResolve({ provider: 'pinterest', data: { ...data, ...res } })
+        .then(res => res.json())
+        .then(res => {
+          onResolve({ provider: 'pinterest', data: { ...data, ...res } });
         })
-        .catch((err) => onReject(err))
+        .catch(err => onReject(err));
     },
-    [onReject, onResolve]
-  )
+    [onReject, onResolve],
+  );
 
   const getAccessToken = useCallback(
     async (code: string) => {
       var details = {
         code,
         redirect_uri,
-        grant_type: `authorization_code`
-      }
-      var formBody: string | string[] = []
+        grant_type: `authorization_code`,
+      };
+      var formBody: string | string[] = [];
       for (var property in details) {
-        var encodedKey = encodeURIComponent(property)
-        var encodedValue = encodeURIComponent(details[property])
-        formBody.push(encodedKey + '=' + encodedValue)
+        var encodedKey = encodeURIComponent(property);
+        var encodedValue = encodeURIComponent(details[property]);
+        formBody.push(encodedKey + '=' + encodedValue);
       }
-      formBody = formBody.join('&')
+      formBody = formBody.join('&');
 
       const data = await fetch(
         `${PREVENT_CORS_URL}/${PINTEREST_URL_API}/oauth/token`,
@@ -87,18 +89,29 @@ export const LoginSocialPinterest = ({
           headers: {
             Authorization: `Basic ${btoa(client_id + ':' + client_secret)}`,
             'Content-Type': 'application/x-www-form-urlencoded',
-            'x-cors-grida-api-key': PASS_CORS_KEY
+            'x-cors-grida-api-key': PASS_CORS_KEY,
           },
-          body: formBody
-        }
+          body: formBody,
+        },
       )
-        .then((data) => data.json())
-        .catch((err) => onReject(err))
+        .then(data => data.json())
+        .catch(err => onReject(err));
 
-      getProfile(data)
+      if (data.access_token) {
+        if (isOnlyGetToken) onResolve({ provider: 'pinterest', data });
+        else getProfile(data);
+      }
     },
-    [client_id, client_secret, getProfile, onReject, redirect_uri]
-  )
+    [
+      onReject,
+      client_id,
+      getProfile,
+      onResolve,
+      redirect_uri,
+      client_secret,
+      isOnlyGetToken,
+    ],
+  );
 
   const handlePostMessage = useCallback(
     async ({ type, code, provider }: objectType) =>
@@ -106,28 +119,28 @@ export const LoginSocialPinterest = ({
       provider === 'pinterest' &&
       code &&
       getAccessToken(code),
-    [getAccessToken]
-  )
+    [getAccessToken],
+  );
 
   const onChangeLocalStorage = useCallback(() => {
-    window.removeEventListener('storage', onChangeLocalStorage, false)
-    const code = localStorage.getItem('pinterest')
+    window.removeEventListener('storage', onChangeLocalStorage, false);
+    const code = localStorage.getItem('pinterest');
     if (code) {
-      handlePostMessage({ provider: 'pinterest', type: 'code', code })
-      localStorage.removeItem('pinterest')
+      handlePostMessage({ provider: 'pinterest', type: 'code', code });
+      localStorage.removeItem('pinterest');
     }
-  }, [handlePostMessage])
+  }, [handlePostMessage]);
 
   const onLogin = useCallback(() => {
-    onLoginStart && onLoginStart()
-    window.addEventListener('storage', onChangeLocalStorage, false)
+    onLoginStart && onLoginStart();
+    window.addEventListener('storage', onChangeLocalStorage, false);
     const oauthUrl = `${PINTEREST_URL}/?client_id=${client_id}&scope=${scope}&state=${
       state + '_pinterest'
-    }&redirect_uri=${redirect_uri}&response_type=code&scope=boards:read,pins:read,user_accounts:read`
-    const width = 450
-    const height = 730
-    const left = window.screen.width / 2 - width / 2
-    const top = window.screen.height / 2 - height / 2
+    }&redirect_uri=${redirect_uri}&response_type=code&scope=boards:read,pins:read,user_accounts:read`;
+    const width = 450;
+    const height = 730;
+    const left = window.screen.width / 2 - width / 2;
+    const top = window.screen.height / 2 - height / 2;
     window.open(
       oauthUrl,
       'Pinterest',
@@ -138,22 +151,22 @@ export const LoginSocialPinterest = ({
         ', top=' +
         top +
         ', left=' +
-        left
-    )
+        left,
+    );
   }, [
-    onLoginStart,
-    onChangeLocalStorage,
-    client_id,
     scope,
     state,
-    redirect_uri
-  ])
+    client_id,
+    redirect_uri,
+    onLoginStart,
+    onChangeLocalStorage,
+  ]);
 
   return (
     <div className={className} onClick={onLogin}>
       {children}
     </div>
-  )
-}
+  );
+};
 
-export default memo(LoginSocialPinterest)
+export default memo(LoginSocialPinterest);

@@ -4,29 +4,30 @@
  * LoginSocialMicrosoft
  *
  */
-import React, { memo, useCallback, useEffect } from 'react'
-import { IResolveParams, objectType } from '../'
+import React, { memo, useCallback, useEffect } from 'react';
+import { IResolveParams, objectType } from '../';
 
 interface Props {
-  scope?: string
-  state?: string
-  client_id: string
-  className?: string
-  redirect_uri: string
-  response_type?: string
-  response_mode?: string
-  code_challenge?: string
-  children?: React.ReactNode
-  onLoginStart?: () => void
-  onReject: (reject: string | objectType) => void
-  code_challenge_method?: 'plain' | 's256'[]
-  onResolve: ({ provider, data }: IResolveParams) => void
-  tenant?: 'common' | 'organizations' | 'consumers'
-  prompt?: 'login' | 'none' | 'consent' | 'select_account'
+  scope?: string;
+  state?: string;
+  client_id: string;
+  className?: string;
+  redirect_uri: string;
+  response_type?: string;
+  response_mode?: string;
+  code_challenge?: string;
+  children?: React.ReactNode;
+  isOnlyGetToken: boolean;
+  onLoginStart?: () => void;
+  onReject: (reject: string | objectType) => void;
+  code_challenge_method?: 'plain' | 's256'[];
+  onResolve: ({ provider, data }: IResolveParams) => void;
+  tenant?: 'common' | 'organizations' | 'consumers';
+  prompt?: 'login' | 'none' | 'consent' | 'select_account';
 }
 
-const MICROSOFT_URL = 'https://login.microsoftonline.com'
-const MICROSOFT_API_URL = 'https://graph.microsoft.com'
+const MICROSOFT_URL = 'https://login.microsoftonline.com';
+const MICROSOFT_API_URL = 'https://graph.microsoft.com';
 // const PREVENT_CORS_URL: string = 'https://cors.bridged.cc'
 
 export const LoginSocialMicrosoft = ({
@@ -42,38 +43,39 @@ export const LoginSocialMicrosoft = ({
   code_challenge = '19cfc47c216dacba8ca23eeee817603e2ba34fe0976378662ba31688ed302fa9',
   code_challenge_method = 'plain',
   prompt = 'select_account',
+  isOnlyGetToken = false,
   onLoginStart,
   onReject,
-  onResolve
+  onResolve,
 }: Props) => {
   useEffect(() => {
-    const popupWindowURL = new URL(window.location.href)
-    const code = popupWindowURL.searchParams.get('code')
-    const state = popupWindowURL.searchParams.get('state')
+    const popupWindowURL = new URL(window.location.href);
+    const code = popupWindowURL.searchParams.get('code');
+    const state = popupWindowURL.searchParams.get('state');
     if (state?.includes('_microsoft') && code) {
-      localStorage.setItem('microsoft', code)
-      window.close()
+      localStorage.setItem('microsoft', code);
+      window.close();
     }
-  }, [])
+  }, []);
 
   const getProfile = useCallback(
     (data: objectType) => {
       fetch(`${MICROSOFT_API_URL}/v1.0/me`, {
         method: 'GET',
         headers: {
-          Authorization: `Bearer ${data.access_token}`
-        }
+          Authorization: `Bearer ${data.access_token}`,
+        },
       })
-        .then((res) => res.json())
-        .then((res) => {
-          onResolve({ provider: 'microsoft', data: { ...res, ...data } })
+        .then(res => res.json())
+        .then(res => {
+          onResolve({ provider: 'microsoft', data: { ...res, ...data } });
         })
-        .catch((err) => {
-          onReject(err)
-        })
+        .catch(err => {
+          onReject(err);
+        });
     },
-    [onReject, onResolve]
-  )
+    [onReject, onResolve],
+  );
 
   const getAccessToken = useCallback(
     (code: string) => {
@@ -83,37 +85,41 @@ export const LoginSocialMicrosoft = ({
         client_id,
         redirect_uri,
         code_verifier: code_challenge,
-        grant_type: 'authorization_code'
-      }
+        grant_type: 'authorization_code',
+      };
       const headers = new Headers({
-        'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
-      })
+        'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+      });
       fetch(`${MICROSOFT_URL}/${tenant}/oauth2/v2.0/token`, {
         method: 'POST',
         headers,
-        body: new URLSearchParams(params)
+        body: new URLSearchParams(params),
       })
-        .then((response) => response.json())
-        .then((data) => {
-          if (data.access_token) getProfile(data)
-          else {
-            onReject('no data')
+        .then(response => response.json())
+        .then(data => {
+          if (data.access_token) {
+            if (isOnlyGetToken) onResolve({ provider: 'microsoft', data });
+            else getProfile(data);
+          } else {
+            onReject('no data');
           }
         })
-        .catch((err) => {
-          onReject(err)
-        })
+        .catch(err => {
+          onReject(err);
+        });
     },
     [
       scope,
       tenant,
       onReject,
-      client_id,
       getProfile,
+      client_id,
+      onResolve,
       redirect_uri,
-      code_challenge
-    ]
-  )
+      code_challenge,
+      isOnlyGetToken,
+    ],
+  );
 
   const handlePostMessage = useCallback(
     async ({ type, code, provider }: objectType) =>
@@ -121,21 +127,21 @@ export const LoginSocialMicrosoft = ({
       provider === 'microsoft' &&
       code &&
       getAccessToken(code),
-    [getAccessToken]
-  )
+    [getAccessToken],
+  );
 
   const onChangeLocalStorage = useCallback(() => {
-    window.removeEventListener('storage', onChangeLocalStorage, false)
-    const code = localStorage.getItem('microsoft')
+    window.removeEventListener('storage', onChangeLocalStorage, false);
+    const code = localStorage.getItem('microsoft');
     if (code) {
-      handlePostMessage({ provider: 'microsoft', type: 'code', code })
-      localStorage.removeItem('microsoft')
+      handlePostMessage({ provider: 'microsoft', type: 'code', code });
+      localStorage.removeItem('microsoft');
     }
-  }, [handlePostMessage])
+  }, [handlePostMessage]);
 
   const onLogin = useCallback(() => {
-    onLoginStart && onLoginStart()
-    window.addEventListener('storage', onChangeLocalStorage, false)
+    onLoginStart && onLoginStart();
+    window.addEventListener('storage', onChangeLocalStorage, false);
     const oauthUrl = `${MICROSOFT_URL}/${tenant}/oauth2/v2.0/authorize?client_id=${client_id}
         &response_type=${response_type}
         &redirect_uri=${redirect_uri}
@@ -144,11 +150,11 @@ export const LoginSocialMicrosoft = ({
         &state=${state + '_microsoft'}
         &prompt=${prompt}
         &code_challenge=${code_challenge}
-        &code_challenge_method=${code_challenge_method}`
-    const width = 450
-    const height = 730
-    const left = window.screen.width / 2 - width / 2
-    const top = window.screen.height / 2 - height / 2
+        &code_challenge_method=${code_challenge_method}`;
+    const width = 450;
+    const height = 730;
+    const left = window.screen.width / 2 - width / 2;
+    const top = window.screen.height / 2 - height / 2;
     window.open(
       oauthUrl,
       'Microsoft',
@@ -159,28 +165,28 @@ export const LoginSocialMicrosoft = ({
         ', top=' +
         top +
         ', left=' +
-        left
-    )
+        left,
+    );
   }, [
-    onLoginStart,
-    onChangeLocalStorage,
-    tenant,
-    client_id,
-    response_type,
-    redirect_uri,
-    response_mode,
     scope,
     state,
     prompt,
+    tenant,
+    client_id,
+    onLoginStart,
+    redirect_uri,
+    response_mode,
+    response_type,
     code_challenge,
-    code_challenge_method
-  ])
+    onChangeLocalStorage,
+    code_challenge_method,
+  ]);
 
   return (
     <div className={className} onClick={onLogin}>
       {children}
     </div>
-  )
-}
+  );
+};
 
-export default memo(LoginSocialMicrosoft)
+export default memo(LoginSocialMicrosoft);

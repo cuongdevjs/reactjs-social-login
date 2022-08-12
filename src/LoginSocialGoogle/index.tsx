@@ -4,35 +4,36 @@
  * LoginSocialGoogle
  *
  */
-import { PASS_CORS_KEY } from 'helper/constants'
-import React, { memo, useCallback, useEffect, useRef, useState } from 'react'
-import { objectType, IResolveParams } from '../'
+import { PASS_CORS_KEY } from 'helper/constants';
+import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
+import { objectType, IResolveParams } from '../';
 
 interface Props {
-  scope?: string
-  prompt?: string
-  ux_mode?: string
-  client_id: string
-  className?: string
-  login_hint?: string
-  access_type?: string
-  redirect_uri?: string
-  cookie_policy?: string
-  hosted_domain?: string
-  discoveryDocs?: string
-  children?: React.ReactNode
-  onLoginStart?: () => void
-  onReject: (reject: string | objectType) => void
-  fetch_basic_profile?: boolean
-  onResolve: ({ provider, data }: IResolveParams) => void
+  scope?: string;
+  prompt?: string;
+  ux_mode?: string;
+  client_id: string;
+  className?: string;
+  login_hint?: string;
+  access_type?: string;
+  redirect_uri?: string;
+  cookie_policy?: string;
+  hosted_domain?: string;
+  discoveryDocs?: string;
+  children?: React.ReactNode;
+  onLoginStart?: () => void;
+  isOnlyGetToken?: boolean;
+  onReject: (reject: string | objectType) => void;
+  fetch_basic_profile?: boolean;
+  onResolve: ({ provider, data }: IResolveParams) => void;
 }
 
 // const SCOPE = ''
 // const JS_SRC = 'https://apis.google.com/js/api.js'
-const JS_SRC = 'https://accounts.google.com/gsi/client'
-const SCRIPT_ID = 'google-login'
-const PREVENT_CORS_URL: string = 'https://cors.bridged.cc'
-const _window = window as any
+const JS_SRC = 'https://accounts.google.com/gsi/client';
+const SCRIPT_ID = 'google-login';
+const PREVENT_CORS_URL: string = 'https://cors.bridged.cc';
+const _window = window as any;
 
 const LoginSocialGoogle = ({
   client_id,
@@ -46,31 +47,32 @@ const LoginSocialGoogle = ({
   onReject,
   onResolve,
   redirect_uri = '/',
+  isOnlyGetToken = false,
   cookie_policy = 'single_host_origin',
   hosted_domain = '',
   discoveryDocs = '',
   children,
-  fetch_basic_profile = true
+  fetch_basic_profile = true,
 }: Props) => {
-  const scriptNodeRef = useRef<HTMLScriptElement>(null!)
-  const [isSdkLoaded, setIsSdkLoaded] = useState(false)
-  const [instance, setInstance] = useState<any>(null!)
+  const scriptNodeRef = useRef<HTMLScriptElement>(null!);
+  const [isSdkLoaded, setIsSdkLoaded] = useState(false);
+  const [instance, setInstance] = useState<any>(null!);
 
   useEffect(() => {
-    !isSdkLoaded && load()
+    !isSdkLoaded && load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isSdkLoaded])
+  }, [isSdkLoaded]);
 
   useEffect(
     () => () => {
-      if (scriptNodeRef.current) scriptNodeRef.current.remove()
+      if (scriptNodeRef.current) scriptNodeRef.current.remove();
     },
-    []
-  )
+    [],
+  );
 
   const checkIsExistsSDKScript = useCallback(() => {
-    return !!document.getElementById(SCRIPT_ID)
-  }, [])
+    return !!document.getElementById(SCRIPT_ID);
+  }, []);
 
   const insertScriptGoogle = useCallback(
     (
@@ -78,64 +80,73 @@ const LoginSocialGoogle = ({
       s: string = 'script',
       id: string,
       jsSrc: string,
-      cb: () => void
+      cb: () => void,
     ) => {
-      const ggScriptTag: any = d.createElement(s)
-      ggScriptTag.id = id
-      ggScriptTag.src = jsSrc
-      ggScriptTag.async = true
-      ggScriptTag.defer = true
-      const scriptNode = document.getElementsByTagName('script')![0]
-      scriptNodeRef.current = ggScriptTag
+      const ggScriptTag: any = d.createElement(s);
+      ggScriptTag.id = id;
+      ggScriptTag.src = jsSrc;
+      ggScriptTag.async = true;
+      ggScriptTag.defer = true;
+      const scriptNode = document.getElementsByTagName('script')![0];
+      scriptNodeRef.current = ggScriptTag;
       scriptNode &&
         scriptNode.parentNode &&
-        scriptNode.parentNode.insertBefore(ggScriptTag, scriptNode)
-      ggScriptTag.onload = cb
+        scriptNode.parentNode.insertBefore(ggScriptTag, scriptNode);
+      ggScriptTag.onload = cb;
     },
-    []
-  )
+    [],
+  );
+
+  const onGetMe = useCallback((res: objectType) => {
+    const headers = new Headers({
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'x-cors-grida-api-key': PASS_CORS_KEY,
+      Authorization: 'Bearer ' + res.access_token,
+    });
+
+    fetch(
+      `${PREVENT_CORS_URL}/https://www.googleapis.com/oauth2/v1/userinfo?alt=json`,
+      {
+        method: 'GET',
+        headers,
+      },
+    )
+      .then(response => response.json())
+      .then(response => {
+        const data: objectType = { ...res, ...response };
+        onResolve({
+          provider: 'google',
+          data,
+        });
+      })
+      .catch(err => {
+        onReject(err);
+      });
+  }, []);
 
   const handleResponse = useCallback(
     (res: objectType) => {
       if (res?.access_token) {
-        const headers = new Headers({
-          'Content-Type': 'application/x-www-form-urlencoded',
-          'x-cors-grida-api-key': PASS_CORS_KEY,
-          Authorization: 'Bearer ' + res.access_token
-        })
-
-        fetch(
-          `${PREVENT_CORS_URL}/https://www.googleapis.com/oauth2/v1/userinfo?alt=json`,
-          {
-            method: 'GET',
-            headers
-          }
-        )
-          .then((response) => response.json())
-          .then((response) => {
-            const data: objectType = { ...res, ...response }
-            onResolve({
-              provider: 'google',
-              data
-            })
-          })
-          .catch((err) => {
-            onReject(err)
-          })
+        if (isOnlyGetToken)
+          onResolve({
+            provider: 'google',
+            data: res,
+          });
+        else onGetMe(res);
       } else {
-        const data: objectType = res
+        const data: objectType = res;
         onResolve({
           provider: 'google',
-          data
-        })
+          data,
+        });
       }
     },
-    [onReject, onResolve]
-  )
+    [isOnlyGetToken, onGetMe, onResolve],
+  );
 
   const load = useCallback(() => {
     if (checkIsExistsSDKScript()) {
-      setIsSdkLoaded(true)
+      setIsSdkLoaded(true);
     } else {
       insertScriptGoogle(document, 'script', SCRIPT_ID, JS_SRC, () => {
         const params = {
@@ -150,49 +161,49 @@ const LoginSocialGoogle = ({
           access_type,
           scope,
           immediate: true,
-          prompt
-        }
+          prompt,
+        };
         var client = _window.google.accounts.oauth2.initTokenClient({
           ...params,
-          callback: handleResponse
-        })
-        setInstance(client)
-        setIsSdkLoaded(true)
-      })
+          callback: handleResponse,
+        });
+        setInstance(client);
+        setIsSdkLoaded(true);
+      });
     }
   }, [
-    checkIsExistsSDKScript,
-    insertScriptGoogle,
-    client_id,
-    prompt,
-    cookie_policy,
-    login_hint,
-    hosted_domain,
-    fetch_basic_profile,
-    discoveryDocs,
-    ux_mode,
-    redirect_uri,
-    access_type,
     scope,
-    handleResponse
-  ])
+    prompt,
+    ux_mode,
+    client_id,
+    login_hint,
+    access_type,
+    redirect_uri,
+    discoveryDocs,
+    cookie_policy,
+    hosted_domain,
+    handleResponse,
+    fetch_basic_profile,
+    insertScriptGoogle,
+    checkIsExistsSDKScript,
+  ]);
 
   const loginGoogle = useCallback(() => {
-    if (!isSdkLoaded) return
+    if (!isSdkLoaded) return;
     if (!_window.google) {
-      load()
-      onReject("Google SDK isn't loaded!")
+      load();
+      onReject("Google SDK isn't loaded!");
     } else {
-      onLoginStart && onLoginStart()
-      if (instance) instance.requestAccessToken()
+      onLoginStart && onLoginStart();
+      if (instance) instance.requestAccessToken();
     }
-  }, [instance, isSdkLoaded, load, onLoginStart, onReject])
+  }, [instance, isSdkLoaded, load, onLoginStart, onReject]);
 
   return (
     <div className={className} onClick={loginGoogle}>
       {children}
     </div>
-  )
-}
+  );
+};
 
-export default memo(LoginSocialGoogle)
+export default memo(LoginSocialGoogle);

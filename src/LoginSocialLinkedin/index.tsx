@@ -4,27 +4,28 @@
  * LoginSocialLinkedin
  *
  */
-import { PASS_CORS_KEY } from 'helper/constants'
-import React, { memo, useCallback, useEffect } from 'react'
-import { IResolveParams, objectType } from '../'
+import { PASS_CORS_KEY } from 'helper/constants';
+import React, { memo, useCallback, useEffect } from 'react';
+import { IResolveParams, objectType } from '../';
 
 interface Props {
-  state?: string
-  scope?: string
-  client_id: string
-  className?: string
-  redirect_uri: string
-  client_secret: string
-  response_type?: string
-  children?: React.ReactNode
-  onLoginStart?: () => void
-  onReject: (reject: string | objectType) => void
-  onResolve: ({ provider, data }: IResolveParams) => void
+  state?: string;
+  scope?: string;
+  client_id: string;
+  className?: string;
+  redirect_uri: string;
+  client_secret: string;
+  response_type?: string;
+  isOnlyGetToken?: boolean;
+  children?: React.ReactNode;
+  onLoginStart?: () => void;
+  onReject: (reject: string | objectType) => void;
+  onResolve: ({ provider, data }: IResolveParams) => void;
 }
 
-const LINKEDIN_URL: string = 'https://www.linkedin.com/oauth/v2'
-const LINKEDIN_API_URL: string = 'https://api.linkedin.com'
-const PREVENT_CORS_URL: string = 'https://cors.bridged.cc'
+const LINKEDIN_URL: string = 'https://www.linkedin.com/oauth/v2';
+const LINKEDIN_API_URL: string = 'https://api.linkedin.com';
+const PREVENT_CORS_URL: string = 'https://cors.bridged.cc';
 
 export const LoginSocialLinkedin = ({
   state = '',
@@ -34,20 +35,21 @@ export const LoginSocialLinkedin = ({
   className = '',
   redirect_uri,
   response_type = 'code',
+  isOnlyGetToken = false,
   children,
   onLoginStart,
   onReject,
-  onResolve
+  onResolve,
 }: Props) => {
   useEffect(() => {
-    const popupWindowURL = new URL(window.location.href)
-    const code = popupWindowURL.searchParams.get('code')
-    const state = popupWindowURL.searchParams.get('state')
+    const popupWindowURL = new URL(window.location.href);
+    const code = popupWindowURL.searchParams.get('code');
+    const state = popupWindowURL.searchParams.get('state');
     if (state?.includes('_linkedin') && code) {
-      localStorage.setItem('linkedin', code)
-      window.close()
+      localStorage.setItem('linkedin', code);
+      window.close();
     }
-  }, [])
+  }, []);
 
   const getProfile = useCallback(
     (data: objectType) => {
@@ -56,31 +58,31 @@ export const LoginSocialLinkedin = ({
           LINKEDIN_API_URL +
             '/v2/me?oauth2_access_token=' +
             data.access_token +
-            '&projection=(id,profilePicture(displayImage~digitalmediaAsset:playableStreams),localizedLastName, firstName,lastName,localizedFirstName)'
+            '&projection=(id,profilePicture(displayImage~digitalmediaAsset:playableStreams),localizedLastName, firstName,lastName,localizedFirstName)',
         )}`,
         {
-          method: 'GET'
-        }
+          method: 'GET',
+        },
       )
-        .then((res) => res.json())
-        .then((res) => {
-          const response = { ...data }
+        .then(res => res.json())
+        .then(res => {
+          const response = { ...data };
           if (res.contents) {
-            const contents = JSON.parse(res.contents)
+            const contents = JSON.parse(res.contents);
             if (typeof data === 'object')
               Object.entries(contents).map(([key, value]) => {
-                response[key] = value
-              })
+                response[key] = value;
+              });
           }
 
-          onResolve({ provider: 'linkedin', data: response })
+          onResolve({ provider: 'linkedin', data: response });
         })
-        .catch((err) => {
-          onReject(err)
-        })
+        .catch(err => {
+          onReject(err);
+        });
     },
-    [onReject, onResolve]
-  )
+    [onReject, onResolve],
+  );
 
   const getAccessToken = useCallback(
     (code: string) => {
@@ -89,28 +91,38 @@ export const LoginSocialLinkedin = ({
         grant_type: 'authorization_code',
         redirect_uri,
         client_id,
-        client_secret
-      }
+        client_secret,
+      };
       const headers = new Headers({
         'Content-Type': 'application/x-www-form-urlencoded',
-        'x-cors-grida-api-key': PASS_CORS_KEY
-      })
+        'x-cors-grida-api-key': PASS_CORS_KEY,
+      });
 
       fetch(`${PREVENT_CORS_URL}/${LINKEDIN_URL}/accessToken`, {
         method: 'POST',
         headers,
-        body: new URLSearchParams(params)
+        body: new URLSearchParams(params),
       })
-        .then((response) => response.json())
-        .then((response) => {
-          getProfile(response)
+        .then(response => response.json())
+        .then(response => {
+          if (isOnlyGetToken)
+            onResolve({ provider: 'linkedin', data: response });
+          else getProfile(response);
         })
-        .catch((err) => {
-          onReject(err)
-        })
+        .catch(err => {
+          onReject(err);
+        });
     },
-    [client_id, client_secret, getProfile, onReject, redirect_uri]
-  )
+    [
+      onReject,
+      onResolve,
+      client_id,
+      getProfile,
+      redirect_uri,
+      client_secret,
+      isOnlyGetToken,
+    ],
+  );
 
   const handlePostMessage = useCallback(
     async ({ type, code, provider }: objectType) =>
@@ -118,28 +130,28 @@ export const LoginSocialLinkedin = ({
       provider === 'linkedin' &&
       code &&
       getAccessToken(code),
-    [getAccessToken]
-  )
+    [getAccessToken],
+  );
 
   const onChangeLocalStorage = useCallback(() => {
-    window.removeEventListener('storage', onChangeLocalStorage, false)
-    const code = localStorage.getItem('linkedin')
+    window.removeEventListener('storage', onChangeLocalStorage, false);
+    const code = localStorage.getItem('linkedin');
     if (code) {
-      handlePostMessage({ provider: 'linkedin', type: 'code', code })
-      localStorage.removeItem('linkedin')
+      handlePostMessage({ provider: 'linkedin', type: 'code', code });
+      localStorage.removeItem('linkedin');
     }
-  }, [handlePostMessage])
+  }, [handlePostMessage]);
 
   const onLogin = useCallback(() => {
-    onLoginStart && onLoginStart()
-    window.addEventListener('storage', onChangeLocalStorage, false)
+    onLoginStart && onLoginStart();
+    window.addEventListener('storage', onChangeLocalStorage, false);
     const oauthUrl = `${LINKEDIN_URL}/authorization?response_type=${response_type}&client_id=${client_id}&scope=${scope}&state=${
       state + '_linkedin'
-    }&redirect_uri=${redirect_uri}`
-    const width = 450
-    const height = 730
-    const left = window.screen.width / 2 - width / 2
-    const top = window.screen.height / 2 - height / 2
+    }&redirect_uri=${redirect_uri}`;
+    const width = 450;
+    const height = 730;
+    const left = window.screen.width / 2 - width / 2;
+    const top = window.screen.height / 2 - height / 2;
     window.open(
       oauthUrl,
       'Linkedin',
@@ -150,8 +162,8 @@ export const LoginSocialLinkedin = ({
         ', top=' +
         top +
         ', left=' +
-        left
-    )
+        left,
+    );
   }, [
     onLoginStart,
     onChangeLocalStorage,
@@ -159,14 +171,14 @@ export const LoginSocialLinkedin = ({
     client_id,
     scope,
     state,
-    redirect_uri
-  ])
+    redirect_uri,
+  ]);
 
   return (
     <div className={className} onClick={onLogin}>
       {children}
     </div>
-  )
-}
+  );
+};
 
-export default memo(LoginSocialLinkedin)
+export default memo(LoginSocialLinkedin);

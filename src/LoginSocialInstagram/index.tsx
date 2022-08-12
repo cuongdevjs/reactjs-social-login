@@ -4,28 +4,29 @@
  * LoginSocialInstagram
  *
  */
-import { PASS_CORS_KEY } from 'helper/constants'
-import React, { memo, useCallback, useEffect } from 'react'
-import { objectType, IResolveParams } from '../'
+import { PASS_CORS_KEY } from 'helper/constants';
+import React, { memo, useCallback, useEffect } from 'react';
+import { objectType, IResolveParams } from '../';
 
 interface Props {
-  scope?: string
-  state?: string
-  client_id: string
-  className?: string
-  client_secret: string
-  redirect_uri: string
-  response_type?: string
-  children?: React.ReactNode
-  onLogoutSuccess?: () => void
-  onLoginStart?: () => void
-  onReject: (reject: string | objectType) => void
-  onResolve: ({ provider, data }: IResolveParams) => void
+  scope?: string;
+  state?: string;
+  client_id: string;
+  className?: string;
+  client_secret: string;
+  redirect_uri: string;
+  response_type?: string;
+  isOnlyGetToken?: boolean;
+  children?: React.ReactNode;
+  onLogoutSuccess?: () => void;
+  onLoginStart?: () => void;
+  onReject: (reject: string | objectType) => void;
+  onResolve: ({ provider, data }: IResolveParams) => void;
 }
 
-const INSTAGRAM_URL = 'https://api.instagram.com'
-const INSTAGRAM_API_URL = 'https://graph.instagram.com/'
-const PREVENT_CORS_URL: string = 'https://cors.bridged.cc'
+const INSTAGRAM_URL = 'https://api.instagram.com';
+const INSTAGRAM_API_URL = 'https://graph.instagram.com/';
+const PREVENT_CORS_URL: string = 'https://cors.bridged.cc';
 
 export const LoginSocialInstagram = ({
   state = '',
@@ -35,20 +36,21 @@ export const LoginSocialInstagram = ({
   redirect_uri,
   scope = 'user_profile,user_media',
   response_type = 'code',
+  isOnlyGetToken = false,
   children,
   onReject,
   onResolve,
-  onLoginStart
+  onLoginStart,
 }: Props) => {
   useEffect(() => {
-    const popupWindowURL = new URL(window.location.href)
-    const code = popupWindowURL.searchParams.get('code')
-    const state = popupWindowURL.searchParams.get('state')
+    const popupWindowURL = new URL(window.location.href);
+    const code = popupWindowURL.searchParams.get('code');
+    const state = popupWindowURL.searchParams.get('state');
     if (state?.includes('_instagram') && code) {
-      localStorage.setItem('instagram', code)
-      window.close()
+      localStorage.setItem('instagram', code);
+      window.close();
     }
-  }, [])
+  }, []);
 
   const getProfile = useCallback(
     (data: objectType) => {
@@ -57,20 +59,20 @@ export const LoginSocialInstagram = ({
         {
           method: 'GET',
           headers: {
-            'x-cors-grida-api-key': PASS_CORS_KEY
-          }
-        }
+            'x-cors-grida-api-key': PASS_CORS_KEY,
+          },
+        },
       )
-        .then((res) => res.json())
-        .then((res) => {
-          onResolve({ provider: 'instagram', data: { ...res, ...data } })
+        .then(res => res.json())
+        .then(res => {
+          onResolve({ provider: 'instagram', data: { ...res, ...data } });
         })
-        .catch((err) => {
-          onReject(err)
-        })
+        .catch(err => {
+          onReject(err);
+        });
     },
-    [onReject, onResolve]
-  )
+    [onReject, onResolve],
+  );
 
   const getAccessToken = useCallback(
     (code: string) => {
@@ -79,29 +81,39 @@ export const LoginSocialInstagram = ({
         code,
         redirect_uri,
         client_id,
-        client_secret
-      }
+        client_secret,
+      };
       const headers = new Headers({
         'Content-Type': 'application/x-www-form-urlencoded',
-        'x-cors-grida-api-key': PASS_CORS_KEY
-      })
+        'x-cors-grida-api-key': PASS_CORS_KEY,
+      });
       fetch(`${PREVENT_CORS_URL}/${INSTAGRAM_URL}/oauth/access_token`, {
         method: 'POST',
         headers,
-        body: new URLSearchParams(params)
+        body: new URLSearchParams(params),
       })
-        .then((response) => response.json())
-        .then((data) => {
-          if (data.access_token) getProfile(data)
-          else onReject('no data')
+        .then(response => response.json())
+        .then(data => {
+          if (data.access_token) {
+            if (isOnlyGetToken) onResolve({ provider: 'instagram', data });
+            else getProfile(data);
+          } else onReject('no data');
         })
-        .catch((err) => {
-          onReject(err)
+        .catch(err => {
+          onReject(err);
         })
-        .finally(() => {})
+        .finally(() => {});
     },
-    [client_id, client_secret, getProfile, onReject, redirect_uri]
-  )
+    [
+      onReject,
+      onResolve,
+      getProfile,
+      client_id,
+      redirect_uri,
+      client_secret,
+      isOnlyGetToken,
+    ],
+  );
 
   const handlePostMessage = useCallback(
     async ({ type, code, provider }: objectType) =>
@@ -109,28 +121,28 @@ export const LoginSocialInstagram = ({
       provider === 'instagram' &&
       code &&
       getAccessToken(code),
-    [getAccessToken]
-  )
+    [getAccessToken],
+  );
 
   const onChangeLocalStorage = useCallback(() => {
-    window.removeEventListener('storage', onChangeLocalStorage, false)
-    const code = localStorage.getItem('instagram')
+    window.removeEventListener('storage', onChangeLocalStorage, false);
+    const code = localStorage.getItem('instagram');
     if (code) {
-      handlePostMessage({ provider: 'instagram', type: 'code', code })
-      localStorage.removeItem('instagram')
+      handlePostMessage({ provider: 'instagram', type: 'code', code });
+      localStorage.removeItem('instagram');
     }
-  }, [handlePostMessage])
+  }, [handlePostMessage]);
 
   const onLogin = useCallback(() => {
-    onLoginStart && onLoginStart()
-    window.addEventListener('storage', onChangeLocalStorage, false)
+    onLoginStart && onLoginStart();
+    window.addEventListener('storage', onChangeLocalStorage, false);
     const oauthUrl = `${INSTAGRAM_URL}/oauth/authorize?response_type=${response_type}&client_id=${client_id}&scope=${scope}&state=${
       state + '_instagram'
-    }&redirect_uri=${redirect_uri}`
-    const width = 450
-    const height = 730
-    const left = window.screen.width / 2 - width / 2
-    const top = window.screen.height / 2 - height / 2
+    }&redirect_uri=${redirect_uri}`;
+    const width = 450;
+    const height = 730;
+    const left = window.screen.width / 2 - width / 2;
+    const top = window.screen.height / 2 - height / 2;
     window.open(
       oauthUrl,
       'Instagram',
@@ -141,23 +153,23 @@ export const LoginSocialInstagram = ({
         ', top=' +
         top +
         ', left=' +
-        left
-    )
+        left,
+    );
   }, [
-    onLoginStart,
-    onChangeLocalStorage,
-    response_type,
-    client_id,
     scope,
     state,
-    redirect_uri
-  ])
+    client_id,
+    redirect_uri,
+    onLoginStart,
+    response_type,
+    onChangeLocalStorage,
+  ]);
 
   return (
     <div className={className} onClick={onLogin}>
       {children}
     </div>
-  )
-}
+  );
+};
 
-export default memo(LoginSocialInstagram)
+export default memo(LoginSocialInstagram);

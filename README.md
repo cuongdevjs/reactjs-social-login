@@ -148,6 +148,7 @@ const App = () => {
         <div className={`App ${provider && profile ? 'hide' : ''}`}>
           <h1 className='title'>ReactJS Social Login</h1>
           <LoginSocialFacebook
+            isOnlyGetToken
             appId={process.env.REACT_APP_FB_APP_ID || ''}
             onLoginStart={onLoginStart}
             onResolve={({ provider, data }: IResolveParams) => {
@@ -162,6 +163,7 @@ const App = () => {
           </LoginSocialFacebook>
 
           <LoginSocialGoogle
+            isOnlyGetToken
             client_id={process.env.REACT_APP_GG_APP_ID || ''}
             onLoginStart={onLoginStart}
             onResolve={({ provider, data }: IResolveParams) => {
@@ -176,6 +178,7 @@ const App = () => {
           </LoginSocialGoogle>
 
           <LoginSocialAmazon
+            isOnlyGetToken
             client_id={process.env.REACT_APP_AMAZON_APP_ID || ''}
             redirect_uri={REDIRECT_URI}
             onResolve={({ provider, data }: IResolveParams) => {
@@ -191,6 +194,7 @@ const App = () => {
           </LoginSocialAmazon>
 
           <LoginSocialInstagram
+            isOnlyGetToken
             client_id={process.env.REACT_APP_INSTAGRAM_APP_ID || ''}
             client_secret={process.env.REACT_APP_INSTAGRAM_APP_SECRET || ''}
             redirect_uri={REDIRECT_URI}
@@ -207,6 +211,7 @@ const App = () => {
           </LoginSocialInstagram>
 
           <LoginSocialMicrosoft
+            isOnlyGetToken
             client_id={process.env.REACT_APP_MICROSOFT_APP_ID || ''}
             redirect_uri={REDIRECT_URI}
             onLoginStart={onLoginStart}
@@ -222,6 +227,7 @@ const App = () => {
           </LoginSocialMicrosoft>
 
           <LoginSocialLinkedin
+            isOnlyGetToken
             client_id={process.env.REACT_APP_LINKEDIN_APP_ID || ''}
             client_secret={process.env.REACT_APP_LINKEDIN_APP_SECRET || ''}
             redirect_uri={REDIRECT_URI}
@@ -238,6 +244,7 @@ const App = () => {
           </LoginSocialLinkedin>
 
           <LoginSocialGithub
+            isOnlyGetToken
             client_id={process.env.REACT_APP_GITHUB_APP_ID || ''}
             client_secret={process.env.REACT_APP_GITHUB_APP_SECRET || ''}
             redirect_uri={REDIRECT_URI}
@@ -253,6 +260,7 @@ const App = () => {
             <GithubLoginButton />
           </LoginSocialGithub>
           <LoginSocialPinterest
+            isOnlyGetToken
             client_id={process.env.REACT_APP_PINTEREST_APP_ID || ''}
             client_secret={process.env.REACT_APP_PINTEREST_APP_SECRET || ''}
             redirect_uri={REDIRECT_URI}
@@ -275,6 +283,7 @@ const App = () => {
           </LoginSocialPinterest>
 
           <LoginSocialTwitter
+            isOnlyGetToken
             client_id={process.env.REACT_APP_TWITTER_V2_APP_KEY || ''}
             redirect_uri={REDIRECT_URI}
             onLoginStart={onLoginStart}
@@ -297,6 +306,8 @@ const App = () => {
 export default App
 
 ````
+
+> ### Loading user information on the client side is discouraged and causes slow response on our components, this should be implemented in the backend, passing the prop `isOnlyGetToken={true}` to the component
 
 <br/>
 
