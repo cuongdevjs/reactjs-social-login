@@ -17,7 +17,7 @@ interface Props {
   response_mode?: string;
   code_challenge?: string;
   children?: React.ReactNode;
-  isOnlyGetToken: boolean;
+  isOnlyGetToken?: boolean;
   onLoginStart?: () => void;
   onReject: (reject: string | objectType) => void;
   code_challenge_method?: 'plain' | 's256'[];

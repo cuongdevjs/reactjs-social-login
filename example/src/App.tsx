@@ -1,6 +1,6 @@
-import React, { useCallback, useState } from 'react'
-import './app.css'
-import { User } from './User'
+import React, { useCallback, useState } from 'react';
+import './app.css';
+import { User } from './User';
 import {
   LoginSocialGoogle,
   LoginSocialAmazon,
@@ -11,8 +11,9 @@ import {
   LoginSocialMicrosoft,
   LoginSocialPinterest,
   LoginSocialTwitter,
-  IResolveParams
-} from 'reactjs-social-login'
+  LoginSocialApple,
+  IResolveParams,
+} from 'reactjs-social-login';
 
 import {
   FacebookLoginButton,
@@ -22,29 +23,31 @@ import {
   InstagramLoginButton,
   LinkedInLoginButton,
   MicrosoftLoginButton,
-  TwitterLoginButton
-} from 'react-social-login-buttons'
+  TwitterLoginButton,
+  AppleLoginButton,
+} from 'react-social-login-buttons';
 
-import { ReactComponent as PinterestLogo } from './assets/pinterest.svg'
+import { ReactComponent as PinterestLogo } from './assets/pinterest.svg';
 
-const REDIRECT_URI = 'https://20d3-1-55-164-102.ap.ngrok.io/account/login'
+const REDIRECT_URI =
+  'https://plenty-planets-beam-42-118-51-2.loca.lt/account/login';
 // const REDIRECT_URI = 'http://localhost:3000/account/login'
 
 const App = () => {
-  const [provider, setProvider] = useState('')
-  const [profile, setProfile] = useState<any>()
+  const [provider, setProvider] = useState('');
+  const [profile, setProfile] = useState<any>();
 
   const onLoginStart = useCallback(() => {
-    alert('login start')
-  }, [])
+    alert('login start');
+  }, []);
 
   const onLogoutSuccess = useCallback(() => {
-    setProfile(null)
-    setProvider('')
-    alert('logout success')
-  }, [])
+    setProfile(null);
+    setProvider('');
+    alert('logout success');
+  }, []);
 
-  const onLogout = useCallback(() => {}, [])
+  const onLogout = useCallback(() => {}, []);
 
   return (
     <>
@@ -52,7 +55,7 @@ const App = () => {
         <User provider={provider} profile={profile} onLogout={onLogout} />
       )}
       <div className={`App ${provider && profile ? 'hide' : ''}`}>
-        <h1 className='title'>ReactJS Social Login</h1>
+        <h1 className="title">ReactJS Social Login</h1>
         <LoginSocialFacebook
           appId={process.env.REACT_APP_FB_APP_ID || ''}
           fieldsProfile={
@@ -60,12 +63,13 @@ const App = () => {
           }
           onLoginStart={onLoginStart}
           onLogoutSuccess={onLogoutSuccess}
+          redirect_uri={REDIRECT_URI}
           onResolve={({ provider, data }: IResolveParams) => {
-            setProvider(provider)
-            setProfile(data)
+            setProvider(provider);
+            setProfile(data);
           }}
-          onReject={(err) => {
-            console.log(err)
+          onReject={err => {
+            console.log(err);
           }}
         >
           <FacebookLoginButton />
@@ -74,26 +78,46 @@ const App = () => {
         <LoginSocialGoogle
           client_id={process.env.REACT_APP_GG_APP_ID || ''}
           onLoginStart={onLoginStart}
+          redirect_uri={REDIRECT_URI}
+          scope="openid profile email"
+          discoveryDocs="claims_supported"
+          access_type="offline"
           onResolve={({ provider, data }: IResolveParams) => {
-            setProvider(provider)
-            setProfile(data)
+            setProvider(provider);
+            setProfile(data);
           }}
-          onReject={(err) => {
-            console.log(err)
+          onReject={err => {
+            console.log(err);
           }}
         >
           <GoogleLoginButton />
         </LoginSocialGoogle>
 
+        <LoginSocialApple
+          client_id={process.env.REACT_APP_APPLE_ID || ''}
+          scope={'name email'}
+          redirect_uri={REDIRECT_URI}
+          onLoginStart={onLoginStart}
+          onResolve={({ provider, data }: IResolveParams) => {
+            setProvider(provider);
+            setProfile(data);
+          }}
+          onReject={err => {
+            console.log(err);
+          }}
+        >
+          <AppleLoginButton />
+        </LoginSocialApple>
+
         <LoginSocialAmazon
           client_id={process.env.REACT_APP_AMAZON_APP_ID || ''}
           redirect_uri={REDIRECT_URI}
           onResolve={({ provider, data }: IResolveParams) => {
-            setProvider(provider)
-            setProfile(data)
+            setProvider(provider);
+            setProfile(data);
           }}
           onReject={(err: any) => {
-            console.log(err)
+            console.log(err);
           }}
           onLoginStart={onLoginStart}
         >
@@ -107,11 +131,11 @@ const App = () => {
           onLoginStart={onLoginStart}
           onLogoutSuccess={onLogoutSuccess}
           onResolve={({ provider, data }: IResolveParams) => {
-            setProvider(provider)
-            setProfile(data)
+            setProvider(provider);
+            setProfile(data);
           }}
           onReject={(err: any) => {
-            console.log(err)
+            console.log(err);
           }}
         >
           <InstagramLoginButton />
@@ -122,11 +146,11 @@ const App = () => {
           redirect_uri={REDIRECT_URI}
           onLoginStart={onLoginStart}
           onResolve={({ provider, data }: IResolveParams) => {
-            setProvider(provider)
-            setProfile(data)
+            setProvider(provider);
+            setProfile(data);
           }}
           onReject={(err: any) => {
-            console.log(err)
+            console.log(err);
           }}
         >
           <MicrosoftLoginButton />
@@ -138,11 +162,11 @@ const App = () => {
           redirect_uri={REDIRECT_URI}
           onLoginStart={onLoginStart}
           onResolve={({ provider, data }: IResolveParams) => {
-            setProvider(provider)
-            setProfile(data)
+            setProvider(provider);
+            setProfile(data);
           }}
           onReject={(err: any) => {
-            console.log(err)
+            console.log(err);
           }}
         >
           <LinkedInLoginButton />
@@ -155,11 +179,11 @@ const App = () => {
           onLoginStart={onLoginStart}
           onLogoutSuccess={onLogoutSuccess}
           onResolve={({ provider, data }: IResolveParams) => {
-            setProvider(provider)
-            setProfile(data)
+            setProvider(provider);
+            setProfile(data);
           }}
           onReject={(err: any) => {
-            console.log(err)
+            console.log(err);
           }}
         >
           <GithubLoginButton />
@@ -170,19 +194,19 @@ const App = () => {
           redirect_uri={REDIRECT_URI}
           onLoginStart={onLoginStart}
           onResolve={({ provider, data }: IResolveParams) => {
-            setProvider(provider)
-            setProfile(data)
+            setProvider(provider);
+            setProfile(data);
           }}
           onReject={(err: any) => {
-            console.log(err)
+            console.log(err);
           }}
-          className='pinterest-btn'
+          className="pinterest-btn"
         >
-          <div className='content'>
-            <div className='icon'>
+          <div className="content">
+            <div className="icon">
               <PinterestLogo />
             </div>
-            <span className='txt'>Login With Pinterest</span>
+            <span className="txt">Login With Pinterest</span>
           </div>
         </LoginSocialPinterest>
 
@@ -193,18 +217,18 @@ const App = () => {
           onLoginStart={onLoginStart}
           onLogoutSuccess={onLogoutSuccess}
           onResolve={({ provider, data }: IResolveParams) => {
-            setProvider(provider)
-            setProfile(data)
+            setProvider(provider);
+            setProfile(data);
           }}
           onReject={(err: any) => {
-            console.log(err)
+            console.log(err);
           }}
         >
           <TwitterLoginButton />
         </LoginSocialTwitter>
       </div>
     </>
-  )
-}
+  );
+};
 
-export default App
+export default App;

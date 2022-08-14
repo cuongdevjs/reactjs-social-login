@@ -12,13 +12,14 @@
 > 7. Instagram
 > 8. Pinterest
 > 9. Twitter
+> 10. Apple
 
-This repository includes multiple platform for social login, is written by TypeScript and React Hooks, tree-shakeable, zero dependencies, extremely lightweight.
+This repository is all in one, includes multiple platform for social login, is written by TypeScript and React Hooks, tree-shakeable, zero dependencies, extremely lightweight.
 You can customize any style UI as you like.
 
 Reactjs Social Login is an HOC which provides social login through multiple providers.
 
-**Currently supports Amazon, Facebook, GitHub, Google, Instagram, Linkedin, Pinterest, Twitter, Microsoft as providers (more to come!)**
+**Currently supports Amazon, Facebook, GitHub, Google, Instagram, Linkedin, Pinterest, Twitter, Microsoft, Apple as providers (more to come!)**
 
 [![npm download](https://img.shields.io/npm/dm/reactjs-social-login.svg?style=flat)](https://www.npmjs.com/package/reactjs-social-login)
 [![npm bundle zip](https://img.shields.io/bundlephobia/minzip/reactjs-social-login?style=flat)](https://www.npmjs.com/package/reactjs-social-login)
@@ -26,36 +27,40 @@ Reactjs Social Login is an HOC which provides social login through multiple prov
 [![NPM](https://img.shields.io/npm/v/reactjs-social-login.svg)](https://www.npmjs.com/package/reactjs-social-login)
 [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
 
-![img-description](./gif.gif)
+![img-description](./screenshot.png)
+<!-- ![img-description](./gif.gif) -->
 
 ## Install
 
 ```bash
-npm install --save reactjs-social-login
+$ npm install --save reactjs-social-login
 ```
 
 <br/>
 
-### Demo
+## Demo
 
 [Online Demo](https://react-social-login.netlify.app)
 
 <br/>
 
-### Example code
-
+## Example code
 
 [Code Demo](https://github.com/cuongdevjs/reactjs-social-login/blob/master/example/src/App.tsx)
 
+<br />
+
+
+## Contribute / Testing
 
 Clone project, open terminal and type these commands
 
 ```bash
-npm install
+$ npm install
 ```
 
 ```bash
-npm run start
+$ npm run start
 ```
 
 then go to directory /example, add .env.development by following format
@@ -77,335 +82,614 @@ REACT_APP_PINTEREST_APP_SECRET=
 REACT_APP_TWITTER_APP_ID=
 REACT_APP_TWITTER_V2_APP_KEY=
 REACT_APP_TWITTER_V2_APP_SECRET=
+REACT_APP_APPLE_ID=
 ````
 
-and on directory /example, then open other terminal, type these commands
+and on directory /example, then open another terminal, type these commands
 
 ```shell
-npm run start
+$ npm run start
 ```
 
 You can then view the demo at <https://localhost:3000>.
 
 <br/>
 
-### Usage
+## How to use
 
-````tsx
-import React, { useCallback, useRef, useState } from 'react'
-import './app.css'
-import { User } from './User' // component display user (see detail on /example directory)
-import {
-  LoginSocialGoogle,
-  LoginSocialAmazon,
-  LoginSocialFacebook,
-  LoginSocialGithub,
-  LoginSocialInstagram,
-  LoginSocialLinkedin,
-  LoginSocialMicrosoft,
-  LoginSocialPinterest,
-  LoginSocialTwitter,
-  IResolveParams,
-} from 'reactjs-social-login'
+<details>
+  <summary>Typescript Version</summary>
 
-// CUSTOMIZE ANY UI BUTTON
-import {
-  FacebookLoginButton,
-  GoogleLoginButton,
-  GithubLoginButton,
-  AmazonLoginButton,
-  InstagramLoginButton,
-  LinkedInLoginButton,
-  MicrosoftLoginButton,
-  TwitterLoginButton
-} from 'react-social-login-buttons'
+  ````tsx
+  import React, { useCallback, useState } from 'react'
+  import './app.css'
+  import { User } from './User' // component display user (see detail on /example directory)
+  import {
+    LoginSocialGoogle,
+    LoginSocialAmazon,
+    LoginSocialFacebook,
+    LoginSocialGithub,
+    LoginSocialInstagram,
+    LoginSocialLinkedin,
+    LoginSocialMicrosoft,
+    LoginSocialPinterest,
+    LoginSocialTwitter,
+    LoginSocialApple,
+    IResolveParams,
+  } from 'reactjs-social-login'
 
-import { ReactComponent as PinterestLogo } from './assets/pinterest.svg'
+  // CUSTOMIZE ANY UI BUTTON
+  import {
+    FacebookLoginButton,
+    GoogleLoginButton,
+    GithubLoginButton,
+    AmazonLoginButton,
+    InstagramLoginButton,
+    LinkedInLoginButton,
+    MicrosoftLoginButton,
+    TwitterLoginButton,
+    AppleLoginButton,
+  } from 'react-social-login-buttons'
 
-// REDIRECT URL must be same with URL where the (reactjs-social-login) components is locate
-// MAKE SURE the (reactjs-social-login) components aren't unmounted or destroyed before the ask permission dialog closes
-const REDIRECT_URI = window.location.href;
+  import { ReactComponent as PinterestLogo } from './assets/pinterest.svg'
 
-const App = () => {
-  const [provider, setProvider] = useState('')
-  const [profile, setProfile] = useState<any>()
+  // REDIRECT URL must be same with URL where the (reactjs-social-login) components is locate
+  // MAKE SURE the (reactjs-social-login) components aren't unmounted or destroyed before the ask permission dialog closes
+  const REDIRECT_URI = window.location.href;
 
-  const onLoginStart = useCallback(() => {
-    alert('login start')
-  }, [])
+  const App = () => {
+    const [provider, setProvider] = useState('')
+    const [profile, setProfile] = useState<any>()
 
-  const onLogoutSuccess = useCallback(() => {
-    setProfile(null)
-    setProvider('')
-    alert('logout success')
-  }, [])
+    const onLoginStart = useCallback(() => {
+      alert('login start')
+    }, [])
 
-  return (
-    <>
-      {provider && profile ? (
-        <User provider={provider} profile={profile} onLogout={onLogoutSuccess} />
-      ) : (
-        <div className={`App ${provider && profile ? 'hide' : ''}`}>
-          <h1 className='title'>ReactJS Social Login</h1>
-          <LoginSocialFacebook
-            isOnlyGetToken
-            appId={process.env.REACT_APP_FB_APP_ID || ''}
-            onLoginStart={onLoginStart}
-            onResolve={({ provider, data }: IResolveParams) => {
-              setProvider(provider)
-              setProfile(data)
-            }}
-            onReject={(err) => {
-              console.log(err)
-            }}
-          >
-            <FacebookLoginButton />
-          </LoginSocialFacebook>
+    const onLogoutSuccess = useCallback(() => {
+      setProfile(null)
+      setProvider('')
+      alert('logout success')
+    }, [])
 
-          <LoginSocialGoogle
-            isOnlyGetToken
-            client_id={process.env.REACT_APP_GG_APP_ID || ''}
-            onLoginStart={onLoginStart}
-            onResolve={({ provider, data }: IResolveParams) => {
-              setProvider(provider)
-              setProfile(data)
-            }}
-            onReject={(err) => {
-              console.log(err)
-            }}
-          >
-            <GoogleLoginButton />
-          </LoginSocialGoogle>
+    return (
+      <>
+        {provider && profile ? (
+          <User provider={provider} profile={profile} onLogout={onLogoutSuccess} />
+        ) : (
+          <div className={`App ${provider && profile ? 'hide' : ''}`}>
+            <h1 className='title'>ReactJS Social Login</h1>
+            <LoginSocialFacebook
+              isOnlyGetToken
+              appId={process.env.REACT_APP_FB_APP_ID || ''}
+              onLoginStart={onLoginStart}
+              onResolve={({ provider, data }: IResolveParams) => {
+                setProvider(provider)
+                setProfile(data)
+              }}
+              onReject={(err) => {
+                console.log(err)
+              }}
+            >
+              <FacebookLoginButton />
+            </LoginSocialFacebook>
 
-          <LoginSocialAmazon
-            isOnlyGetToken
-            client_id={process.env.REACT_APP_AMAZON_APP_ID || ''}
-            redirect_uri={REDIRECT_URI}
-            onResolve={({ provider, data }: IResolveParams) => {
-              setProvider(provider)
-              setProfile(data)
-            }}
-            onReject={(err: any) => {
-              console.log(err)
-            }}
-            onLoginStart={onLoginStart}
-          >
-            <AmazonLoginButton />
-          </LoginSocialAmazon>
+            <LoginSocialGoogle
+              isOnlyGetToken
+              client_id={process.env.REACT_APP_GG_APP_ID || ''}
+              onLoginStart={onLoginStart}
+              onResolve={({ provider, data }: IResolveParams) => {
+                setProvider(provider)
+                setProfile(data)
+              }}
+              onReject={(err) => {
+                console.log(err)
+              }}
+            >
+              <GoogleLoginButton />
+            </LoginSocialGoogle>
 
-          <LoginSocialInstagram
-            isOnlyGetToken
-            client_id={process.env.REACT_APP_INSTAGRAM_APP_ID || ''}
-            client_secret={process.env.REACT_APP_INSTAGRAM_APP_SECRET || ''}
-            redirect_uri={REDIRECT_URI}
-            onLoginStart={onLoginStart}
-            onResolve={({ provider, data }: IResolveParams) => {
-              setProvider(provider)
-              setProfile(data)
-            }}
-            onReject={(err: any) => {
-              console.log(err)
-            }}
-          >
-            <InstagramLoginButton />
-          </LoginSocialInstagram>
+            <LoginSocialApple
+              client_id={process.env.REACT_APP_APPLE_ID || ''}
+              scope={'name email'}
+              redirect_uri={REDIRECT_URI}
+              onLoginStart={onLoginStart}
+              onResolve={({ provider, data }: IResolveParams) => {
+                setProvider(provider);
+                setProfile(data);
+              }}
+              onReject={err => {
+                console.log(err);
+              }}
+            >
+              <AppleLoginButton />
+            </LoginSocialApple>
 
-          <LoginSocialMicrosoft
-            isOnlyGetToken
-            client_id={process.env.REACT_APP_MICROSOFT_APP_ID || ''}
-            redirect_uri={REDIRECT_URI}
-            onLoginStart={onLoginStart}
-            onResolve={({ provider, data }: IResolveParams) => {
-              setProvider(provider)
-              setProfile(data)
-            }}
-            onReject={(err: any) => {
-              console.log(err)
-            }}
-          >
-            <MicrosoftLoginButton />
-          </LoginSocialMicrosoft>
+            <LoginSocialAmazon
+              isOnlyGetToken
+              client_id={process.env.REACT_APP_AMAZON_APP_ID || ''}
+              redirect_uri={REDIRECT_URI}
+              onResolve={({ provider, data }: IResolveParams) => {
+                setProvider(provider)
+                setProfile(data)
+              }}
+              onReject={(err: any) => {
+                console.log(err)
+              }}
+              onLoginStart={onLoginStart}
+            >
+              <AmazonLoginButton />
+            </LoginSocialAmazon>
 
-          <LoginSocialLinkedin
-            isOnlyGetToken
-            client_id={process.env.REACT_APP_LINKEDIN_APP_ID || ''}
-            client_secret={process.env.REACT_APP_LINKEDIN_APP_SECRET || ''}
-            redirect_uri={REDIRECT_URI}
-            onLoginStart={onLoginStart}
-            onResolve={({ provider, data }: IResolveParams) => {
-              setProvider(provider)
-              setProfile(data)
-            }}
-            onReject={(err: any) => {
-              console.log(err)
-            }}
-          >
-            <LinkedInLoginButton />
-          </LoginSocialLinkedin>
+            <LoginSocialInstagram
+              isOnlyGetToken
+              client_id={process.env.REACT_APP_INSTAGRAM_APP_ID || ''}
+              client_secret={process.env.REACT_APP_INSTAGRAM_APP_SECRET || ''}
+              redirect_uri={REDIRECT_URI}
+              onLoginStart={onLoginStart}
+              onResolve={({ provider, data }: IResolveParams) => {
+                setProvider(provider)
+                setProfile(data)
+              }}
+              onReject={(err: any) => {
+                console.log(err)
+              }}
+            >
+              <InstagramLoginButton />
+            </LoginSocialInstagram>
 
-          <LoginSocialGithub
-            isOnlyGetToken
-            client_id={process.env.REACT_APP_GITHUB_APP_ID || ''}
-            client_secret={process.env.REACT_APP_GITHUB_APP_SECRET || ''}
-            redirect_uri={REDIRECT_URI}
-            onLoginStart={onLoginStart}
-            onResolve={({ provider, data }: IResolveParams) => {
-              setProvider(provider)
-              setProfile(data)
-            }}
-            onReject={(err: any) => {
-              console.log(err)
-            }}
-          >
-            <GithubLoginButton />
-          </LoginSocialGithub>
-          <LoginSocialPinterest
-            isOnlyGetToken
-            client_id={process.env.REACT_APP_PINTEREST_APP_ID || ''}
-            client_secret={process.env.REACT_APP_PINTEREST_APP_SECRET || ''}
-            redirect_uri={REDIRECT_URI}
-            onLoginStart={onLoginStart}
-            onResolve={({ provider, data }: IResolveParams) => {
-              setProvider(provider)
-              setProfile(data)
-            }}
-            onReject={(err: any) => {
-              console.log(err)
-            }}
-            className='pinterest-btn'
-          >
-            <div className='content'>
-              <div className='icon'>
-                <PinterestLogo />
+            <LoginSocialMicrosoft
+              isOnlyGetToken
+              client_id={process.env.REACT_APP_MICROSOFT_APP_ID || ''}
+              redirect_uri={REDIRECT_URI}
+              onLoginStart={onLoginStart}
+              onResolve={({ provider, data }: IResolveParams) => {
+                setProvider(provider)
+                setProfile(data)
+              }}
+              onReject={(err: any) => {
+                console.log(err)
+              }}
+            >
+              <MicrosoftLoginButton />
+            </LoginSocialMicrosoft>
+
+            <LoginSocialLinkedin
+              isOnlyGetToken
+              client_id={process.env.REACT_APP_LINKEDIN_APP_ID || ''}
+              client_secret={process.env.REACT_APP_LINKEDIN_APP_SECRET || ''}
+              redirect_uri={REDIRECT_URI}
+              onLoginStart={onLoginStart}
+              onResolve={({ provider, data }: IResolveParams) => {
+                setProvider(provider)
+                setProfile(data)
+              }}
+              onReject={(err: any) => {
+                console.log(err)
+              }}
+            >
+              <LinkedInLoginButton />
+            </LoginSocialLinkedin>
+
+            <LoginSocialGithub
+              isOnlyGetToken
+              client_id={process.env.REACT_APP_GITHUB_APP_ID || ''}
+              client_secret={process.env.REACT_APP_GITHUB_APP_SECRET || ''}
+              redirect_uri={REDIRECT_URI}
+              onLoginStart={onLoginStart}
+              onResolve={({ provider, data }: IResolveParams) => {
+                setProvider(provider)
+                setProfile(data)
+              }}
+              onReject={(err: any) => {
+                console.log(err)
+              }}
+            >
+              <GithubLoginButton />
+            </LoginSocialGithub>
+            <LoginSocialPinterest
+              isOnlyGetToken
+              client_id={process.env.REACT_APP_PINTEREST_APP_ID || ''}
+              client_secret={process.env.REACT_APP_PINTEREST_APP_SECRET || ''}
+              redirect_uri={REDIRECT_URI}
+              onLoginStart={onLoginStart}
+              onResolve={({ provider, data }: IResolveParams) => {
+                setProvider(provider)
+                setProfile(data)
+              }}
+              onReject={(err: any) => {
+                console.log(err)
+              }}
+              className='pinterest-btn'
+            >
+              <div className='content'>
+                <div className='icon'>
+                  <PinterestLogo />
+                </div>
+                <span className='txt'>Login With Pinterest</span>
               </div>
-              <span className='txt'>Login With Pinterest</span>
-            </div>
-          </LoginSocialPinterest>
+            </LoginSocialPinterest>
 
-          <LoginSocialTwitter
-            isOnlyGetToken
-            client_id={process.env.REACT_APP_TWITTER_V2_APP_KEY || ''}
-            redirect_uri={REDIRECT_URI}
-            onLoginStart={onLoginStart}
-            onResolve={({ provider, data }: IResolveParams) => {
-              setProvider(provider)
-              setProfile(data)
-            }}
-            onReject={(err: any) => {
-              console.log(err)
-            }}
-          >
-            <TwitterLoginButton />
-          </LoginSocialTwitter>
-        </div>
-      )}
-    </>
-  )
-}
+            <LoginSocialTwitter
+              isOnlyGetToken
+              client_id={process.env.REACT_APP_TWITTER_V2_APP_KEY || ''}
+              redirect_uri={REDIRECT_URI}
+              onLoginStart={onLoginStart}
+              onResolve={({ provider, data }: IResolveParams) => {
+                setProvider(provider)
+                setProfile(data)
+              }}
+              onReject={(err: any) => {
+                console.log(err)
+              }}
+            >
+              <TwitterLoginButton />
+            </LoginSocialTwitter>
+          </div>
+        )}
+      </>
+    )
+  }
 
-export default App
+  export default App
+  ````
+</details>
 
-````
+<br />
+
+<details>
+  <summary>JavaScript Version</summary>
+
+  ````jsx
+  import React, { useCallback, useState } from 'react'
+  import './app.css'
+  import { User } from './User' // component display user (see detail on /example directory)
+  import {
+    LoginSocialGoogle,
+    LoginSocialAmazon,
+    LoginSocialFacebook,
+    LoginSocialGithub,
+    LoginSocialInstagram,
+    LoginSocialLinkedin,
+    LoginSocialMicrosoft,
+    LoginSocialPinterest,
+    LoginSocialTwitter,
+    LoginSocialApple,
+  } from 'reactjs-social-login'
+
+  // CUSTOMIZE ANY UI BUTTON
+  import {
+    FacebookLoginButton,
+    GoogleLoginButton,
+    GithubLoginButton,
+    AmazonLoginButton,
+    InstagramLoginButton,
+    LinkedInLoginButton,
+    MicrosoftLoginButton,
+    TwitterLoginButton,
+    AppleLoginButton,
+  } from 'react-social-login-buttons'
+
+  import { ReactComponent as PinterestLogo } from './assets/pinterest.svg'
+
+  // REDIRECT URL must be same with URL where the (reactjs-social-login) components is locate
+  // MAKE SURE the (reactjs-social-login) components aren't unmounted or destroyed before the ask permission dialog closes
+  const REDIRECT_URI = window.location.href;
+
+  const App = () => {
+    const [provider, setProvider] = useState('')
+    const [profile, setProfile] = useState(null)
+
+    const onLoginStart = useCallback(() => {
+      alert('login start')
+    }, [])
+
+    const onLogoutSuccess = useCallback(() => {
+      setProfile(null)
+      setProvider('')
+      alert('logout success')
+    }, [])
+
+    return (
+      <>
+        {provider && profile ? (
+          <User provider={provider} profile={profile} onLogout={onLogoutSuccess} />
+        ) : (
+          <div className={`App ${provider && profile ? 'hide' : ''}`}>
+            <h1 className='title'>ReactJS Social Login</h1>
+            <LoginSocialFacebook
+              isOnlyGetToken
+              appId={process.env.REACT_APP_FB_APP_ID || ''}
+              onLoginStart={onLoginStart}
+              onResolve={({ provider, data }) => {
+                setProvider(provider)
+                setProfile(data)
+              }}
+              onReject={(err) => {
+                console.log(err)
+              }}
+            >
+              <FacebookLoginButton />
+            </LoginSocialFacebook>
+
+            <LoginSocialGoogle
+              isOnlyGetToken
+              client_id={process.env.REACT_APP_GG_APP_ID || ''}
+              onLoginStart={onLoginStart}
+              onResolve={({ provider, data }) => {
+                setProvider(provider)
+                setProfile(data)
+              }}
+              onReject={(err) => {
+                console.log(err)
+              }}
+            >
+              <GoogleLoginButton />
+            </LoginSocialGoogle>
+
+            <LoginSocialApple
+              client_id={process.env.REACT_APP_APPLE_ID || ''}
+              scope={'name email'}
+              redirect_uri={REDIRECT_URI}
+              onLoginStart={onLoginStart}
+              onResolve={({ provider, data }) => {
+                setProvider(provider);
+                setProfile(data);
+              }}
+              onReject={err => {
+                console.log(err);
+              }}
+            >
+              <AppleLoginButton />
+            </LoginSocialApple>
+
+            <LoginSocialAmazon
+              isOnlyGetToken
+              client_id={process.env.REACT_APP_AMAZON_APP_ID || ''}
+              redirect_uri={REDIRECT_URI}
+              onResolve={({ provider, data }) => {
+                setProvider(provider)
+                setProfile(data)
+              }}
+              onReject={(err) => {
+                console.log(err)
+              }}
+              onLoginStart={onLoginStart}
+            >
+              <AmazonLoginButton />
+            </LoginSocialAmazon>
+
+            <LoginSocialInstagram
+              isOnlyGetToken
+              client_id={process.env.REACT_APP_INSTAGRAM_APP_ID || ''}
+              client_secret={process.env.REACT_APP_INSTAGRAM_APP_SECRET || ''}
+              redirect_uri={REDIRECT_URI}
+              onLoginStart={onLoginStart}
+              onResolve={({ provider, data }) => {
+                setProvider(provider)
+                setProfile(data)
+              }}
+              onReject={(err) => {
+                console.log(err)
+              }}
+            >
+              <InstagramLoginButton />
+            </LoginSocialInstagram>
+
+            <LoginSocialMicrosoft
+              isOnlyGetToken
+              client_id={process.env.REACT_APP_MICROSOFT_APP_ID || ''}
+              redirect_uri={REDIRECT_URI}
+              onLoginStart={onLoginStart}
+              onResolve={({ provider, data }) => {
+                setProvider(provider)
+                setProfile(data)
+              }}
+              onReject={(err) => {
+                console.log(err)
+              }}
+            >
+              <MicrosoftLoginButton />
+            </LoginSocialMicrosoft>
+
+            <LoginSocialLinkedin
+              isOnlyGetToken
+              client_id={process.env.REACT_APP_LINKEDIN_APP_ID || ''}
+              client_secret={process.env.REACT_APP_LINKEDIN_APP_SECRET || ''}
+              redirect_uri={REDIRECT_URI}
+              onLoginStart={onLoginStart}
+              onResolve={({ provider, data }) => {
+                setProvider(provider)
+                setProfile(data)
+              }}
+              onReject={(err) => {
+                console.log(err)
+              }}
+            >
+              <LinkedInLoginButton />
+            </LoginSocialLinkedin>
+
+            <LoginSocialGithub
+              isOnlyGetToken
+              client_id={process.env.REACT_APP_GITHUB_APP_ID || ''}
+              client_secret={process.env.REACT_APP_GITHUB_APP_SECRET || ''}
+              redirect_uri={REDIRECT_URI}
+              onLoginStart={onLoginStart}
+              onResolve={({ provider, data }) => {
+                setProvider(provider)
+                setProfile(data)
+              }}
+              onReject={(err) => {
+                console.log(err)
+              }}
+            >
+              <GithubLoginButton />
+            </LoginSocialGithub>
+            <LoginSocialPinterest
+              isOnlyGetToken
+              client_id={process.env.REACT_APP_PINTEREST_APP_ID || ''}
+              client_secret={process.env.REACT_APP_PINTEREST_APP_SECRET || ''}
+              redirect_uri={REDIRECT_URI}
+              onLoginStart={onLoginStart}
+              onResolve={({ provider, data }) => {
+                setProvider(provider)
+                setProfile(data)
+              }}
+              onReject={(err) => {
+                console.log(err)
+              }}
+              className='pinterest-btn'
+            >
+              <div className='content'>
+                <div className='icon'>
+                  <PinterestLogo />
+                </div>
+                <span className='txt'>Login With Pinterest</span>
+              </div>
+            </LoginSocialPinterest>
+
+            <LoginSocialTwitter
+              isOnlyGetToken
+              client_id={process.env.REACT_APP_TWITTER_V2_APP_KEY || ''}
+              redirect_uri={REDIRECT_URI}
+              onLoginStart={onLoginStart}
+              onResolve={({ provider, data }) => {
+                setProvider(provider)
+                setProfile(data)
+              }}
+              onReject={(err) => {
+                console.log(err)
+              }}
+            >
+              <TwitterLoginButton />
+            </LoginSocialTwitter>
+          </div>
+        )}
+      </>
+    )
+  }
+
+  export default App
+  ````
+</details>
+
+
+
+<br/>
 
 > ### Loading user information on the client side is discouraged and causes slow response on our components, this should be implemented in the backend, passing the prop `isOnlyGetToken={true}` to the component
 
 <br/>
 
-#### Google Props
+### 1. Google Props
 
-| Prop                                                                                                                                                  | Type                                           | Default | Description                                                       |
-| :---------------------------------------------------------------------------------------------------------------------------------------------------- | :--------------------------------------------- | :-----: | :---------------------------------------------------------------- |
-| onResolve                                                                                                                                             | `function({provider, data}) { // } (required)` |   `-`   | Return provider and data (include user's info & access_token,...) |
-| onReject                                                                                                                                              | `function(err) { // } (required)`              |   `-`   | Return error                                                      |
-| onLoginStart                                                                                                                                          | `function() { // } (optional)`                 |   `-`   | Called when click login                                           |
-| client_id                                                                                                                                             | `string (required)`                            |   `-`   | ID application                                                    |
-| className                                                                                                                                             | `string (optional)`                            |   `-`   | Class container                                                   |
+| Prop                                                                                                                                                  | Type                                           |                      Default                       | Description                                                       |
+| :---------------------------------------------------------------------------------------------------------------------------------------------------- | :--------------------------------------------- | :------------------------------------------------: | :---------------------------------------------------------------- |
+| onResolve                                                                                                                                             | `function({provider, data}) { // } (required)` |                        `-`                         | Return provider and data (include user's info & access_token,...) |
+| onReject                                                                                                                                              | `function(err) { // } (required)`              |                        `-`                         | Return error                                                      |
+| onLoginStart                                                                                                                                          | `function() { // } (optional)`                 |                        `-`                         | Called when click login                                           |
+| client_id                                                                                                                                             | `string (required)`                            |                        `-`                         | ID application                                                    |
+| scope                                                                                                                                                 | `string (optional)`                            | `https://www.googleapis.com/auth/userinfo.profile` | Scope application                                                 |
+| className                                                                                                                                             | `string (optional)`                            |                        `-`                         | Class container                                                   |
+| isOnlyGetToken                                                                                                                                        | `boolean (optional)`                           |                      `false`                       | Only get access_token without get user's info (server-side)       |
 | [other_props...](https://github.com/cuongdevjs/reactjs-social-login/blob/498a8bf58b670d5845d239a7e48de8c7b7afddc8/src/LoginSocialGoogle/index.tsx#L9) |
 
 <br/>
 
-#### Facebook Props
+### 2. Facebook Props
 
-| Prop                                                                                                                                                    | Type                                           | Default | Description                                                       |
-| :------------------------------------------------------------------------------------------------------------------------------------------------------ | :--------------------------------------------- | :-----: | :---------------------------------------------------------------- |
-| onResolve                                                                                                                                               | `function({provider, data}) { // } (required)` |   `-`   | Return provider and data (include user's info & access_token,...) |
-| onReject                                                                                                                                                | `function(err) { // } (required)`              |   `-`   | Return error                                                      |
-| appId                                                                                                                                                   | `string (required)`                            |   `-`   | ID application                                                    |
-| onLoginStart                                                                                                                                            | `function() { // } (optional)`                 |   `-`   | Called when click login                                           | className | `string (optional)` | `-` | Class for button |
+| Prop                                                                                                                                                    | Type                                           |                                        Default                                         | Description                                                       |
+| :------------------------------------------------------------------------------------------------------------------------------------------------------ | :--------------------------------------------- | :------------------------------------------------------------------------------------: | :---------------------------------------------------------------- |
+| onResolve                                                                                                                                               | `function({provider, data}) { // } (required)` |                                          `-`                                           | Return provider and data (include user's info & access_token,...) |
+| onReject                                                                                                                                                | `function(err) { // } (required)`              |                                          `-`                                           | Return error                                                      |
+| appId                                                                                                                                                   | `string (required)`                            |                                          `-`                                           | ID application                                                    |
+| fields                                                                                                                                                  | `string (optional)`                            | `id,first_name,last_name,middle_name,name,name_format,picture,short_name,email,gender` | User's fields                                                     |
+| onLoginStart                                                                                                                                            | `function() { // } (optional)`                 |                                          `-`                                           | Called when click login                                           | className | `string (optional)` | `-` | Class for button |
+| scope                                                                                                                                                   | `string (optional)`                            |                                 `email,public_profile`                                 | Scope application                                                 |
+| className                                                                                                                                               | `string (optional)`                            |                                          `-`                                           | Class container                                                   |
+| isOnlyGetToken                                                                                                                                          | `boolean (optional)`                           |                                        `false`                                         | Only get access_token without get user's info (server-side)       |
 | [other_props...](https://github.com/cuongdevjs/reactjs-social-login/blob/757df855d0b16aad7bccd6e76b756a92e707fe46/src/LoginSocialFacebook/index.tsx#L9) |
 
 <br/>
 
-#### Microsoft Props
+### 3. Microsoft Props
 
-| Prop                                                                                                                                                     | Type                                           | Default | Description                                                       |
-| :------------------------------------------------------------------------------------------------------------------------------------------------------- | :--------------------------------------------- | :-----: | :---------------------------------------------------------------- |
-| onResolve                                                                                                                                                | `function({provider, data}) { // } (required)` |   `-`   | Return provider and data (include user's info & access_token,...) |
-| onReject                                                                                                                                                 | `function(err) { // } (required)`              |   `-`   | Return error                                                      |
-| client_id                                                                                                                                                | `string (required)`                            |   `-`   | ID application                                                    |
-| onLoginStart                                                                                                                                             | `function() { // } (optional)`                 |   `-`   | Called when click login                                           |
-| className                                                                                                                                                | `string (optional)`                            |   `-`   | Class for button                                                  |
+| Prop                                                                                                                                                     | Type                                           |        Default         | Description                                                       |
+| :------------------------------------------------------------------------------------------------------------------------------------------------------- | :--------------------------------------------- | :--------------------: | :---------------------------------------------------------------- |
+| onResolve                                                                                                                                                | `function({provider, data}) { // } (required)` |          `-`           | Return provider and data (include user's info & access_token,...) |
+| onReject                                                                                                                                                 | `function(err) { // } (required)`              |          `-`           | Return error                                                      |
+| client_id                                                                                                                                                | `string (required)`                            |          `-`           | ID application                                                    |
+| onLoginStart                                                                                                                                             | `function() { // } (optional)`                 |          `-`           | Called when click login                                           |
+| scope                                                                                                                                                    | `string (optional)`                            | `profile openid email` | Scope application                                                 |
+| className                                                                                                                                                | `string (optional)`                            |          `-`           | Class for button                                                  |
+| isOnlyGetToken                                                                                                                                           | `boolean (optional)`                           |        `false`         | Only get access_token without get user's info (server-side)       |
 | [other_props...](https://github.com/cuongdevjs/reactjs-social-login/blob/757df855d0b16aad7bccd6e76b756a92e707fe46/src/LoginSocialMicrosoft/index.tsx#L9) |
 
 <br/>
 
-#### Amazon Props
+### 4. Amazon Props
 
-| Prop                                                                                                                                                  | Type                                           | Default | Description                                                       |
-| :---------------------------------------------------------------------------------------------------------------------------------------------------- | :--------------------------------------------- | :-----: | :---------------------------------------------------------------- |
-| onResolve                                                                                                                                             | `function({provider, data}) { // } (required)` |   `-`   | Return provider and data (include user's info & access_token,...) |
-| onReject                                                                                                                                              | `function(err) { // } (required)`              |   `-`   | Return error                                                      |
-| client_id                                                                                                                                             | `string (required)`                            |   `-`   | ID application                                                    |
-| onLoginStart                                                                                                                                          | `function() { // } (optional)`                 |   `-`   | Called when click login                                           |
-| className                                                                                                                                             | `string (optional)`                            |   `-`   | Class for button                                                  |
+| Prop                                                                                                                                                  | Type                                           |  Default  | Description                                                       |
+| :---------------------------------------------------------------------------------------------------------------------------------------------------- | :--------------------------------------------- | :-------: | :---------------------------------------------------------------- |
+| onResolve                                                                                                                                             | `function({provider, data}) { // } (required)` |    `-`    | Return provider and data (include user's info & access_token,...) |
+| onReject                                                                                                                                              | `function(err) { // } (required)`              |    `-`    | Return error                                                      |
+| client_id                                                                                                                                             | `string (required)`                            |    `-`    | ID application                                                    |
+| onLoginStart                                                                                                                                          | `function() { // } (optional)`                 |    `-`    | Called when click login                                           |
+| scope                                                                                                                                                 | `string (optional)`                            | `profile` | Scope application                                                 |
+| className                                                                                                                                             | `string (optional)`                            |    `-`    | Class for button                                                  |
+| isOnlyGetToken                                                                                                                                        | `boolean (optional)`                           |  `false`  | Only get access_token without get user's info (server-side)       |
 | [other_props...](https://github.com/cuongdevjs/reactjs-social-login/blob/757df855d0b16aad7bccd6e76b756a92e707fe46/src/LoginSocialAmazon/index.tsx#L9) |
 
 <br/>
 
-#### Instagram Props
+### 5. Instagram Props
 
-| Prop                                                                                                                                                     | Type                                           | Default | Description                                                       |
-| :------------------------------------------------------------------------------------------------------------------------------------------------------- | :--------------------------------------------- | :-----: | :---------------------------------------------------------------- |
-| onResolve                                                                                                                                                | `function({provider, data}) { // } (required)` |   `-`   | Return provider and data (include user's info & access_token,...) |
-| onReject                                                                                                                                                 | `function(err) { // } (required)`              |   `-`   | Return error                                                      |
-| client_id                                                                                                                                                | `string (required)`                            |   `-`   | App ID application                                                |
-| client_secret                                                                                                                                            | `string (required)`                            |   `-`   | App Secret application                                            |
-| onLoginStart                                                                                                                                             | `function() { // } (optional)`                 |   `-`   | Called when click login                                           |
-| className                                                                                                                                                | `string (optional)`                            |   `-`   | Class for button                                                  |
+| Prop                                                                                                                                                     | Type                                           |          Default          | Description                                                       |
+| :------------------------------------------------------------------------------------------------------------------------------------------------------- | :--------------------------------------------- | :-----------------------: | :---------------------------------------------------------------- |
+| onResolve                                                                                                                                                | `function({provider, data}) { // } (required)` |            `-`            | Return provider and data (include user's info & access_token,...) |
+| onReject                                                                                                                                                 | `function(err) { // } (required)`              |            `-`            | Return error                                                      |
+| client_id                                                                                                                                                | `string (required)`                            |            `-`            | App ID application                                                |
+| client_secret                                                                                                                                            | `string (required)`                            |            `-`            | App Secret application                                            |
+| onLoginStart                                                                                                                                             | `function() { // } (optional)`                 |            `-`            | Called when click login                                           |
+| scope                                                                                                                                                    | `string (optional)`                            | `user_profile,user_media` | Scope application                                                 |
+| className                                                                                                                                                | `string (optional)`                            |            `-`            | Class for button                                                  |
+| isOnlyGetToken                                                                                                                                           | `boolean (optional)`                           |          `false`          | Only get access_token without get user's info (server-side)       |
 | [other_props...](https://github.com/cuongdevjs/reactjs-social-login/blob/757df855d0b16aad7bccd6e76b756a92e707fe46/src/LoginSocialInstagram/index.tsx#L9) |
 
 <br/>
 
-#### Linkedin Props
+### 6. Linkedin Props
 
-| Prop                                                                                                                                                    | Type                                           | Default | Description                                                       |
-| :------------------------------------------------------------------------------------------------------------------------------------------------------ | :--------------------------------------------- | :-----: | :---------------------------------------------------------------- |
-| onResolve                                                                                                                                               | `function({provider, data}) { // } (required)` |   `-`   | Return provider and data (include user's info & access_token,...) |
-| onReject                                                                                                                                                | `function(err) { // } (required)`              |   `-`   | Return error                                                      |
-| client_id                                                                                                                                               | `string (required)`                            |   `-`   | App ID application                                                |
-| client_secret                                                                                                                                           | `string (required)`                            |   `-`   | App Secret application                                            |
-| onLoginStart                                                                                                                                            | `function() { // } (optional)`                 |   `-`   | Called when click login                                           |
-| className                                                                                                                                               | `string (optional)`                            |   `-`   | Class for button                                                  |
-| scope                                                                                                                                                   | `string (optional)`                            |   `-`   | Scope application                                                 |
+| Prop                                                                                                                                                    | Type                                           |     Default     | Description                                                       |
+| :------------------------------------------------------------------------------------------------------------------------------------------------------ | :--------------------------------------------- | :-------------: | :---------------------------------------------------------------- |
+| onResolve                                                                                                                                               | `function({provider, data}) { // } (required)` |       `-`       | Return provider and data (include user's info & access_token,...) |
+| onReject                                                                                                                                                | `function(err) { // } (required)`              |       `-`       | Return error                                                      |
+| client_id                                                                                                                                               | `string (required)`                            |       `-`       | App ID application                                                |
+| client_secret                                                                                                                                           | `string (required)`                            |       `-`       | App Secret application                                            |
+| onLoginStart                                                                                                                                            | `function() { // } (optional)`                 |       `-`       | Called when click login                                           |
+| scope                                                                                                                                                   | `string (optional)`                            | `r_liteprofile` | Scope application                                                 |
+| className                                                                                                                                               | `string (optional)`                            |       `-`       | Class for button                                                  |
+| isOnlyGetToken                                                                                                                                          | `boolean (optional)`                           |     `false`     | Only get access_token without get user's info (server-side)       |
 | [other_props...](https://github.com/cuongdevjs/reactjs-social-login/blob/757df855d0b16aad7bccd6e76b756a92e707fe46/src/LoginSocialLinkedin/index.tsx#L9) |
 
 <br/>
 
-#### Github Props
+### 7. Github Props
 
-| Prop                                                                                                                                                  | Type                                           | Default | Description                                                       |
-| :---------------------------------------------------------------------------------------------------------------------------------------------------- | :--------------------------------------------- | :-----: | :---------------------------------------------------------------- |
-| onResolve                                                                                                                                             | `function({provider, data}) { // } (required)` |   `-`   | Return provider and data (include user's info & access_token,...) |
-| onReject                                                                                                                                              | `function(err) { // } (required)`              |   `-`   | Return error                                                      |
-| client_id                                                                                                                                             | `string (required)`                            |   `-`   | App ID application                                                |
-| client_secret                                                                                                                                         | `string (required)`                            |   `-`   | Secret ID application                                             |
-| onLoginStart                                                                                                                                          | `function() { // } (optional)`                 |   `-`   | Called when click login                                           |
-| className                                                                                                                                             | `string (optional)`                            |   `-`   | Class for button                                                  |
+| Prop                                                                                                                                                  | Type                                           |   Default   | Description                                                       |
+| :---------------------------------------------------------------------------------------------------------------------------------------------------- | :--------------------------------------------- | :---------: | :---------------------------------------------------------------- |
+| onResolve                                                                                                                                             | `function({provider, data}) { // } (required)` |     `-`     | Return provider and data (include user's info & access_token,...) |
+| onReject                                                                                                                                              | `function(err) { // } (required)`              |     `-`     | Return error                                                      |
+| client_id                                                                                                                                             | `string (required)`                            |     `-`     | App ID application                                                |
+| client_secret                                                                                                                                         | `string (required)`                            |     `-`     | Secret ID application                                             |
+| onLoginStart                                                                                                                                          | `function() { // } (optional)`                 |     `-`     | Called when click login                                           |
+| scope                                                                                                                                                 | `string (optional)`                            | `repo,gist` | Scope application                                                 |
+| className                                                                                                                                             | `string (optional)`                            |     `-`     | Class for button                                                  |
+| isOnlyGetToken                                                                                                                                        | `boolean (optional)`                           |   `false`   | Only get access_token without get user's info (server-side)       |
 | [other_props...](https://github.com/cuongdevjs/reactjs-social-login/blob/757df855d0b16aad7bccd6e76b756a92e707fe46/src/LoginSocialGithub/index.tsx#L9) |
 
 <br/>
 
-#### Pinterest Props
+### 8. Pinterest Props
 
 | Prop                                                                                                                                                     | Type                                           | Default | Description                                                       |
 | :------------------------------------------------------------------------------------------------------------------------------------------------------- | :--------------------------------------------- | :-----: | :---------------------------------------------------------------- |
@@ -414,12 +698,14 @@ export default App
 | client_id                                                                                                                                                | `string (required)`                            |   `-`   | App ID application                                                |
 | client_secret                                                                                                                                            | `string (required)`                            |   `-`   | Secret ID application                                             |
 | onLoginStart                                                                                                                                             | `function() { // } (optional)`                 |   `-`   | Called when click login                                           |
+| scope                                                                                                                                                    | `string (optional)`                            |   `-`   | Scope application                                                 |
 | className                                                                                                                                                | `string (optional)`                            |   `-`   | Class for button                                                  |
+| isOnlyGetToken                                                                                                                                           | `boolean (optional)`                           | `false` | Only get access_token without get user's info (server-side)       |
 | [other_props...](https://github.com/cuongdevjs/reactjs-social-login/blob/757df855d0b16aad7bccd6e76b756a92e707fe46/src/LoginSocialPinterest/index.tsx#L9) |
 
 <br/>
 
-#### Twitter Props
+### 9. Twitter Props
 
 | Prop                                                                                                                                                   | Type                                           |                                                                   Default                                                                    | Description                                                       |
 | :----------------------------------------------------------------------------------------------------------------------------------------------------- | :--------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------: | :---------------------------------------------------------------- |
@@ -431,7 +717,22 @@ export default App
 | scope                                                                                                                                                  | `string (optional)`                            |                                                          `users.read%20tweet.read`                                                           | Application's scope                                               |
 | onLoginStart                                                                                                                                           | `function() { // } (optional)`                 |                                                                     `-`                                                                      | Called when click login                                           |
 | className                                                                                                                                              | `string (optional)`                            |                                                                     `-`                                                                      | Class for button                                                  |
+| isOnlyGetToken                                                                                                                                         | `boolean (optional)`                           |                                                                   `false`                                                                    | Only get access_token without get user's info (server-side)       |
 | [other_props...](https://github.com/cuongdevjs/reactjs-social-login/blob/757df855d0b16aad7bccd6e76b756a92e707fe46/src/LoginSocialTwitter/index.tsx#L9) |
+
+<br/>
+
+### 10. Apple Props
+
+| Prop                                                                                                                                                 | Type                                           |   Default    | Description                                                       |
+| :--------------------------------------------------------------------------------------------------------------------------------------------------- | :--------------------------------------------- | :----------: | :---------------------------------------------------------------- |
+| onResolve                                                                                                                                            | `function({provider, data}) { // } (required)` |     `-`      | Return provider and data (include user's info & access_token,...) |
+| onReject                                                                                                                                             | `function(err) { // } (required)`              |     `-`      | Return error                                                      |
+| client_id                                                                                                                                            | `string (required)`                            |     `-`      | API Key                                                           |
+| scope                                                                                                                                                | `string (optional)`                            | `name email` | Application's scope                                               |
+| onLoginStart                                                                                                                                         | `function() { // } (optional)`                 |     `-`      | Called when click login                                           |
+| className                                                                                                                                            | `string (optional)`                            |     `-`      | Class for button                                                  |
+| [other_props...](https://github.com/cuongdevjs/reactjs-social-login/blob/757df855d0b16aad7bccd6e76b756a92e707fe46/src/LoginSocialApple/index.tsx#L9) |
 
 <br/>
 
@@ -448,6 +749,7 @@ export default App
 7. [Amazon](https://developer.amazon.com/loginwithamazon/console/site/lwa/overview.html)
 8. [Pinterest](https://developers.pinterest.com/docs/api/v5/)
 9. [Twitter](https://developer.twitter.com/en/docs/authentication/)
+10. [Apple](https://developer.apple.com/account/resources/)
 
 ## License
 
