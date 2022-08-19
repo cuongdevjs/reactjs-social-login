@@ -17,6 +17,7 @@ interface Props {
   fields?: string;
   scope?: string;
   children?: React.ReactNode;
+  isOnlyGetCode?: boolean;
   isOnlyGetToken?: boolean;
   onLoginStart?: () => void;
   onLogoutSuccess?: () => void;
@@ -36,6 +37,7 @@ export const LoginSocialTwitter = ({
   fields = 'created_at,description,entities,id,location,name,pinned_tweet_id,profile_image_url,protected,public_metrics,url,username,verified,withheld',
   state = 'state',
   scope = 'users.read%20tweet.read',
+  isOnlyGetCode = false,
   isOnlyGetToken = false,
   onLoginStart,
   onReject,
@@ -72,32 +74,43 @@ export const LoginSocialTwitter = ({
 
   const getAccessToken = useCallback(
     async (code: string) => {
-      var details = new URLSearchParams({
-        code,
-        redirect_uri,
-        client_id,
-        grant_type: `authorization_code`,
-        code_verifier: 'challenge',
-      });
+      if (isOnlyGetCode) onResolve({ provider: 'twitter', data: { code } });
+      else {
+        var details = new URLSearchParams({
+          code,
+          redirect_uri,
+          client_id,
+          grant_type: `authorization_code`,
+          code_verifier: 'challenge',
+        });
 
-      const requestOAuthURL = `${PREVENT_CORS_URL}/${TWITTER_API_URL}/2/oauth2/token`;
-      const data = await fetch(requestOAuthURL, {
-        method: 'POST',
-        body: details,
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          'x-cors-grida-api-key': PASS_CORS_KEY,
-        },
-      })
-        .then(data => data.json())
-        .catch(err => onReject(err));
+        const requestOAuthURL = `${PREVENT_CORS_URL}/${TWITTER_API_URL}/2/oauth2/token`;
+        const data = await fetch(requestOAuthURL, {
+          method: 'POST',
+          body: details,
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'x-cors-grida-api-key': PASS_CORS_KEY,
+          },
+        })
+          .then(data => data.json())
+          .catch(err => onReject(err));
 
-      if (data.access_token) {
-        if (isOnlyGetToken) onResolve({ provider: 'twitter', data });
-        else getProfile(data);
+        if (data.access_token) {
+          if (isOnlyGetToken) onResolve({ provider: 'twitter', data });
+          else getProfile(data);
+        }
       }
     },
-    [client_id, getProfile, isOnlyGetToken, onReject, onResolve, redirect_uri],
+    [
+      onReject,
+      getProfile,
+      onResolve,
+      client_id,
+      redirect_uri,
+      isOnlyGetCode,
+      isOnlyGetToken,
+    ],
   );
 
   const handlePostMessage = useCallback(

@@ -16,6 +16,7 @@ interface Props {
   redirect_uri: string;
   client_secret: string;
   response_type?: string;
+  isOnlyGetCode?: boolean;
   isOnlyGetToken?: boolean;
   children?: React.ReactNode;
   onLoginStart?: () => void;
@@ -35,6 +36,7 @@ export const LoginSocialLinkedin = ({
   className = '',
   redirect_uri,
   response_type = 'code',
+  isOnlyGetCode = false,
   isOnlyGetToken = false,
   children,
   onLoginStart,
@@ -86,32 +88,35 @@ export const LoginSocialLinkedin = ({
 
   const getAccessToken = useCallback(
     (code: string) => {
-      const params = {
-        code,
-        grant_type: 'authorization_code',
-        redirect_uri,
-        client_id,
-        client_secret,
-      };
-      const headers = new Headers({
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'x-cors-grida-api-key': PASS_CORS_KEY,
-      });
-
-      fetch(`${PREVENT_CORS_URL}/${LINKEDIN_URL}/accessToken`, {
-        method: 'POST',
-        headers,
-        body: new URLSearchParams(params),
-      })
-        .then(response => response.json())
-        .then(response => {
-          if (isOnlyGetToken)
-            onResolve({ provider: 'linkedin', data: response });
-          else getProfile(response);
-        })
-        .catch(err => {
-          onReject(err);
+      if (isOnlyGetCode) onResolve({ provider: 'linkedin', data: { code } });
+      else {
+        const params = {
+          code,
+          grant_type: 'authorization_code',
+          redirect_uri,
+          client_id,
+          client_secret,
+        };
+        const headers = new Headers({
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'x-cors-grida-api-key': PASS_CORS_KEY,
         });
+
+        fetch(`${PREVENT_CORS_URL}/${LINKEDIN_URL}/accessToken`, {
+          method: 'POST',
+          headers,
+          body: new URLSearchParams(params),
+        })
+          .then(response => response.json())
+          .then(response => {
+            if (isOnlyGetToken)
+              onResolve({ provider: 'linkedin', data: response });
+            else getProfile(response);
+          })
+          .catch(err => {
+            onReject(err);
+          });
+      }
     },
     [
       onReject,
@@ -120,6 +125,7 @@ export const LoginSocialLinkedin = ({
       getProfile,
       redirect_uri,
       client_secret,
+      isOnlyGetCode,
       isOnlyGetToken,
     ],
   );

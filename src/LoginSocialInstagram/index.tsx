@@ -16,6 +16,7 @@ interface Props {
   client_secret: string;
   redirect_uri: string;
   response_type?: string;
+  isOnlyGetCode?: boolean;
   isOnlyGetToken?: boolean;
   children?: React.ReactNode;
   onLogoutSuccess?: () => void;
@@ -36,6 +37,7 @@ export const LoginSocialInstagram = ({
   redirect_uri,
   scope = 'user_profile,user_media',
   response_type = 'code',
+  isOnlyGetCode = false,
   isOnlyGetToken = false,
   children,
   onReject,
@@ -76,33 +78,36 @@ export const LoginSocialInstagram = ({
 
   const getAccessToken = useCallback(
     (code: string) => {
-      const params = {
-        grant_type: 'authorization_code',
-        code,
-        redirect_uri,
-        client_id,
-        client_secret,
-      };
-      const headers = new Headers({
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'x-cors-grida-api-key': PASS_CORS_KEY,
-      });
-      fetch(`${PREVENT_CORS_URL}/${INSTAGRAM_URL}/oauth/access_token`, {
-        method: 'POST',
-        headers,
-        body: new URLSearchParams(params),
-      })
-        .then(response => response.json())
-        .then(data => {
-          if (data.access_token) {
-            if (isOnlyGetToken) onResolve({ provider: 'instagram', data });
-            else getProfile(data);
-          } else onReject('no data');
+      if (isOnlyGetCode) onResolve({ provider: 'instagram', data: { code } });
+      else {
+        const params = {
+          grant_type: 'authorization_code',
+          code,
+          redirect_uri,
+          client_id,
+          client_secret,
+        };
+        const headers = new Headers({
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'x-cors-grida-api-key': PASS_CORS_KEY,
+        });
+        fetch(`${PREVENT_CORS_URL}/${INSTAGRAM_URL}/oauth/access_token`, {
+          method: 'POST',
+          headers,
+          body: new URLSearchParams(params),
         })
-        .catch(err => {
-          onReject(err);
-        })
-        .finally(() => {});
+          .then(response => response.json())
+          .then(data => {
+            if (data.access_token) {
+              if (isOnlyGetToken) onResolve({ provider: 'instagram', data });
+              else getProfile(data);
+            } else onReject('no data');
+          })
+          .catch(err => {
+            onReject(err);
+          })
+          .finally(() => {});
+      }
     },
     [
       onReject,
@@ -111,6 +116,7 @@ export const LoginSocialInstagram = ({
       client_id,
       redirect_uri,
       client_secret,
+      isOnlyGetCode,
       isOnlyGetToken,
     ],
   );

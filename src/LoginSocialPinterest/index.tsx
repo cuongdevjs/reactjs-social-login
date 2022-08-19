@@ -16,6 +16,7 @@ interface Props {
   className?: string;
   redirect_uri: string;
   children?: React.ReactNode;
+  isOnlyGetCode?: boolean;
   isOnlyGetToken?: boolean;
   onLoginStart?: () => void;
   onReject: (reject: string | objectType) => void;
@@ -33,6 +34,7 @@ export const LoginSocialPinterest = ({
   client_secret,
   className = '',
   redirect_uri,
+  isOnlyGetCode = false,
   isOnlyGetToken = false,
   children,
   onLoginStart,
@@ -69,37 +71,40 @@ export const LoginSocialPinterest = ({
 
   const getAccessToken = useCallback(
     async (code: string) => {
-      var details = {
-        code,
-        redirect_uri,
-        grant_type: `authorization_code`,
-      };
-      var formBody: string | string[] = [];
-      for (var property in details) {
-        var encodedKey = encodeURIComponent(property);
-        var encodedValue = encodeURIComponent(details[property]);
-        formBody.push(encodedKey + '=' + encodedValue);
-      }
-      formBody = formBody.join('&');
+      if (isOnlyGetCode) onResolve({ provider: 'pinterest', data: { code } });
+      else {
+        var details = {
+          code,
+          redirect_uri,
+          grant_type: `authorization_code`,
+        };
+        var formBody: string | string[] = [];
+        for (var property in details) {
+          var encodedKey = encodeURIComponent(property);
+          var encodedValue = encodeURIComponent(details[property]);
+          formBody.push(encodedKey + '=' + encodedValue);
+        }
+        formBody = formBody.join('&');
 
-      const data = await fetch(
-        `${PREVENT_CORS_URL}/${PINTEREST_URL_API}/oauth/token`,
-        {
-          method: 'POST',
-          headers: {
-            Authorization: `Basic ${btoa(client_id + ':' + client_secret)}`,
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'x-cors-grida-api-key': PASS_CORS_KEY,
+        const data = await fetch(
+          `${PREVENT_CORS_URL}/${PINTEREST_URL_API}/oauth/token`,
+          {
+            method: 'POST',
+            headers: {
+              Authorization: `Basic ${btoa(client_id + ':' + client_secret)}`,
+              'Content-Type': 'application/x-www-form-urlencoded',
+              'x-cors-grida-api-key': PASS_CORS_KEY,
+            },
+            body: formBody,
           },
-          body: formBody,
-        },
-      )
-        .then(data => data.json())
-        .catch(err => onReject(err));
+        )
+          .then(data => data.json())
+          .catch(err => onReject(err));
 
-      if (data.access_token) {
-        if (isOnlyGetToken) onResolve({ provider: 'pinterest', data });
-        else getProfile(data);
+        if (data.access_token) {
+          if (isOnlyGetToken) onResolve({ provider: 'pinterest', data });
+          else getProfile(data);
+        }
       }
     },
     [
@@ -109,6 +114,7 @@ export const LoginSocialPinterest = ({
       onResolve,
       redirect_uri,
       client_secret,
+      isOnlyGetCode,
       isOnlyGetToken,
     ],
   );

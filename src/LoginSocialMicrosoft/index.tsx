@@ -17,6 +17,7 @@ interface Props {
   response_mode?: string;
   code_challenge?: string;
   children?: React.ReactNode;
+  isOnlyGetCode?: boolean;
   isOnlyGetToken?: boolean;
   onLoginStart?: () => void;
   onReject: (reject: string | objectType) => void;
@@ -43,6 +44,7 @@ export const LoginSocialMicrosoft = ({
   code_challenge = '19cfc47c216dacba8ca23eeee817603e2ba34fe0976378662ba31688ed302fa9',
   code_challenge_method = 'plain',
   prompt = 'select_account',
+  isOnlyGetCode = false,
   isOnlyGetToken = false,
   onLoginStart,
   onReject,
@@ -79,34 +81,37 @@ export const LoginSocialMicrosoft = ({
 
   const getAccessToken = useCallback(
     (code: string) => {
-      const params = {
-        code,
-        scope,
-        client_id,
-        redirect_uri,
-        code_verifier: code_challenge,
-        grant_type: 'authorization_code',
-      };
-      const headers = new Headers({
-        'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
-      });
-      fetch(`${MICROSOFT_URL}/${tenant}/oauth2/v2.0/token`, {
-        method: 'POST',
-        headers,
-        body: new URLSearchParams(params),
-      })
-        .then(response => response.json())
-        .then(data => {
-          if (data.access_token) {
-            if (isOnlyGetToken) onResolve({ provider: 'microsoft', data });
-            else getProfile(data);
-          } else {
-            onReject('no data');
-          }
-        })
-        .catch(err => {
-          onReject(err);
+      if (isOnlyGetCode) onResolve({ provider: 'microsoft', data: { code } });
+      else {
+        const params = {
+          code,
+          scope,
+          client_id,
+          redirect_uri,
+          code_verifier: code_challenge,
+          grant_type: 'authorization_code',
+        };
+        const headers = new Headers({
+          'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
         });
+        fetch(`${MICROSOFT_URL}/${tenant}/oauth2/v2.0/token`, {
+          method: 'POST',
+          headers,
+          body: new URLSearchParams(params),
+        })
+          .then(response => response.json())
+          .then(data => {
+            if (data.access_token) {
+              if (isOnlyGetToken) onResolve({ provider: 'microsoft', data });
+              else getProfile(data);
+            } else {
+              onReject('no data');
+            }
+          })
+          .catch(err => {
+            onReject(err);
+          });
+      }
     },
     [
       scope,
@@ -117,6 +122,7 @@ export const LoginSocialMicrosoft = ({
       onResolve,
       redirect_uri,
       code_challenge,
+      isOnlyGetCode,
       isOnlyGetToken,
     ],
   );

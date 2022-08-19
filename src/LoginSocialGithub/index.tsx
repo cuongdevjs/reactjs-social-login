@@ -17,6 +17,7 @@ interface Props {
   client_secret: string;
   allow_signup?: boolean;
   isOnlyGetToken?: boolean;
+  isOnlyGetCode?: boolean;
   children?: React.ReactNode;
   onLoginStart?: () => void;
   onLogoutSuccess?: () => void;
@@ -37,6 +38,7 @@ export const LoginSocialGithub = ({
   redirect_uri,
   allow_signup = false,
   isOnlyGetToken = false,
+  isOnlyGetCode = false,
   children,
   onReject,
   onResolve,
@@ -74,38 +76,41 @@ export const LoginSocialGithub = ({
 
   const getAccessToken = useCallback(
     (code: string) => {
-      const params = {
-        code,
-        state,
-        redirect_uri,
-        client_id,
-        client_secret,
-      };
-      const headers = new Headers({
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'x-cors-grida-api-key': PASS_CORS_KEY,
-      });
-
-      fetch(`${PREVENT_CORS_URL}/${GITHUB_URL}/login/oauth/access_token`, {
-        method: 'POST',
-        headers,
-        body: new URLSearchParams(params),
-      })
-        .then(response => response.text())
-        .then(response => {
-          const data: objectType = {};
-          const searchParams: any = new URLSearchParams(response);
-          for (const p of searchParams) {
-            data[p[0]] = p[1];
-          }
-          if (data.access_token) {
-            if (isOnlyGetToken) onResolve({ provider: 'github', data });
-            else getProfile(data);
-          } else onReject('no data');
-        })
-        .catch(err => {
-          onReject(err);
+      if (isOnlyGetCode) onResolve({ provider: 'github', data: { code } });
+      else {
+        const params = {
+          code,
+          state,
+          redirect_uri,
+          client_id,
+          client_secret,
+        };
+        const headers = new Headers({
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'x-cors-grida-api-key': PASS_CORS_KEY,
         });
+
+        fetch(`${PREVENT_CORS_URL}/${GITHUB_URL}/login/oauth/access_token`, {
+          method: 'POST',
+          headers,
+          body: new URLSearchParams(params),
+        })
+          .then(response => response.text())
+          .then(response => {
+            const data: objectType = {};
+            const searchParams: any = new URLSearchParams(response);
+            for (const p of searchParams) {
+              data[p[0]] = p[1];
+            }
+            if (data.access_token) {
+              if (isOnlyGetToken) onResolve({ provider: 'github', data });
+              else getProfile(data);
+            } else onReject('no data');
+          })
+          .catch(err => {
+            onReject(err);
+          });
+      }
     },
     [
       state,
@@ -115,6 +120,7 @@ export const LoginSocialGithub = ({
       client_id,
       redirect_uri,
       client_secret,
+      isOnlyGetCode,
       isOnlyGetToken,
     ],
   );
