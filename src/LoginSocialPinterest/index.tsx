@@ -1,7 +1,7 @@
 /* eslint-disable camelcase */
 /**
  *
- * LoginSocialGithub
+ * LoginSocialPinterest
  *
  */
 import { PASS_CORS_KEY } from 'helper/constants';
