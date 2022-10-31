@@ -17,3 +17,4 @@ export { default as LoginSocialLinkedin } from './LoginSocialLinkedin';
 export { default as LoginSocialPinterest } from './LoginSocialPinterest';
 export { default as LoginSocialTwitter } from './LoginSocialTwitter';
 export { default as LoginSocialApple } from './LoginSocialApple';
+export { default as LoginSocialTiktok } from './LoginSocialTiktok';

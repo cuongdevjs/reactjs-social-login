@@ -13,13 +13,14 @@
 > 8. Pinterest
 > 9. Twitter
 > 10. Apple
+> 11. Tiktok
 
 This repository is all in one, includes multiple platform for social login, is written by TypeScript and React Hooks, tree-shakeable, zero dependencies, extremely lightweight.
 You can customize any style UI as you like.
 
 Reactjs Social Login is an HOC which provides social login through multiple providers.
 
-## **Currently supports Amazon, Facebook, GitHub, Google, Instagram, Linkedin, Pinterest, Twitter, Microsoft, Apple as providers (more to come!)**
+## **Currently supports Amazon, Facebook, GitHub, Google, Instagram, Linkedin, Pinterest, Twitter, Microsoft, Apple, Tiktok as providers (more to come!)**
 
 [![npm download](https://img.shields.io/npm/dm/reactjs-social-login.svg?style=flat)](https://www.npmjs.com/package/reactjs-social-login)
 [![npm bundle zip](https://img.shields.io/bundlephobia/minzip/reactjs-social-login?style=flat)](https://www.npmjs.com/package/reactjs-social-login)
@@ -82,6 +83,7 @@ REACT_APP_TWITTER_APP_ID=
 REACT_APP_TWITTER_V2_APP_KEY=
 REACT_APP_TWITTER_V2_APP_SECRET=
 REACT_APP_APPLE_ID=
+REACT_APP_TIKTOK_CLIENT_KEY=
 ````
 
 and on directory /example, then open another terminal, type these commands
@@ -114,6 +116,7 @@ You can then view the demo at <https://localhost:3000>.
     LoginSocialPinterest,
     LoginSocialTwitter,
     LoginSocialApple,
+    LoginSocialTiktok,
     IResolveParams,
   } from 'reactjs-social-login'
 
@@ -131,6 +134,7 @@ You can then view the demo at <https://localhost:3000>.
   } from 'react-social-login-buttons'
 
   import { ReactComponent as PinterestLogo } from './assets/pinterest.svg'
+  import { ReactComponent as TiktokLogo } from './assets/tiktok.svg'
 
   // REDIRECT URL must be same with URL where the (reactjs-social-login) components is locate
   // MAKE SURE the (reactjs-social-login) components aren't unmounted or destroyed before the ask permission dialog closes
@@ -323,6 +327,27 @@ You can then view the demo at <https://localhost:3000>.
             >
               <TwitterLoginButton />
             </LoginSocialTwitter>
+
+            <LoginSocialTiktok
+              client_key={process.env.REACT_APP_TIKTOK_CLIENT_KEY}
+              redirect_uri={REDIRECT_URI}
+              onLoginStart={onLoginStart}
+              onResolve={({ provider, data }) => {
+                setProvider(provider);
+                setProfile(data);
+              }}
+              onReject={(err) => {
+                console.log(err);
+              }}
+              className="pinterest-btn"
+            >
+              <div className="content">
+                <div className="icon">
+                  <TiktokLogo />
+                </div>
+                <span className="txt">Login With Tiktok</span>
+              </div>
+            </LoginSocialTiktok>
           </div>
         )}
       </>
@@ -353,6 +378,7 @@ You can then view the demo at <https://localhost:3000>.
     LoginSocialPinterest,
     LoginSocialTwitter,
     LoginSocialApple,
+    LoginSocialTiktok,
   } from 'reactjs-social-login'
 
   // CUSTOMIZE ANY UI BUTTON
@@ -369,6 +395,7 @@ You can then view the demo at <https://localhost:3000>.
   } from 'react-social-login-buttons'
 
   import { ReactComponent as PinterestLogo } from './assets/pinterest.svg'
+  import { ReactComponent as TiktokLogo } from './assets/tiktok.svg'
 
   // REDIRECT URL must be same with URL where the (reactjs-social-login) components is locate
   // MAKE SURE the (reactjs-social-login) components aren't unmounted or destroyed before the ask permission dialog closes
@@ -523,6 +550,7 @@ You can then view the demo at <https://localhost:3000>.
             >
               <GithubLoginButton />
             </LoginSocialGithub>
+
             <LoginSocialPinterest
               isOnlyGetToken
               client_id={process.env.REACT_APP_PINTEREST_APP_ID || ''}
@@ -561,6 +589,27 @@ You can then view the demo at <https://localhost:3000>.
             >
               <TwitterLoginButton />
             </LoginSocialTwitter>
+
+            <LoginSocialTiktok
+              client_key={process.env.REACT_APP_TIKTOK_CLIENT_KEY}
+              redirect_uri={REDIRECT_URI}
+              onLoginStart={onLoginStart}
+              onResolve={({ provider, data }) => {
+                setProvider(provider);
+                setProfile(data);
+              }}
+              onReject={(err) => {
+                console.log(err);
+              }}
+              className="pinterest-btn"
+            >
+              <div className="content">
+                <div className="icon">
+                  <TiktokLogo />
+                </div>
+                <span className="txt">Login With Tiktok</span>
+              </div>
+            </LoginSocialTiktok>
           </div>
         )}
       </>
@@ -641,17 +690,18 @@ You can then view the demo at <https://localhost:3000>.
 
 ### 5. Instagram Props
 
-| Prop                                                                                                                                                      | Type                                           |          Default          | Description                                                       |
-| :-------------------------------------------------------------------------------------------------------------------------------------------------------- | :--------------------------------------------- | :-----------------------: | :---------------------------------------------------------------- |
-| onResolve                                                                                                                                                 | `function({provider, data}) { // } (required)` |            `-`            | Return provider and data (include user's info & access_token,...) |
-| onReject                                                                                                                                                  | `function(err) { // } (required)`              |            `-`            | Return error                                                      |
-| client_id                                                                                                                                                 | `string (required)`                            |            `-`            | App ID application                                                |
-| client_secret                                                                                                                                             | `string (required)`                            |            `-`            | App Secret application                                            |
-| onLoginStart                                                                                                                                              | `function() { // } (optional)`                 |            `-`            | Called when click login                                           |
-| scope                                                                                                                                                     | `string (optional)`                            | `user_profile,user_media` | Scope application                                                 |
-| className                                                                                                                                                 | `string (optional)`                            |            `-`            | Class for button                                                  |
-| isOnlyGetToken                                                                                                                                            | `boolean (optional)`                           |          `false`          | Only get access_token without get user's info (server-side)       |
-| isOnlyGetCode                                                                                                                                             | `boolean (optional)`                           |          `false`          | Only get code without access_token (server-side)                  |
+| Prop                                                                                                                                                      | Type                                           |                Default                 | Description                                                       |
+| :-------------------------------------------------------------------------------------------------------------------------------------------------------- | :--------------------------------------------- | :------------------------------------: | :---------------------------------------------------------------- |
+| onResolve                                                                                                                                                 | `function({provider, data}) { // } (required)` |                  `-`                   | Return provider and data (include user's info & access_token,...) |
+| onReject                                                                                                                                                  | `function(err) { // } (required)`              |                  `-`                   | Return error                                                      |
+| client_id                                                                                                                                                 | `string (required)`                            |                  `-`                   | App ID application                                                |
+| client_secret                                                                                                                                             | `string (required)`                            |                  `-`                   | App Secret application                                            |
+| onLoginStart                                                                                                                                              | `function() { // } (optional)`                 |                  `-`                   | Called when click login                                           |
+| scope                                                                                                                                                     | `string (optional)`                            |       `user_profile,user_media`        | Scope application                                                 |
+| fields                                                                                                                                                    | `string (optional)`                            | `id,username,account_type,media_count` | Fields return                                                     |
+| className                                                                                                                                                 | `string (optional)`                            |                  `-`                   | Class for button                                                  |
+| isOnlyGetToken                                                                                                                                            | `boolean (optional)`                           |                `false`                 | Only get access_token without get user's info (server-side)       |
+| isOnlyGetCode                                                                                                                                             | `boolean (optional)`                           |                `false`                 | Only get code without access_token (server-side)                  |
 | [other_props...](https://github.com/cuongdevjs/reactjs-social-login/blob/4bb9c65609372d29fc41f83f7c5a47070e4557b6/src/LoginSocialInstagram/index.tsx#L11) |
 
 <br/>
@@ -739,6 +789,20 @@ You can then view the demo at <https://localhost:3000>.
 
 <br/>
 
+### 11. Tiktok Props
+
+| Prop                                                                                                                                                   | Type                                           |   Default    | Description                                                       |
+| :----------------------------------------------------------------------------------------------------------------------------------------------------- | :--------------------------------------------- | :----------: | :---------------------------------------------------------------- |
+| onResolve                                                                                                                                              | `function({provider, data}) { // } (required)` |     `-`      | Return provider and data (include user's info & access_token,...) |
+| onReject                                                                                                                                               | `function(err) { // } (required)`              |     `-`      | Return error                                                      |
+| client_key                                                                                                                                             | `string (required)`                            |     `-`      | API Key                                                           |
+| scope                                                                                                                                                  | `string (optional)`                            | `name email` | Application's scope                                               |
+| onLoginStart                                                                                                                                           | `function() { // } (optional)`                 |     `-`      | Called when click login                                           |
+| className                                                                                                                                              | `string (optional)`                            |     `-`      | Class for button                                                  |
+| [other_props...](https://github.com/cuongdevjs/reactjs-social-login/blob/4bb9c65609372d29fc41f83f7c5a47070e4557b6/src/LoginSocialTiktok/index.tsx#L10) |
+
+<br/>
+
 ### How get client_id, client_secret_id
 
 > Create application developer and you can get detail id & secret_id on these link
@@ -753,6 +817,7 @@ You can then view the demo at <https://localhost:3000>.
 8. [Pinterest](https://developers.pinterest.com/docs/api/v5/)
 9. [Twitter](https://developer.twitter.com/en/docs/authentication/)
 10. [Apple](https://developer.apple.com/account/resources/)
+11. [Tiktok](https://developers.tiktok.com/apps/)
 
 ## License
 

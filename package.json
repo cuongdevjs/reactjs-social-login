@@ -1,6 +1,6 @@
 {
   "name": "reactjs-social-login",
-  "version": "2.5.6",
+  "version": "2.6.0",
   "description": "Group social login for ReactJS",
   "author": "Nguyen Manh Cuong ",
   "license": "MIT",
@@ -95,7 +95,9 @@
     "twitter",
     "amazon",
     "linkedin",
+    "tiktok",
     "react twitter login social",
+    "react tiktok login social",
     "react google login social",
     "react facebook login social",
     "react github login social",
