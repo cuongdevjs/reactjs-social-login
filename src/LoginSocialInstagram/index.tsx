@@ -11,6 +11,7 @@ import { objectType, IResolveParams } from '../';
 interface Props {
   scope?: string;
   state?: string;
+  fields?: string;
   client_id: string;
   className?: string;
   client_secret: string;
@@ -35,6 +36,7 @@ export const LoginSocialInstagram = ({
   client_secret,
   className,
   redirect_uri,
+  fields = 'id,username,account_type,media_count',
   scope = 'user_profile,user_media',
   response_type = 'code',
   isOnlyGetCode = false,
@@ -57,7 +59,7 @@ export const LoginSocialInstagram = ({
   const getProfile = useCallback(
     (data: objectType) => {
       fetch(
-        `${PREVENT_CORS_URL}/${INSTAGRAM_API_URL}/me?fields=id,username,account_type,media_count&access_token=${data.access_token}`,
+        `${PREVENT_CORS_URL}/${INSTAGRAM_API_URL}/me?fields=${fields}&access_token=${data.access_token}`,
         {
           method: 'GET',
           headers: {
@@ -73,7 +75,7 @@ export const LoginSocialInstagram = ({
           onReject(err);
         });
     },
-    [onReject, onResolve],
+    [fields, onReject, onResolve],
   );
 
   const getAccessToken = useCallback(
