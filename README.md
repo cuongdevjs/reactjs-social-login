@@ -637,7 +637,7 @@ You can then view the demo at <https://localhost:3000>.
 | scope                                                                                                                                                  | `string (optional)`                            | `https://www.googleapis.com/auth/userinfo.profile` | Scope application                                                 |
 | className                                                                                                                                              | `string (optional)`                            |                        `-`                         | Class container                                                   |
 | isOnlyGetToken                                                                                                                                         | `boolean (optional)`                           |                      `false`                       | Only get access_token without get user's info (server-side)       |
-| [other_props...](https://github.com/cuongdevjs/reactjs-social-login/blob/4bb9c65609372d29fc41f83f7c5a47070e4557b6/src/LoginSocialGoogle/index.tsx#L11) |
+| [other_props...](https://github.com/cuongdevjs/reactjs-social-login/blob/a3fa8d0bea97a9de630ee684d32dc21a5736121e/src/LoginSocialGoogle/index.tsx#L11) |
 
 <br/>
 
@@ -653,7 +653,7 @@ You can then view the demo at <https://localhost:3000>.
 | scope                                                                                                                                                    | `string (optional)`                            |                                 `email,public_profile`                                 | Scope application                                                 |
 | className                                                                                                                                                | `string (optional)`                            |                                          `-`                                           | Class container                                                   |
 | isOnlyGetToken                                                                                                                                           | `boolean (optional)`                           |                                        `false`                                         | Only get access_token without get user's info (server-side)       |
-| [other_props...](https://github.com/cuongdevjs/reactjs-social-login/blob/4bb9c65609372d29fc41f83f7c5a47070e4557b6/src/LoginSocialFacebook/index.tsx#L10) |
+| [other_props...](https://github.com/cuongdevjs/reactjs-social-login/blob/a3fa8d0bea97a9de630ee684d32dc21a5736121e/src/LoginSocialFacebook/index.tsx#L10) |
 
 <br/>
 
@@ -669,7 +669,7 @@ You can then view the demo at <https://localhost:3000>.
 | className                                                                                                                                                 | `string (optional)`                            |          `-`           | Class for button                                                  |
 | isOnlyGetToken                                                                                                                                            | `boolean (optional)`                           |        `false`         | Only get access_token without get user's info (server-side)       |
 | isOnlyGetCode                                                                                                                                             | `boolean (optional)`                           |        `false`         | Only get code without access_token (server-side)                  |
-| [other_props...](https://github.com/cuongdevjs/reactjs-social-login/blob/4bb9c65609372d29fc41f83f7c5a47070e4557b6/src/LoginSocialMicrosoft/index.tsx#L10) |
+| [other_props...](https://github.com/cuongdevjs/reactjs-social-login/blob/a3fa8d0bea97a9de630ee684d32dc21a5736121e/src/LoginSocialMicrosoft/index.tsx#L10) |
 
 <br/>
 
@@ -684,7 +684,7 @@ You can then view the demo at <https://localhost:3000>.
 | scope                                                                                                                                                  | `string (optional)`                            | `profile` | Scope application                                                 |
 | className                                                                                                                                              | `string (optional)`                            |    `-`    | Class for button                                                  |
 | isOnlyGetToken                                                                                                                                         | `boolean (optional)`                           |  `false`  | Only get access_token without get user's info (server-side)       |
-| [other_props...](https://github.com/cuongdevjs/reactjs-social-login/blob/4bb9c65609372d29fc41f83f7c5a47070e4557b6/src/LoginSocialAmazon/index.tsx#L10) |
+| [other_props...](https://github.com/cuongdevjs/reactjs-social-login/blob/a3fa8d0bea97a9de630ee684d32dc21a5736121e/src/LoginSocialAmazon/index.tsx#L10) |
 
 <br/>
 
@@ -702,7 +702,7 @@ You can then view the demo at <https://localhost:3000>.
 | className                                                                                                                                                 | `string (optional)`                            |                  `-`                   | Class for button                                                  |
 | isOnlyGetToken                                                                                                                                            | `boolean (optional)`                           |                `false`                 | Only get access_token without get user's info (server-side)       |
 | isOnlyGetCode                                                                                                                                             | `boolean (optional)`                           |                `false`                 | Only get code without access_token (server-side)                  |
-| [other_props...](https://github.com/cuongdevjs/reactjs-social-login/blob/4bb9c65609372d29fc41f83f7c5a47070e4557b6/src/LoginSocialInstagram/index.tsx#L11) |
+| [other_props...](https://github.com/cuongdevjs/reactjs-social-login/blob/a3fa8d0bea97a9de630ee684d32dc21a5736121e/src/LoginSocialInstagram/index.tsx#L11) |
 
 <br/>
 
@@ -719,7 +719,7 @@ You can then view the demo at <https://localhost:3000>.
 | className                                                                                                                                                | `string (optional)`                            |       `-`       | Class for button                                                  |
 | isOnlyGetToken                                                                                                                                           | `boolean (optional)`                           |     `false`     | Only get access_token without get user's info (server-side)       |
 | isOnlyGetCode                                                                                                                                            | `boolean (optional)`                           |     `false`     | Only get code without access_token (server-side)                  |
-| [other_props...](https://github.com/cuongdevjs/reactjs-social-login/blob/4bb9c65609372d29fc41f83f7c5a47070e4557b6/src/LoginSocialLinkedin/index.tsx#L11) |
+| [other_props...](https://github.com/cuongdevjs/reactjs-social-login/blob/a3fa8d0bea97a9de630ee684d32dc21a5736121e/src/LoginSocialLinkedin/index.tsx#L11) |
 
 <br/>
 
@@ -736,7 +736,7 @@ You can then view the demo at <https://localhost:3000>.
 | className                                                                                                                                              | `string (optional)`                            |     `-`     | Class for button                                                  |
 | isOnlyGetToken                                                                                                                                         | `boolean (optional)`                           |   `false`   | Only get access_token without get user's info (server-side)       |
 | isOnlyGetCode                                                                                                                                          | `boolean (optional)`                           |   `false`   | Only get code without access_token (server-side)                  |
-| [other_props...](https://github.com/cuongdevjs/reactjs-social-login/blob/4bb9c65609372d29fc41f83f7c5a47070e4557b6/src/LoginSocialGithub/index.tsx#L11) |
+| [other_props...](https://github.com/cuongdevjs/reactjs-social-login/blob/a3fa8d0bea97a9de630ee684d32dc21a5736121e/src/LoginSocialGithub/index.tsx#L11) |
 
 <br/>
 
@@ -753,7 +753,7 @@ You can then view the demo at <https://localhost:3000>.
 | className                                                                                                                                                 | `string (optional)`                            |   `-`   | Class for button                                                  |
 | isOnlyGetToken                                                                                                                                            | `boolean (optional)`                           | `false` | Only get access_token without get user's info (server-side)       |
 | isOnlyGetCode                                                                                                                                             | `boolean (optional)`                           | `false` | Only get code without access_token (server-side)                  |
-| [other_props...](https://github.com/cuongdevjs/reactjs-social-login/blob/4bb9c65609372d29fc41f83f7c5a47070e4557b6/src/LoginSocialPinterest/index.tsx#L11) |
+| [other_props...](https://github.com/cuongdevjs/reactjs-social-login/blob/a3fa8d0bea97a9de630ee684d32dc21a5736121e/src/LoginSocialPinterest/index.tsx#L11) |
 
 <br/>
 
@@ -771,7 +771,7 @@ You can then view the demo at <https://localhost:3000>.
 | className                                                                                                                                               | `string (optional)`                            |                                                                     `-`                                                                      | Class for button                                                  |
 | isOnlyGetToken                                                                                                                                          | `boolean (optional)`                           |                                                                   `false`                                                                    | Only get access_token without get user's info (server-side)       |
 | isOnlyGetCode                                                                                                                                           | `boolean (optional)`                           |                                                                   `false`                                                                    | Only get code without access_token (server-side)                  |
-| [other_props...](https://github.com/cuongdevjs/reactjs-social-login/blob/4bb9c65609372d29fc41f83f7c5a47070e4557b6/src/LoginSocialTwitter/index.tsx#L12) |
+| [other_props...](https://github.com/cuongdevjs/reactjs-social-login/blob/a3fa8d0bea97a9de630ee684d32dc21a5736121e/src/LoginSocialTwitter/index.tsx#L12) |
 
 <br/>
 
@@ -785,7 +785,7 @@ You can then view the demo at <https://localhost:3000>.
 | scope                                                                                                                                                 | `string (optional)`                            | `name email` | Application's scope                                               |
 | onLoginStart                                                                                                                                          | `function() { // } (optional)`                 |     `-`      | Called when click login                                           |
 | className                                                                                                                                             | `string (optional)`                            |     `-`      | Class for button                                                  |
-| [other_props...](https://github.com/cuongdevjs/reactjs-social-login/blob/4bb9c65609372d29fc41f83f7c5a47070e4557b6/src/LoginSocialApple/index.tsx#L10) |
+| [other_props...](https://github.com/cuongdevjs/reactjs-social-login/blob/a3fa8d0bea97a9de630ee684d32dc21a5736121e/src/LoginSocialApple/index.tsx#L10) |
 
 <br/>
 
@@ -799,7 +799,7 @@ You can then view the demo at <https://localhost:3000>.
 | scope                                                                                                                                                  | `string (optional)`                            | `name email` | Application's scope                                               |
 | onLoginStart                                                                                                                                           | `function() { // } (optional)`                 |     `-`      | Called when click login                                           |
 | className                                                                                                                                              | `string (optional)`                            |     `-`      | Class for button                                                  |
-| [other_props...](https://github.com/cuongdevjs/reactjs-social-login/blob/4bb9c65609372d29fc41f83f7c5a47070e4557b6/src/LoginSocialTiktok/index.tsx#L10) |
+| [other_props...](https://github.com/cuongdevjs/reactjs-social-login/blob/a3fa8d0bea97a9de630ee684d32dc21a5736121e/src/LoginSocialTiktok/index.tsx#L11) |
 
 <br/>
 
