@@ -16,6 +16,7 @@ interface Props {
   className?: string;
   login_hint?: string;
   access_type?: string;
+  auto_select?: boolean;
   redirect_uri?: string;
   cookie_policy?: string;
   hosted_domain?: string;
@@ -23,6 +24,7 @@ interface Props {
   children?: React.ReactNode;
   onLoginStart?: () => void;
   isOnlyGetToken?: boolean;
+  typeResponse?: 'idToken' | 'accessToken';
   onReject: (reject: string | objectType) => void;
   fetch_basic_profile?: boolean;
   onResolve: ({ provider, data }: IResolveParams) => void;
@@ -39,6 +41,7 @@ const LoginSocialGoogle = ({
   client_id,
   scope = 'https://www.googleapis.com/auth/userinfo.profile',
   prompt = 'select_account',
+  typeResponse = 'accessToken',
   ux_mode,
   className = '',
   login_hint = '',
@@ -47,6 +50,7 @@ const LoginSocialGoogle = ({
   onReject,
   onResolve,
   redirect_uri = '/',
+  auto_select = false,
   isOnlyGetToken = false,
   cookie_policy = 'single_host_origin',
   hosted_domain = '',
@@ -97,32 +101,56 @@ const LoginSocialGoogle = ({
     [],
   );
 
-  const onGetMe = useCallback((res: objectType) => {
-    const headers = new Headers({
-      'Content-Type': 'application/x-www-form-urlencoded',
-      'x-cors-grida-api-key': PASS_CORS_KEY,
-      Authorization: 'Bearer ' + res.access_token,
-    });
-
-    fetch(
-      `${PREVENT_CORS_URL}/https://www.googleapis.com/oauth2/v1/userinfo?alt=json`,
-      {
-        method: 'GET',
-        headers,
-      },
-    )
-      .then(response => response.json())
-      .then(response => {
-        const data: objectType = { ...res, ...response };
-        onResolve({
-          provider: 'google',
-          data,
+  const onGetMe = useCallback(
+    (res: objectType) => {
+      if (typeResponse === 'accessToken') {
+        const headers = new Headers({
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'x-cors-grida-api-key': PASS_CORS_KEY,
+          Authorization: 'Bearer ' + res.access_token,
         });
-      })
-      .catch(err => {
-        onReject(err);
-      });
-  }, []);
+
+        fetch(
+          `${PREVENT_CORS_URL}/https://www.googleapis.com/oauth2/v3/userinfo?alt=json`,
+          {
+            method: 'GET',
+            headers,
+          },
+        )
+          .then(response => response.json())
+          .then(response => {
+            const data: objectType = { ...res, ...response };
+            onResolve({
+              provider: 'google',
+              data,
+            });
+          })
+          .catch(err => {
+            onReject(err);
+          });
+      } else {
+        fetch(
+          `https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=${res.credential}`,
+          {
+            method: 'GET',
+          },
+        )
+          .then(response => response.json())
+          .then(response => {
+            console.log('🚀 ~ file: index.tsx ~ line 153 ~ response', response);
+            const data: objectType = { ...res, ...response };
+            onResolve({
+              provider: 'google',
+              data,
+            });
+          })
+          .catch(err => {
+            onReject(err);
+          });
+      }
+    },
+    [typeResponse, onReject, onResolve],
+  );
 
   const handleResponse = useCallback(
     (res: objectType) => {
@@ -135,10 +163,12 @@ const LoginSocialGoogle = ({
         else onGetMe(res);
       } else {
         const data: objectType = res;
-        onResolve({
-          provider: 'google',
-          data,
-        });
+        if (isOnlyGetToken)
+          onResolve({
+            provider: 'google',
+            data,
+          });
+        else onGetMe(res);
       }
     },
     [isOnlyGetToken, onGetMe, onResolve],
@@ -151,23 +181,35 @@ const LoginSocialGoogle = ({
       insertScriptGoogle(document, 'script', SCRIPT_ID, JS_SRC, () => {
         const params = {
           client_id,
-          cookie_policy,
-          login_hint,
-          hosted_domain,
-          fetch_basic_profile,
-          discoveryDocs,
           ux_mode,
-          redirect_uri,
-          access_type,
-          scope,
-          immediate: true,
-          prompt,
         };
-        var client = _window.google.accounts.oauth2.initTokenClient({
-          ...params,
-          callback: handleResponse,
-        });
-        setInstance(client);
+        var client = null;
+        if (typeResponse === 'idToken') {
+          _window.google.accounts.id.initialize({
+            ...params,
+            auto_select,
+            callback: handleResponse,
+          });
+        } else {
+          client = _window.google.accounts.oauth2.initTokenClient({
+            ...params,
+            scope,
+            prompt,
+            login_hint,
+            access_type,
+            hosted_domain,
+            redirect_uri,
+            cookie_policy,
+            discoveryDocs,
+            immediate: true,
+            fetch_basic_profile,
+            callback: handleResponse,
+          });
+        }
+
+        console.log(client);
+
+        if (client) setInstance(client);
         setIsSdkLoaded(true);
       });
     }
@@ -177,8 +219,10 @@ const LoginSocialGoogle = ({
     ux_mode,
     client_id,
     login_hint,
+    auto_select,
     access_type,
     redirect_uri,
+    typeResponse,
     discoveryDocs,
     cookie_policy,
     hosted_domain,
@@ -196,6 +240,7 @@ const LoginSocialGoogle = ({
     } else {
       onLoginStart && onLoginStart();
       if (instance) instance.requestAccessToken();
+      else _window.google.accounts.id.prompt();
     }
   }, [instance, isSdkLoaded, load, onLoginStart, onReject]);
 
