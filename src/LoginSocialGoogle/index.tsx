@@ -207,7 +207,7 @@ const LoginSocialGoogle = ({
           });
         }
 
-        console.log(client);
+
 
         if (client) setInstance(client);
         setIsSdkLoaded(true);
