@@ -41,7 +41,7 @@ const LoginSocialGoogle = ({
   client_id,
   scope = 'https://www.googleapis.com/auth/userinfo.profile',
   prompt = 'select_account',
-  typeResponse = 'accessToken',
+  typeResponse = 'idToken',
   ux_mode,
   className = '',
   login_hint = '',
