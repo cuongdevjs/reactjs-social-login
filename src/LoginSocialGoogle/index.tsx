@@ -174,6 +174,16 @@ const LoginSocialGoogle = ({
     [isOnlyGetToken, onGetMe, onResolve],
   );
 
+  const handleError = useCallback(
+    (res: objectType) => {
+      onReject({
+        provider: 'google',
+        data: res,
+      });
+    },
+    [onReject],
+  );
+
   const load = useCallback(() => {
     if (checkIsExistsSDKScript()) {
       setIsSdkLoaded(true);
@@ -189,6 +199,7 @@ const LoginSocialGoogle = ({
             ...params,
             auto_select,
             callback: handleResponse,
+            error_callback: handleError,
           });
         } else {
           client = _window.google.accounts.oauth2.initTokenClient({
@@ -204,10 +215,9 @@ const LoginSocialGoogle = ({
             immediate: true,
             fetch_basic_profile,
             callback: handleResponse,
+            error_callback: handleError,
           });
         }
-
-
 
         if (client) setInstance(client);
         setIsSdkLoaded(true);
@@ -227,6 +237,7 @@ const LoginSocialGoogle = ({
     cookie_policy,
     hosted_domain,
     handleResponse,
+    handleError,
     fetch_basic_profile,
     insertScriptGoogle,
     checkIsExistsSDKScript,
