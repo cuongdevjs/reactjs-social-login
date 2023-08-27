@@ -137,7 +137,6 @@ const LoginSocialGoogle = ({
         )
           .then(response => response.json())
           .then(response => {
-            console.log('🚀 ~ file: index.tsx ~ line 153 ~ response', response);
             const data: objectType = { ...res, ...response };
             onResolve({
               provider: 'google',
@@ -154,24 +153,31 @@ const LoginSocialGoogle = ({
 
   const handleResponse = useCallback(
     (res: objectType) => {
-      if (res?.access_token) {
-        if (isOnlyGetToken)
-          onResolve({
-            provider: 'google',
-            data: res,
-          });
-        else onGetMe(res);
-      } else {
-        const data: objectType = res;
-        if (isOnlyGetToken)
-          onResolve({
-            provider: 'google',
-            data,
-          });
-        else onGetMe(res);
+      if (res && access_type === 'offline')
+        onResolve({
+          provider: 'google',
+          data: res,
+        });
+      else {
+        if (res?.access_token) {
+          if (isOnlyGetToken)
+            onResolve({
+              provider: 'google',
+              data: res,
+            });
+          else onGetMe(res);
+        } else {
+          const data: objectType = res;
+          if (isOnlyGetToken)
+            onResolve({
+              provider: 'google',
+              data,
+            });
+          else onGetMe(res);
+        }
       }
     },
-    [isOnlyGetToken, onGetMe, onResolve],
+    [access_type, isOnlyGetToken, onGetMe, onResolve],
   );
 
   const handleError = useCallback(
@@ -198,11 +204,14 @@ const LoginSocialGoogle = ({
           _window.google.accounts.id.initialize({
             ...params,
             auto_select,
+            prompt: 'select_account',
+            login_uri: redirect_uri,
             callback: handleResponse,
+            native_callback: handleResponse,
             error_callback: handleError,
           });
         } else {
-          client = _window.google.accounts.oauth2.initTokenClient({
+          const payload = {
             ...params,
             scope,
             prompt,
@@ -216,9 +225,11 @@ const LoginSocialGoogle = ({
             fetch_basic_profile,
             callback: handleResponse,
             error_callback: handleError,
-          });
+          };
+          if (access_type === 'offline')
+            client = _window.google.accounts.oauth2.initCodeClient(payload);
+          else client = _window.google.accounts.oauth2.initTokenClient(payload);
         }
-
         if (client) setInstance(client);
         setIsSdkLoaded(true);
       });
@@ -250,10 +261,13 @@ const LoginSocialGoogle = ({
       onReject("Google SDK isn't loaded!");
     } else {
       onLoginStart && onLoginStart();
-      if (instance) instance.requestAccessToken();
+      if (instance)
+        access_type === 'offline'
+          ? instance.requestCode()
+          : instance.requestAccessToken();
       else _window.google.accounts.id.prompt();
     }
-  }, [instance, isSdkLoaded, load, onLoginStart, onReject]);
+  }, [access_type, instance, isSdkLoaded, load, onLoginStart, onReject]);
 
   return (
     <div className={className} onClick={loginGoogle}>
