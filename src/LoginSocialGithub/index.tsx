@@ -136,7 +136,7 @@ export const LoginSocialGithub = ({
     const code = localStorage.getItem('github');
     if (code) {
       handlePostMessage({ provider: 'github', type: 'code', code });
-      localStorage.removeItem('instagram');
+      localStorage.removeItem('github');
     }
   }, [handlePostMessage]);
 
