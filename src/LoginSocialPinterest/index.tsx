@@ -29,7 +29,7 @@ const PREVENT_CORS_URL: string = 'https://cors.bridged.cc';
 
 export const LoginSocialPinterest = ({
   state = '',
-  scope = '',
+  scope = 'boards:read,pins:read,user_accounts:read',
   client_id,
   client_secret,
   className = '',
@@ -142,7 +142,7 @@ export const LoginSocialPinterest = ({
     window.addEventListener('storage', onChangeLocalStorage, false);
     const oauthUrl = `${PINTEREST_URL}/?client_id=${client_id}&scope=${scope}&state=${
       state + '_pinterest'
-    }&redirect_uri=${redirect_uri}&response_type=code&scope=boards:read,pins:read,user_accounts:read`;
+    }&redirect_uri=${redirect_uri}&response_type=code`;
     const width = 450;
     const height = 730;
     const left = window.screen.width / 2 - width / 2;
