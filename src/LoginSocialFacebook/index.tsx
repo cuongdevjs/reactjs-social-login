@@ -155,9 +155,6 @@ const LoginSocialFacebook = ({
             redirect_uri,
             response_type,
           };
-        if(configId){
-          options["configId"] = configId;
-        }
         initFbSDK(options,
           document,
         );
@@ -166,7 +163,6 @@ const LoginSocialFacebook = ({
   }, [
     state,
     appId,
-    configId,
     xfbml,
     cookie,
     version,
@@ -187,14 +183,19 @@ const LoginSocialFacebook = ({
     } else {
       setIsProcessing(true);
       onLoginStart && onLoginStart();
-      _window.FB.login(handleResponse, {
+      let options = {
         scope,
         return_scopes,
         auth_type,
-      });
+      };
+        if(configId){
+          options["config_id"] = configId;
+        }
+      _window.FB.login(handleResponse,options);
     }
   }, [
     load,
+    configId,
     scope,
     onReject,
     auth_type,
