@@ -47,8 +47,8 @@ export const LoginSocialTwitter = ({
     const popupWindowURL = new URL(window.location.href);
     const code = popupWindowURL.searchParams.get('code');
     const state = popupWindowURL.searchParams.get('state');
-    if (state && code) {
-      localStorage.setItem('twitter', `${code}`);
+    if (state?.includes('_twitter') && code) {
+      localStorage.setItem('twitter', code);
       window.close();
     }
   }, []);
@@ -131,7 +131,7 @@ export const LoginSocialTwitter = ({
   const onLogin = useCallback(async () => {
     onLoginStart && onLoginStart();
     window.addEventListener('storage', onChangeLocalStorage, false);
-    const oauthUrl = `${TWITTER_URL}/i/oauth2/authorize?response_type=code&client_id=${client_id}&redirect_uri=${redirect_uri}&scope=${scope}&state=${state}&code_challenge=challenge&code_challenge_method=plain`;
+    const oauthUrl = `${TWITTER_URL}/i/oauth2/authorize?response_type=code&client_id=${client_id}&redirect_uri=${redirect_uri}&scope=${scope}&state=${state+'_twitter'}&code_challenge=challenge&code_challenge_method=plain`;
     const width = 450;
     const height = 730;
     const left = window.screen.width / 2 - width / 2;
