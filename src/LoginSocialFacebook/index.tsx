@@ -9,6 +9,7 @@ import { objectType, IResolveParams } from '../';
 
 interface Props {
   appId: string;
+  configId: string;
   scope?: string;
   state?: boolean;
   xfbml?: boolean;
@@ -36,6 +37,7 @@ const _window = window as any;
 
 const LoginSocialFacebook = ({
   appId,
+  configId = '',
   scope = 'email,public_profile',
   state = true,
   xfbml = true,
@@ -144,8 +146,7 @@ const LoginSocialFacebook = ({
       setIsSdkLoaded(true);
     } else {
       insertSDKScript(document, () => {
-        initFbSDK(
-          {
+        let options = {
             appId,
             xfbml,
             version,
@@ -153,7 +154,8 @@ const LoginSocialFacebook = ({
             cookie,
             redirect_uri,
             response_type,
-          },
+          };
+        initFbSDK(options,
           document,
         );
       });
@@ -181,14 +183,19 @@ const LoginSocialFacebook = ({
     } else {
       setIsProcessing(true);
       onLoginStart && onLoginStart();
-      _window.FB.login(handleResponse, {
+      let options = {
         scope,
         return_scopes,
         auth_type,
-      });
+      };
+        if(configId){
+          options["config_id"] = configId;
+        }
+      _window.FB.login(handleResponse,options);
     }
   }, [
     load,
+    configId,
     scope,
     onReject,
     auth_type,
