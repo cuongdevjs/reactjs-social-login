@@ -58,9 +58,9 @@ export const LoginSocialLinkedin = ({
       fetch(
         `https://api.allorigins.win/get?url=${encodeURIComponent(
           LINKEDIN_API_URL +
-            '/v2/me?oauth2_access_token=' +
-            data.access_token +
-            '&projection=(id,profilePicture(displayImage~digitalmediaAsset:playableStreams),localizedLastName, firstName,lastName,localizedFirstName)',
+            '/v2/userinfo?oauth2_access_token=' +
+            data.access_token 
+            // +'&projection=(id,profilePicture(displayImage~digitalmediaAsset:playableStreams),localizedLastName, firstName,lastName,localizedFirstName)',
         )}`,
         {
           method: 'GET',
