@@ -137,9 +137,9 @@ export const LoginSocialMicrosoft = ({
   );
 
   const onChangeLocalStorage = useCallback(() => {
-    window.removeEventListener('storage', onChangeLocalStorage, false);
     const code = localStorage.getItem('microsoft');
     if (code) {
+      window.removeEventListener('storage', onChangeLocalStorage, false);
       handlePostMessage({ provider: 'microsoft', type: 'code', code });
       localStorage.removeItem('microsoft');
     }
