@@ -25,7 +25,8 @@
       "browser": "./dist/reactjs-social-login.modern.js",
       "umd": "./dist/reactjs-social-login.umd.js",
       "import": "./dist/reactjs-social-login.modern.js",
-      "require": "./dist/reactjs-social-login.js"
+      "require": "./dist/reactjs-social-login.js",
+      "types": "./dist/index.d.ts"
     }
   },
   "engines": {
